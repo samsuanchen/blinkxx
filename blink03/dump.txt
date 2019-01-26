@@ -1,0 +1,2243 @@
+251 W913 colon type word b 
+----------------------
+3ffc83f0:3ffc83b8 link to W912 
+3ffc83f4:00000913 flag colon type word W913 
+3ffc83f8:3ffc32d7 name 0x1 "b" 
+3ffc83fc:400d1650 code _doCol 
+3ffc8400:3ffc8414 parm 
+----------------------
+3ffc8414:3f40d1b4 (;) 
+----------------------
+
+250 W912 colon type word a 
+----------------------
+3ffc83b8:3ffc8378 link to W911 
+3ffc83bc:00000912 flag colon type word W912 
+3ffc83c0:3ffc32d4 name 0x1 "a" 
+3ffc83c4:400d1650 code _doCol 
+3ffc83c8:3ffc83dc parm 
+----------------------
+3ffc83dc:3f40d1b4 (;) 
+----------------------
+
+249 W911 colon type word forget 
+----------------------
+3ffc8378:3ffc82d8 link to W910 
+3ffc837c:00000911 flag colon type word W911 
+3ffc8380:3ffc32c9 name 0x6 "forget" 
+3ffc8384:400d1650 code _doCol 
+3ffc8388:3ffc839c parm 
+----------------------
+3ffc839c:3f40c6ec ' 
+3ffc83a0:3ffc82d8 (forget) 
+3ffc83a4:3f40d1b4 (;) 
+----------------------
+
+248 W910 colon type word (forget) 
+----------------------
+3ffc82d8:3ffc8278 link to W90f 
+3ffc82dc:00000910 flag colon type word W910 
+3ffc82e0:3ffc3298 name 0x8 "(forget)" 
+3ffc82e4:400d1650 code _doCol 
+3ffc82e8:3ffc82fc parm 
+----------------------
+3ffc82fc:3f40c9d0 ?dup 
+3ffc8300:3f40c8a4 0= 
+3ffc8304:3f40d13c (if) 
+3ffc8308:00000003 3 
+3ffc830c:3f40d1a0 exit 
+3ffc8310:3f40d114 (then) 
+3ffc8314:3f40c6d8 context 
+3ffc8318:3f40d100 (begin) 
+3ffc831c:3f40c9d0 ?dup 
+3ffc8320:3f40d0c4 (while) 
+3ffc8324:0000000f 15 
+3ffc8328:3f40cd90 @ 
+3ffc832c:3f40c9f8 dup 
+3ffc8330:3f40c660 .id 
+3ffc8334:3f40c944 2dup 
+3ffc8338:3f40c82c = 
+3ffc833c:3f40d13c (if) 
+3ffc8340:00000006 6 
+3ffc8344:3f40c6d8 context 
+3ffc8348:3f40cf48 ! 
+3ffc834c:3f40d18c (lit) 
+3ffc8350:00000000 0 
+3ffc8354:3f40d114 (then) 
+3ffc8358:3f40d0b0 (repeat) 
+3ffc835c:fffffff0 -16 
+3ffc8360:3f40c9bc drop 
+3ffc8364:3f40d1b4 (;) 
+----------------------
+
+247 W90f colon type word ww 
+----------------------
+3ffc8278:3ffc820c link to W90e 
+3ffc827c:0000090f flag colon type word W90f 
+3ffc8280:3ffc327d name 0x2 "ww" 
+3ffc8284:400d1650 code _doCol 
+3ffc8288:3ffc829c parm 
+----------------------
+3ffc829c:3f40c6d8 context 
+3ffc82a0:3f40d100 (begin) 
+3ffc82a4:3f40cd90 @ 
+3ffc82a8:3f40c9d0 ?dup 
+3ffc82ac:3f40d0c4 (while) 
+3ffc82b0:00000005 5 
+3ffc82b4:3f40c9f8 dup 
+3ffc82b8:3f40c660 .id 
+3ffc82bc:3f40d0b0 (repeat) 
+3ffc82c0:fffffff9 -7 
+3ffc82c4:3f40d1b4 (;) 
+----------------------
+
+246 W90e IMMED colon type word repeat 
+----------------------
+3ffc820c:3ffc81bc link to W90d 
+3ffc8210:8000090e flag IMMED colon type word W90e 
+3ffc8214:3ffc3261 name 0x6 "repeat" 
+3ffc8218:400d1650 code _doCol 
+3ffc821c:3ffc8230 parm 
+----------------------
+3ffc8230:3f40cfe8 compile 
+3ffc8234:3f40d0b0 (repeat) 
+3ffc8238:3f40cf20 swap 
+3ffc823c:3f40cfd4 here 
+3ffc8240:3f40cf70 - 
+3ffc8244:3f40cf5c cell/ 
+3ffc8248:3f40cfc0 , 
+3ffc824c:3f40cfd4 here 
+3ffc8250:3f40cf34 over 
+3ffc8254:3f40cf70 - 
+3ffc8258:3f40cf5c cell/ 
+3ffc825c:3f40cf20 swap 
+3ffc8260:3f40cf48 ! 
+3ffc8264:3f40d1b4 (;) 
+----------------------
+
+245 W90d IMMED colon type word while 
+----------------------
+3ffc81bc:3ffc816c link to W90c 
+3ffc81c0:8000090d flag IMMED colon type word W90d 
+3ffc81c4:3ffc3245 name 0x5 "while" 
+3ffc81c8:400d1650 code _doCol 
+3ffc81cc:3ffc81e0 parm 
+----------------------
+3ffc81e0:3f40cfe8 compile 
+3ffc81e4:3f40d0c4 (while) 
+3ffc81e8:3f40cfd4 here 
+3ffc81ec:3f40d18c (lit) 
+3ffc81f0:00000000 0 
+3ffc81f4:3f40cfc0 , 
+3ffc81f8:3f40d1b4 (;) 
+----------------------
+
+244 W90c IMMED colon type word until 
+----------------------
+3ffc816c:3ffc811c link to W90b 
+3ffc8170:8000090c flag IMMED colon type word W90c 
+3ffc8174:3ffc3235 name 0x5 "until" 
+3ffc8178:400d1650 code _doCol 
+3ffc817c:3ffc8190 parm 
+----------------------
+3ffc8190:3f40cfe8 compile 
+3ffc8194:3f40d0d8 (until) 
+3ffc8198:3f40cfd4 here 
+3ffc819c:3f40cf70 - 
+3ffc81a0:3f40cf5c cell/ 
+3ffc81a4:3f40cfc0 , 
+3ffc81a8:3f40d1b4 (;) 
+----------------------
+
+243 W90b IMMED colon type word again 
+----------------------
+3ffc811c:3ffca194 link to W90a 
+3ffc8120:8000090b flag IMMED colon type word W90b 
+3ffc8124:3ffc3225 name 0x5 "again" 
+3ffc8128:400d1650 code _doCol 
+3ffc812c:3ffc8140 parm 
+----------------------
+3ffc8140:3f40cfe8 compile 
+3ffc8144:3f40d0ec (again) 
+3ffc8148:3f40cfd4 here 
+3ffc814c:3f40cf70 - 
+3ffc8150:3f40cf5c cell/ 
+3ffc8154:3f40cfc0 , 
+3ffc8158:3f40d1b4 (;) 
+----------------------
+
+242 W90a IMMED colon type word begin 
+----------------------
+3ffca194:3ffca13c link to W909 
+3ffca198:8000090a flag IMMED colon type word W90a 
+3ffca19c:3ffc3215 name 0x5 "begin" 
+3ffca1a0:400d1650 code _doCol 
+3ffca1a4:3ffc80fc parm 
+----------------------
+3ffc80fc:3f40cfe8 compile 
+3ffc8100:3f40d100 (begin) 
+3ffc8104:3f40cfd4 here 
+3ffc8108:3f40d1b4 (;) 
+----------------------
+
+241 W909 IMMED colon type word then 
+----------------------
+3ffca13c:3ffca0d0 link to W908 
+3ffca140:80000909 flag IMMED colon type word W909 
+3ffca144:3ffc3201 name 0x4 "then" 
+3ffca148:400d1650 code _doCol 
+3ffca14c:3ffca160 parm 
+----------------------
+3ffca160:3f40cfe8 compile 
+3ffca164:3f40d114 (then) 
+3ffca168:3f40cfd4 here 
+3ffca16c:3f40cf34 over 
+3ffca170:3f40cf70 - 
+3ffca174:3f40cf5c cell/ 
+3ffca178:3f40cf20 swap 
+3ffca17c:3f40cf48 ! 
+3ffca180:3f40d1b4 (;) 
+----------------------
+
+240 W908 IMMED colon type word else 
+----------------------
+3ffca0d0:3ffca080 link to W907 
+3ffca0d4:80000908 flag IMMED colon type word W908 
+3ffca0d8:3ffc31de name 0x4 "else" 
+3ffca0dc:400d1650 code _doCol 
+3ffca0e0:3ffca0f4 parm 
+----------------------
+3ffca0f4:3f40cfac >r 
+3ffca0f8:3f40cfe8 compile 
+3ffca0fc:3f40d128 (else) 
+3ffca100:3f40cfd4 here 
+3ffca104:3f40d18c (lit) 
+3ffca108:00000000 0 
+3ffca10c:3f40cfc0 , 
+3ffca110:3f40cfd4 here 
+3ffca114:3f40cf98 r@ 
+3ffca118:3f40cf70 - 
+3ffca11c:3f40cf5c cell/ 
+3ffca120:3f40cf84 r> 
+3ffca124:3f40cf48 ! 
+3ffca128:3f40d1b4 (;) 
+----------------------
+
+239 W907 IMMED colon type word if 
+----------------------
+3ffca080:3ffc9fa8 link to W906 
+3ffca084:80000907 flag IMMED colon type word W907 
+3ffca088:3ffc31d4 name 0x2 "if" 
+3ffca08c:400d1650 code _doCol 
+3ffca090:3ffca0a4 parm 
+----------------------
+3ffca0a4:3f40cfe8 compile 
+3ffca0a8:3f40d13c (if) 
+3ffca0ac:3f40cfd4 here 
+3ffca0b0:3f40d18c (lit) 
+3ffca0b4:00000000 0 
+3ffca0b8:3f40cfc0 , 
+3ffca0bc:3f40d1b4 (;) 
+----------------------
+
+238 W906 colon type word drawLines 
+----------------------
+3ffc9fa8:3ffc9f58 link to W905 
+3ffc9fac:00000906 flag colon type word W906 
+3ffc9fb0:3ffc3088 name 0x9 "drawLines" 
+3ffc9fb4:400d1650 code _doCol 
+3ffc9fb8:3ffc9fcc parm 
+----------------------
+3ffc9fcc:3f40d18c (lit) 
+3ffc9fd0:0000002a 42 
+3ffc9fd4:3f40d164 (for) 
+3ffc9fd8:3f40d18c (lit) 
+3ffc9fdc:00000001 1 
+3ffc9fe0:3f40d18c (lit) 
+3ffc9fe4:00000001 1 
+3ffc9fe8:3f40cf98 r@ 
+3ffc9fec:3f40d18c (lit) 
+3ffc9ff0:00000003 3 
+3ffc9ff4:3f40cb60 * 
+3ffc9ff8:3f40caac 1+ 
+3ffc9ffc:3f40d18c (lit) 
+3ffca000:0000009f 159 
+3ffca004:3f40c3a4 wbRED 
+3ffca008:3f40d18c (lit) 
+3ffca00c:00000001 1 
+3ffca010:3f40c1b0 wb_drawLine 
+3ffca014:3f40d150 (next) 
+3ffca018:fffffff0 -16 
+3ffca01c:3f40d18c (lit) 
+3ffca020:00000033 51 
+3ffca024:3f40d164 (for) 
+3ffca028:3f40d18c (lit) 
+3ffca02c:00000001 1 
+3ffca030:3f40d18c (lit) 
+3ffca034:00000001 1 
+3ffca038:3f40d18c (lit) 
+3ffca03c:0000007f 127 
+3ffca040:3f40cf98 r@ 
+3ffca044:3f40d18c (lit) 
+3ffca048:00000003 3 
+3ffca04c:3f40cb60 * 
+3ffca050:3f40caac 1+ 
+3ffca054:3f40c3a4 wbRED 
+3ffca058:3f40d18c (lit) 
+3ffca05c:00000001 1 
+3ffca060:3f40c1b0 wb_drawLine 
+3ffca064:3f40d150 (next) 
+3ffca068:fffffff0 -16 
+3ffca06c:3f40d1b4 (;) 
+----------------------
+
+237 W905 IMMED colon type word next 
+----------------------
+3ffc9f58:3ffc9f14 link to W904 
+3ffc9f5c:80000905 flag IMMED colon type word W905 
+3ffc9f60:3ffc3066 name 0x4 "next" 
+3ffc9f64:400d1650 code _doCol 
+3ffc9f68:3ffc9f7c parm 
+----------------------
+3ffc9f7c:3f40cfe8 compile 
+3ffc9f80:3f40d150 (next) 
+3ffc9f84:3f40cfd4 here 
+3ffc9f88:3f40cf70 - 
+3ffc9f8c:3f40cf5c cell/ 
+3ffc9f90:3f40cfc0 , 
+3ffc9f94:3f40d1b4 (;) 
+----------------------
+
+236 W904 IMMED colon type word for 
+----------------------
+3ffc9f14:3ffc72fc link to W903 
+3ffc9f18:80000904 flag IMMED colon type word W904 
+3ffc9f1c:3ffc3036 name 0x3 "for" 
+3ffc9f20:400d1650 code _doCol 
+3ffc9f24:3ffc9f38 parm 
+----------------------
+3ffc9f38:3f40cfe8 compile 
+3ffc9f3c:3f40d164 (for) 
+3ffc9f40:3f40cfd4 here 
+3ffc9f44:3f40d1b4 (;) 
+----------------------
+
+235 W903 primitive type word getMillis 
+----------------------
+3ffc72fc:3ffc72d8 link to W902 
+3ffc7300:00000903 flag primitive type word W903 
+3ffc7304:3ffc2ebd name 0x9 "getMillis" 
+3ffc7308:400d1158 code getMillis 
+3ffc730c:3f401213 parm "getMillis" 
+----------------------
+234 W902 primitive type word setPeriodLOW 
+----------------------
+3ffc72d8:3ffc72b4 link to W901 
+3ffc72dc:00000902 flag primitive type word W902 
+3ffc72e0:3ffc2eaf name 0xc "setPeriodLOW" 
+3ffc72e4:400d1148 code setPeriodLOW 
+3ffc72e8:3f401206 parm "setPeriodLOW" 
+----------------------
+233 W901 primitive type word setPeriodHIGH 
+----------------------
+3ffc72b4:3f401fcc link to W900 
+3ffc72b8:00000901 flag primitive type word W901 
+3ffc72bc:3ffc2ea0 name 0xd "setPeriodHIGH" 
+3ffc72c0:400d1138 code setPeriodHIGH 
+3ffc72c4:3f4011f8 parm "setPeriodHIGH" 
+
+----------------------
+232 W900 constant type word predefined 
+----------------------
+3f401fcc:3f401fe0 link to W820 
+3f401fd0:00000900 flag constant type word W900 
+3f401fd4:3f401399 name 0xa "predefined" 
+3f401fd8:400d1588 code _doCon 
+3f401fdc:3f401fcc parm 
+----------------------
+231 W820 constant type word img 
+----------------------
+3f401fe0:3f40bff8 link to W81f 
+3f401fe4:00000820 flag constant type word W820 
+3f401fe8:3f4013a5 name 0x3 "img" 
+3f401fec:400d1588 code _doCon 
+3f401ff0:3f401ff4 parm 
+----------------------
+230 W81f primitive type word wb_drawNString 
+----------------------
+3f40bff8:3f40c00c link to W81e 
+3f40bffc:0000081f flag primitive type word W81f 
+3f40c000:3f4013aa name 0xe "wb_drawNString" 
+3f40c004:400d254c code _wb_drawNString 
+3f40c008:3f4013ba parm "_wb_drawNString" 
+----------------------
+229 W81e primitive type word wb_tickerDisable 
+----------------------
+3f40c00c:3f40c020 link to W81d 
+3f40c010:0000081e flag primitive type word W81e 
+3f40c014:3f4013ca name 0x10 "wb_tickerDisable" 
+3f40c018:400d5198 code wb_tickerDisable 
+3f40c01c:3f4013cb parm "wb_tickerDisable" 
+----------------------
+228 W81d primitive type word wb_tickerEnable 
+----------------------
+3f40c020:3f40c034 link to W81c 
+3f40c024:0000081d flag primitive type word W81d 
+3f40c028:3f4013dc name 0xf "wb_tickerEnable" 
+3f40c02c:400d51a8 code wb_tickerEnable 
+3f40c030:3f4013dd parm "wb_tickerEnable" 
+----------------------
+227 W81c primitive type word wb_tickerAlarm 
+----------------------
+3f40c034:3f40c048 link to W81b 
+3f40c038:0000081c flag primitive type word W81c 
+3f40c03c:3f4013ed name 0xe "wb_tickerAlarm" 
+3f40c040:400d25d4 code _wb_tickerAlarm 
+3f40c044:3f4013fd parm "_wb_tickerAlarm" 
+----------------------
+226 W81b primitive type word wb_tickerInit 
+----------------------
+3f40c048:3f40c05c link to W81a 
+3f40c04c:0000081b flag primitive type word W81b 
+3f40c050:3f40140d name 0xd "wb_tickerInit" 
+3f40c054:400d25e4 code _wb_tickerInit 
+3f40c058:3f40141c parm "_wb_tickerInit" 
+----------------------
+225 W81a primitive type word wb_clearBuf8 
+----------------------
+3f40c05c:3f40c070 link to W819 
+3f40c060:0000081a flag primitive type word W81a 
+3f40c064:3f40142b name 0xc "wb_clearBuf8" 
+3f40c068:400d5114 code wb_clearBuf8 
+3f40c06c:3f40142c parm "wb_clearBuf8" 
+----------------------
+224 W819 primitive type word wb_initBuf8 
+----------------------
+3f40c070:3f40c084 link to W818 
+3f40c074:00000819 flag primitive type word W819 
+3f40c078:3f401439 name 0xb "wb_initBuf8" 
+3f40c07c:400d5134 code wb_initBuf8 
+3f40c080:3f40143a parm "wb_initBuf8" 
+----------------------
+223 W818 primitive type word wb_setBuf8 
+----------------------
+3f40c084:3f40c098 link to W817 
+3f40c088:00000818 flag primitive type word W818 
+3f40c08c:3f401446 name 0xa "wb_setBuf8" 
+3f40c090:400d2600 code _wb_setBuf8 
+3f40c094:3f401452 parm "_wb_setBuf8" 
+----------------------
+222 W817 primitive type word wb_rot8 
+----------------------
+3f40c098:3f40c0ac link to W816 
+3f40c09c:00000817 flag primitive type word W817 
+3f40c0a0:3f40145e name 0x7 "wb_rot8" 
+3f40c0a4:400d261c code _wb_rot8 
+3f40c0a8:3f401467 parm "_wb_rot8" 
+----------------------
+221 W816 primitive type word wb_blitBuf8 
+----------------------
+3f40c0ac:3f40c0c0 link to W815 
+3f40c0b0:00000816 flag primitive type word W816 
+3f40c0b4:3f401470 name 0xb "wb_blitBuf8" 
+3f40c0b8:400d26ac code _wb_blitBuf8 
+3f40c0bc:3f40147d parm "_wb_blitBuf8" 
+----------------------
+220 W815 primitive type word wb_blit8 
+----------------------
+3f40c0c0:3f40c0d4 link to W814 
+3f40c0c4:00000815 flag primitive type word W815 
+3f40c0c8:3f40148a name 0x8 "wb_blit8" 
+3f40c0cc:400d4d34 code wb_blit8 
+3f40c0d0:3f40148b parm "wb_blit8" 
+----------------------
+219 W814 primitive type word wb_setPal8 
+----------------------
+3f40c0d4:3f40c0e8 link to W813 
+3f40c0d8:00000814 flag primitive type word W814 
+3f40c0dc:3f401494 name 0xa "wb_setPal8" 
+3f40c0e0:400d2710 code _wb_setPal8 
+3f40c0e4:3f4014a0 parm "_wb_setPal8" 
+----------------------
+218 W813 primitive type word wb_init 
+----------------------
+3f40c0e8:3f40c0fc link to W812 
+3f40c0ec:00000813 flag primitive type word W813 
+3f40c0f0:3f4014ac name 0x7 "wb_init" 
+3f40c0f4:400d2ad8 code _wb_init 
+3f40c0f8:3f4014b5 parm "_wb_init" 
+----------------------
+217 W812 primitive type word wb_color565 
+----------------------
+3f40c0fc:3f40c110 link to W811 
+3f40c100:00000812 flag primitive type word W812 
+3f40c104:3f4014be name 0xb "wb_color565" 
+3f40c108:400d2730 code _wb_color565 
+3f40c10c:3f4014cb parm "_wb_color565" 
+----------------------
+216 W811 primitive type word wb_drawChar 
+----------------------
+3f40c110:3f40c124 link to W810 
+3f40c114:00000811 flag primitive type word W811 
+3f40c118:3f4014d8 name 0xb "wb_drawChar" 
+3f40c11c:400d2760 code _wb_drawChar 
+3f40c120:3f4014e5 parm "_wb_drawChar" 
+----------------------
+215 W810 primitive type word wb_drawString 
+----------------------
+3f40c124:3f40c138 link to W80f 
+3f40c128:00000810 flag primitive type word W810 
+3f40c12c:3f4014f2 name 0xd "wb_drawString" 
+3f40c130:400d2590 code _wb_drawString 
+3f40c134:3f401501 parm "_wb_drawString" 
+----------------------
+214 W80f primitive type word wb_setTextColor 
+----------------------
+3f40c138:3f40c14c link to W80e 
+3f40c13c:0000080f flag primitive type word W80f 
+3f40c140:3f401510 name 0xf "wb_setTextColor" 
+3f40c144:400d27a4 code _wb_setTextColor 
+3f40c148:3f401521 parm "_wb_setTextColor" 
+----------------------
+213 W80e primitive type word wb_drawImage 
+----------------------
+3f40c14c:3f40c160 link to W80d 
+3f40c150:0000080e flag primitive type word W80e 
+3f40c154:3f401532 name 0xc "wb_drawImage" 
+3f40c158:400d27c4 code _wb_drawImage 
+3f40c15c:3f401540 parm "_wb_drawImage" 
+----------------------
+212 W80d primitive type word wb_fillCircle2 
+----------------------
+3f40c160:3f40c174 link to W80c 
+3f40c164:0000080d flag primitive type word W80d 
+3f40c168:3f40154e name 0xe "wb_fillCircle2" 
+3f40c16c:400d2800 code _wb_fillCircle2 
+3f40c170:3f40155e parm "_wb_fillCircle2" 
+----------------------
+211 W80c primitive type word wb_fillCircle 
+----------------------
+3f40c174:3f40c188 link to W80b 
+3f40c178:0000080c flag primitive type word W80c 
+3f40c17c:3f40156e name 0xd "wb_fillCircle" 
+3f40c180:400d2834 code _wb_fillCircle 
+3f40c184:3f40157d parm "_wb_fillCircle" 
+----------------------
+210 W80b primitive type word wb_drawCorner 
+----------------------
+3f40c188:3f40c19c link to W80a 
+3f40c18c:0000080b flag primitive type word W80b 
+3f40c190:3f40158c name 0xd "wb_drawCorner" 
+3f40c194:400d287c code _wb_drawCorner 
+3f40c198:3f40159b parm "_wb_drawCorner" 
+----------------------
+209 W80a primitive type word wb_drawCircle 
+----------------------
+3f40c19c:3f40c1b0 link to W809 
+3f40c1a0:0000080a flag primitive type word W80a 
+3f40c1a4:3f4015aa name 0xd "wb_drawCircle" 
+3f40c1a8:400d28c4 code _wb_drawCircle 
+3f40c1ac:3f4015b9 parm "_wb_drawCircle" 
+----------------------
+208 W809 primitive type word wb_drawLine 
+----------------------
+3f40c1b0:3f40c1c4 link to W808 
+3f40c1b4:00000809 flag primitive type word W809 
+3f40c1b8:3f4015c8 name 0xb "wb_drawLine" 
+3f40c1bc:400d2900 code _wb_drawLine 
+3f40c1c0:3f4015d5 parm "_wb_drawLine" 
+----------------------
+207 W808 primitive type word wb_drawRect 
+----------------------
+3f40c1c4:3f40c1d8 link to W807 
+3f40c1c8:00000808 flag primitive type word W808 
+3f40c1cc:3f4015e2 name 0xb "wb_drawRect" 
+3f40c1d0:400d2948 code _wb_drawRect 
+3f40c1d4:3f4015ef parm "_wb_drawRect" 
+----------------------
+206 W807 primitive type word wb_drawFastHLine 
+----------------------
+3f40c1d8:3f40c1ec link to W806 
+3f40c1dc:00000807 flag primitive type word W807 
+3f40c1e0:3f4015fc name 0x10 "wb_drawFastHLine" 
+3f40c1e4:400d2984 code _wb_drawFastHLine 
+3f40c1e8:3f40160e parm "_wb_drawFastHLine" 
+----------------------
+205 W806 primitive type word wb_drawFastVLine 
+----------------------
+3f40c1ec:3f40c200 link to W805 
+3f40c1f0:00000806 flag primitive type word W806 
+3f40c1f4:3f401620 name 0x10 "wb_drawFastVLine" 
+3f40c1f8:400d29b8 code _wb_drawFastVLine 
+3f40c1fc:3f401632 parm "_wb_drawFastVLine" 
+----------------------
+204 W805 primitive type word wb_pushColor 
+----------------------
+3f40c200:3f40c214 link to W804 
+3f40c204:00000805 flag primitive type word W805 
+3f40c208:3f401644 name 0xc "wb_pushColor" 
+3f40c20c:400d29ec code _wb_pushColor 
+3f40c210:3f401652 parm "_wb_pushColor" 
+----------------------
+203 W804 primitive type word wb_drawPixel 
+----------------------
+3f40c214:3f40c228 link to W803 
+3f40c218:00000804 flag primitive type word W804 
+3f40c21c:3f401660 name 0xc "wb_drawPixel" 
+3f40c220:400d2a00 code _wb_drawPixel 
+3f40c224:3f40166e parm "_wb_drawPixel" 
+----------------------
+202 W803 primitive type word wb_fillRect 
+----------------------
+3f40c228:3f40c23c link to W802 
+3f40c22c:00000803 flag primitive type word W803 
+3f40c230:3f40167c name 0xb "wb_fillRect" 
+3f40c234:400d2a2c code _wb_fillRect 
+3f40c238:3f401689 parm "_wb_fillRect" 
+----------------------
+201 W802 primitive type word wb_fillScreen 
+----------------------
+3f40c23c:3f40c250 link to W801 
+3f40c240:00000802 flag primitive type word W802 
+3f40c244:3f401696 name 0xd "wb_fillScreen" 
+3f40c248:400d2a68 code _wb_fillScreen 
+3f40c24c:3f4016a5 parm "_wb_fillScreen" 
+----------------------
+200 W801 primitive type word wb_setAddrWindow 
+----------------------
+3f40c250:3f40c264 link to W71c 
+3f40c254:00000801 flag primitive type word W801 
+3f40c258:3f4016b4 name 0x10 "wb_setAddrWindow" 
+3f40c25c:400d2a7c code _wb_setAddrWindow 
+3f40c260:3f4016c6 parm "_wb_setAddrWindow" 
+----------------------
+
+??? id 071c not expected 0800 
+199 W71c constant type word btPROG 
+----------------------
+3f40c264:3f40c278 link to W71b 
+3f40c268:0000071c flag constant type word W71c 
+3f40c26c:3f4016d8 name 0x6 "btPROG" 
+3f40c270:400d1588 code _doCon 
+3f40c274:00000000 parm 
+----------------------
+198 W71b constant type word btSELECT 
+----------------------
+3f40c278:3f40c28c link to W71a 
+3f40c27c:0000071b flag constant type word W71b 
+3f40c280:3f4016e0 name 0x8 "btSELECT" 
+3f40c284:400d1588 code _doCon 
+3f40c288:00000027 parm 
+----------------------
+197 W71a constant type word btSTART 
+----------------------
+3f40c28c:3f40c2a0 link to W719 
+3f40c290:0000071a flag constant type word W71a 
+3f40c294:3f4016ea name 0x7 "btSTART" 
+3f40c298:400d1588 code _doCon 
+3f40c29c:00000017 parm 
+----------------------
+196 W719 constant type word btRY 
+----------------------
+3f40c2a0:3f40c2b4 link to W718 
+3f40c2a4:00000719 flag constant type word W719 
+3f40c2a8:3f4016f3 name 0x4 "btRY" 
+3f40c2ac:400d1588 code _doCon 
+3f40c2b0:00000023 parm 
+----------------------
+195 W718 constant type word btRB 
+----------------------
+3f40c2b4:3f40c2c8 link to W717 
+3f40c2b8:00000718 flag constant type word W718 
+3f40c2bc:3f4016f9 name 0x4 "btRB" 
+3f40c2c0:400d1588 code _doCon 
+3f40c2c4:00000022 parm 
+----------------------
+194 W717 constant type word btLG 
+----------------------
+3f40c2c8:3f40c2dc link to W716 
+3f40c2cc:00000717 flag constant type word W717 
+3f40c2d0:3f4016ff name 0x4 "btLG" 
+3f40c2d4:400d1588 code _doCon 
+3f40c2d8:00000021 parm 
+----------------------
+193 W716 constant type word btLR 
+----------------------
+3f40c2dc:3f40c2f0 link to W713 
+3f40c2e0:00000716 flag constant type word W716 
+3f40c2e4:3f401705 name 0x4 "btLR" 
+3f40c2e8:400d1588 code _doCon 
+3f40c2ec:00000020 parm 
+----------------------
+
+??? id 0713 not expected 0715 
+192 W713 primitive type word _wbColor 
+----------------------
+3f40c2f0:3f40c32c link to W712 
+3f40c2f4:00000713 flag primitive type word W713 
+3f40c2f8:3f40170b name 0x8 "_wbColor" 
+3f40c2fc:400d1980 code _wbColor 
+3f40c300:3f40170c parm "_wbColor" 
+----------------------
+191 W712 constant type word wbPINK 
+----------------------
+3f40c32c:3f40c340 link to W711 
+3f40c330:00000712 flag constant type word W712 
+3f40c334:3f401715 name 0x6 "wbPINK" 
+3f40c338:400d1588 code _doCon 
+3f40c33c:00001ff8 parm 
+----------------------
+190 W711 constant type word wbGREENYELLOW 
+----------------------
+3f40c340:3f40c354 link to W710 
+3f40c344:00000711 flag constant type word W711 
+3f40c348:3f40171d name 0xd "wbGREENYELLOW" 
+3f40c34c:400d1588 code _doCon 
+3f40c350:0000e5af parm 
+----------------------
+189 W710 constant type word wbORANGE 
+----------------------
+3f40c354:3f40c368 link to W70f 
+3f40c358:00000710 flag constant type word W710 
+3f40c35c:3f40172c name 0x8 "wbORANGE" 
+3f40c360:400d1588 code _doCon 
+3f40c364:000020fd parm 
+----------------------
+188 W70f constant type word wbWHITE 
+----------------------
+3f40c368:3f40c37c link to W70e 
+3f40c36c:0000070f flag constant type word W70f 
+3f40c370:3f401736 name 0x7 "wbWHITE" 
+3f40c374:400d1588 code _doCon 
+3f40c378:0000ffff parm 
+----------------------
+187 W70e constant type word wbYELLOW 
+----------------------
+3f40c37c:3f40c390 link to W70d 
+3f40c380:0000070e flag constant type word W70e 
+3f40c384:3f40173f name 0x8 "wbYELLOW" 
+3f40c388:400d1588 code _doCon 
+3f40c38c:0000e0ff parm 
+----------------------
+186 W70d constant type word wbMAGENTA 
+----------------------
+3f40c390:3f40c3a4 link to W70c 
+3f40c394:0000070d flag constant type word W70d 
+3f40c398:3f401749 name 0x9 "wbMAGENTA" 
+3f40c39c:400d1588 code _doCon 
+3f40c3a0:00001ff8 parm 
+----------------------
+185 W70c constant type word wbRED 
+----------------------
+3f40c3a4:3f40c3b8 link to W70b 
+3f40c3a8:0000070c flag constant type word W70c 
+3f40c3ac:3f401754 name 0x5 "wbRED" 
+3f40c3b0:400d1588 code _doCon 
+3f40c3b4:000000f8 parm 
+----------------------
+184 W70b constant type word wbCYAN 
+----------------------
+3f40c3b8:3f40c3cc link to W70a 
+3f40c3bc:0000070b flag constant type word W70b 
+3f40c3c0:3f40175b name 0x6 "wbCYAN" 
+3f40c3c4:400d1588 code _doCon 
+3f40c3c8:0000ff07 parm 
+----------------------
+183 W70a constant type word wbGREEN 
+----------------------
+3f40c3cc:3f40c3e0 link to W709 
+3f40c3d0:0000070a flag constant type word W70a 
+3f40c3d4:3f401763 name 0x7 "wbGREEN" 
+3f40c3d8:400d1588 code _doCon 
+3f40c3dc:0000e007 parm 
+----------------------
+182 W709 constant type word wbBLUE 
+----------------------
+3f40c3e0:3f40c3f4 link to W708 
+3f40c3e4:00000709 flag constant type word W709 
+3f40c3e8:3f40176c name 0x6 "wbBLUE" 
+3f40c3ec:400d1588 code _doCon 
+3f40c3f0:00001f00 parm 
+----------------------
+181 W708 constant type word wbDARKGREY 
+----------------------
+3f40c3f4:3f40c408 link to W707 
+3f40c3f8:00000708 flag constant type word W708 
+3f40c3fc:3f401774 name 0xa "wbDARKGREY" 
+3f40c400:400d1588 code _doCon 
+3f40c404:0000ef7b parm 
+----------------------
+180 W707 constant type word wbLIGHTGREY 
+----------------------
+3f40c408:3f40c41c link to W706 
+3f40c40c:00000707 flag constant type word W707 
+3f40c410:3f401780 name 0xb "wbLIGHTGREY" 
+3f40c414:400d1588 code _doCon 
+3f40c418:000018c6 parm 
+----------------------
+179 W706 constant type word wbOLIVE 
+----------------------
+3f40c41c:3f40c430 link to W705 
+3f40c420:00000706 flag constant type word W706 
+3f40c424:3f40178d name 0x7 "wbOLIVE" 
+3f40c428:400d1588 code _doCon 
+3f40c42c:0000e07b parm 
+----------------------
+178 W705 constant type word wbPURPLE 
+----------------------
+3f40c430:3f40c444 link to W704 
+3f40c434:00000705 flag constant type word W705 
+3f40c438:3f401796 name 0x8 "wbPURPLE" 
+3f40c43c:400d1588 code _doCon 
+3f40c440:00000f78 parm 
+----------------------
+177 W704 constant type word wbMAROON 
+----------------------
+3f40c444:3f40c458 link to W703 
+3f40c448:00000704 flag constant type word W704 
+3f40c44c:3f4017a0 name 0x8 "wbMAROON" 
+3f40c450:400d1588 code _doCon 
+3f40c454:00000078 parm 
+----------------------
+176 W703 constant type word wbDARKCYAN 
+----------------------
+3f40c458:3f40c46c link to W702 
+3f40c45c:00000703 flag constant type word W703 
+3f40c460:3f4017aa name 0xa "wbDARKCYAN" 
+3f40c464:400d1588 code _doCon 
+3f40c468:0000ef03 parm 
+----------------------
+175 W702 constant type word wbDARKGREEN 
+----------------------
+3f40c46c:3f40c480 link to W701 
+3f40c470:00000702 flag constant type word W702 
+3f40c474:3f4017b6 name 0xb "wbDARKGREEN" 
+3f40c478:400d1588 code _doCon 
+3f40c47c:0000e003 parm 
+----------------------
+174 W701 constant type word wbNAVY 
+----------------------
+3f40c480:3f40c494 link to W700 
+3f40c484:00000701 flag constant type word W701 
+3f40c488:3f4017c3 name 0x6 "wbNAVY" 
+3f40c48c:400d1588 code _doCon 
+3f40c490:00000f00 parm 
+----------------------
+173 W700 constant type word wbBLACK 
+----------------------
+3f40c494:3f40c4a8 link to W600 
+3f40c498:00000700 flag constant type word W700 
+3f40c49c:3f4017cb name 0x7 "wbBLACK" 
+3f40c4a0:400d1588 code _doCon 
+3f40c4a4:00000000 parm 
+----------------------
+172 W600 colon type word blinks 
+----------------------
+3f40c4a8:3f40c4bc link to W50e 
+3f40c4ac:00000600 flag colon type word W600 
+3f40c4b0:3f4017d4 name 0x6 "blinks" 
+3f40c4b4:400d1650 code _doCol 
+3f40c4b8:3ffc1034 parm 
+----------------------
+3ffc1034:3f40c5d4 led 
+3ffc1038:3f40c534 output 
+3ffc103c:3f40c5d4 led 
+3ffc1040:3f40c50c high 
+3ffc1044:3f40ca34 2* 
+3ffc1048:3f40d100 (begin) 
+3ffc104c:3f40c9d0 ?dup 
+3ffc1050:3f40d0c4 (while) 
+3ffc1054:00000009 9 
+3ffc1058:3f40ca70 1- 
+3ffc105c:3f40c5d4 led 
+3ffc1060:3f40c4e4 toggle 
+3ffc1064:3f40d18c (lit) 
+3ffc1068:000001f4 500 
+3ffc106c:3f40c6c4 ms 
+3ffc1070:3f40d0b0 (repeat) 
+3ffc1074:fffffff6 -10 
+3ffc1078:3f40d1b4 (;) 
+----------------------
+
+171 W50e primitive type word pinIn 
+----------------------
+3f40c4bc:3f40c4d0 link to W50d 
+3f40c4c0:0000050e flag primitive type word W50e 
+3f40c4c4:3f4017dc name 0x5 "pinIn" 
+3f40c4c8:400d2010 code _pinIn 
+3f40c4cc:3f4017e3 parm "_pinIn" 
+----------------------
+170 W50d primitive type word input 
+----------------------
+3f40c4d0:3f40c4e4 link to W50c 
+3f40c4d4:0000050d flag primitive type word W50d 
+3f40c4d8:3f4017ea name 0x5 "input" 
+3f40c4dc:400d2370 code _input 
+3f40c4e0:3f4017f1 parm "_input" 
+----------------------
+169 W50c primitive type word toggle 
+----------------------
+3f40c4e4:3f40c4f8 link to W50b 
+3f40c4e8:0000050c flag primitive type word W50c 
+3f40c4ec:3f4017f8 name 0x6 "toggle" 
+3f40c4f0:400d2064 code _toggle 
+3f40c4f4:3f401800 parm "_toggle" 
+----------------------
+168 W50b primitive type word low 
+----------------------
+3f40c4f8:3f40c50c link to W50a 
+3f40c4fc:0000050b flag primitive type word W50b 
+3f40c500:3f401808 name 0x3 "low" 
+3f40c504:400d2088 code _low 
+3f40c508:3f40180d parm "_low" 
+----------------------
+167 W50a primitive type word high 
+----------------------
+3f40c50c:3f40c520 link to W509 
+3f40c510:0000050a flag primitive type word W50a 
+3f40c514:3f401812 name 0x4 "high" 
+3f40c518:400d209c code _high 
+3f40c51c:3f401818 parm "_high" 
+----------------------
+166 W509 primitive type word pinOut 
+----------------------
+3f40c520:3f40c534 link to W508 
+3f40c524:00000509 flag primitive type word W509 
+3f40c528:3f40181e name 0x6 "pinOut" 
+3f40c52c:400d202c code _pinOut 
+3f40c530:3f401826 parm "_pinOut" 
+----------------------
+165 W508 primitive type word output 
+----------------------
+3f40c534:3f40c548 link to W507 
+3f40c538:00000508 flag primitive type word W508 
+3f40c53c:3f40182e name 0x6 "output" 
+3f40c540:400d233c code _output 
+3f40c544:3f401836 parm "_output" 
+----------------------
+164 W507 constant type word LOW 
+----------------------
+3f40c548:3f40c55c link to W506 
+3f40c54c:00000507 flag constant type word W507 
+3f40c550:3f40183e name 0x3 "LOW" 
+3f40c554:400d1588 code _doCon 
+3f40c558:00000000 parm 
+----------------------
+163 W506 constant type word HIGH 
+----------------------
+3f40c55c:3f40c570 link to W505 
+3f40c560:00000506 flag constant type word W506 
+3f40c564:3f401843 name 0x4 "HIGH" 
+3f40c568:400d1588 code _doCon 
+3f40c56c:00000001 parm 
+----------------------
+162 W505 primitive type word digitalWrite 
+----------------------
+3f40c570:3f40c584 link to W504 
+3f40c574:00000505 flag primitive type word W505 
+3f40c578:3f401849 name 0xc "digitalWrite" 
+3f40c57c:400d20b0 code _digitalWrite 
+3f40c580:3f401857 parm "_digitalWrite" 
+----------------------
+161 W504 primitive type word digitalRead 
+----------------------
+3f40c584:3f40c598 link to W503 
+3f40c588:00000504 flag primitive type word W504 
+3f40c58c:3f401865 name 0xb "digitalRead" 
+3f40c590:400d1ffc code _digitalRead 
+3f40c594:3f401872 parm "_digitalRead" 
+----------------------
+160 W503 constant type word OUTPUT 
+----------------------
+3f40c598:3f40c5ac link to W502 
+3f40c59c:00000503 flag constant type word W503 
+3f40c5a0:3f40187f name 0x6 "OUTPUT" 
+3f40c5a4:400d1588 code _doCon 
+3f40c5a8:00000002 parm 
+----------------------
+159 W502 constant type word INPUT 
+----------------------
+3f40c5ac:3f40c5c0 link to W501 
+3f40c5b0:00000502 flag constant type word W502 
+3f40c5b4:3f401887 name 0x5 "INPUT" 
+3f40c5b8:400d1588 code _doCon 
+3f40c5bc:00000001 parm 
+----------------------
+158 W501 primitive type word pinMode 
+----------------------
+3f40c5c0:3f40c5d4 link to W500 
+3f40c5c4:00000501 flag primitive type word W501 
+3f40c5c8:3f40188e name 0x7 "pinMode" 
+3f40c5cc:400d2350 code _pinMode 
+3f40c5d0:3f401897 parm "_pinMode" 
+----------------------
+157 W500 constant type word led 
+----------------------
+3f40c5d4:3f40c5e8 link to W405 
+3f40c5d8:00000500 flag constant type word W500 
+3f40c5dc:3f4018a0 name 0x3 "led" 
+3f40c5e0:400d1588 code _doCon 
+3f40c5e4:00000010 parm 
+----------------------
+156 W405 primitive type word seeAll 
+----------------------
+3f40c5e8:3f40c5fc link to W404 
+3f40c5ec:00000405 flag primitive type word W405 
+3f40c5f0:3f4018a5 name 0x6 "seeAll" 
+3f40c5f4:400d2384 code _seeAll 
+3f40c5f8:3f4018ad parm "_seeAll" 
+----------------------
+155 W404 primitive type word trace 
+----------------------
+3f40c5fc:3f40c610 link to W403 
+3f40c600:00000404 flag primitive type word W404 
+3f40c604:3f4018b5 name 0x5 "trace" 
+3f40c608:400d2424 code _trace 
+3f40c60c:3f4018bc parm "_trace" 
+----------------------
+154 W403 primitive type word dump 
+----------------------
+3f40c610:3f40c624 link to W402 
+3f40c614:00000403 flag primitive type word W403 
+3f40c618:3f4018c3 name 0x4 "dump" 
+3f40c61c:400d24f0 code _dump 
+3f40c620:3f4018c9 parm "_dump" 
+----------------------
+153 W402 primitive type word see 
+----------------------
+3f40c624:3f40c638 link to W401 
+3f40c628:00000402 flag primitive type word W402 
+3f40c62c:3f4018cf name 0x3 "see" 
+3f40c630:400d24b8 code _see 
+3f40c634:3f4018d4 parm "_see" 
+----------------------
+152 W401 primitive type word (see) 
+----------------------
+3f40c638:3f40c64c link to W400 
+3f40c63c:00000401 flag primitive type word W401 
+3f40c640:3f4018d9 name 0x5 "(see)" 
+3f40c644:400d24d8 code _psee 
+3f40c648:3f4018e0 parm "_psee" 
+----------------------
+151 W400 primitive type word words 
+----------------------
+3f40c64c:3f40c660 link to W313 
+3f40c650:00000400 flag primitive type word W400 
+3f40c654:3f4018e6 name 0x5 "words" 
+3f40c658:400d2510 code _words 
+3f40c65c:3f4018ed parm "_words" 
+----------------------
+150 W313 primitive type word .id 
+----------------------
+3f40c660:3f40c674 link to W312 
+3f40c664:00000313 flag primitive type word W313 
+3f40c668:3f4018f4 name 0x3 ".id" 
+3f40c66c:400d2528 code _dotId 
+3f40c670:3f4018f9 parm "_dotId" 
+----------------------
+149 W312 primitive type word .s 
+----------------------
+3f40c674:3f40c688 link to W311 
+3f40c678:00000312 flag primitive type word W312 
+3f40c67c:3f401900 name 0x2 ".s" 
+3f40c680:400d2540 code _dotS 
+3f40c684:3f401904 parm "_dotS" 
+----------------------
+148 W311 primitive type word cr 
+----------------------
+3f40c688:3f40c69c link to W310 
+3f40c68c:00000311 flag primitive type word W311 
+3f40c690:3f40190a name 0x2 "cr" 
+3f40c694:400d1dc4 code _cr 
+3f40c698:3f40190e parm "_cr" 
+----------------------
+147 W310 primitive type word .( 
+----------------------
+3f40c69c:3f40c6b0 link to W30f 
+3f40c6a0:00000310 flag primitive type word W310 
+3f40c6a4:3f401912 name 0x2 ".(" 
+3f40c6a8:400d1dd4 code _dotP 
+3f40c6ac:3f401916 parm "_dotP" 
+----------------------
+146 W30f IMMED COMPO primitive type word ." 
+----------------------
+3f40c6b0:3f40c6c4 link to W30b 
+3f40c6b4:c000030f flag IMMED COMPO primitive type word W30f 
+3f40c6b8:3f40191c name 0x2 "."" 
+3f40c6bc:400d1ecc code _dotQ 
+3f40c6c0:3f401920 parm "_dotQ" 
+----------------------
+
+??? id 030b not expected 030e 
+145 W30b primitive type word ms 
+----------------------
+3f40c6c4:3f40c6d8 link to W30a 
+3f40c6c8:0000030b flag primitive type word W30b 
+3f40c6cc:3f401926 name 0x2 "ms" 
+3f40c6d0:400d1ce8 code _ms 
+3f40c6d4:3f40192a parm "_ms" 
+----------------------
+144 W30a primitive type word context 
+----------------------
+3f40c6d8:3f40c6ec link to W309 
+3f40c6dc:0000030a flag primitive type word W30a 
+3f40c6e0:3f40192e name 0x7 "context" 
+3f40c6e4:400d1590 code _context 
+3f40c6e8:3f401937 parm "_context" 
+----------------------
+143 W309 primitive type word ' 
+----------------------
+3f40c6ec:3f40c700 link to W308 
+3f40c6f0:00000309 flag primitive type word W309 
+3f40c6f4:3f401940 name 0x1 "'" 
+3f40c6f8:400d1d5c code _tick 
+3f40c6fc:3f401943 parm "_tick" 
+----------------------
+142 W308 primitive type word find 
+----------------------
+3f40c700:3f40c714 link to W307 
+3f40c704:00000308 flag primitive type word W308 
+3f40c708:3f401949 name 0x4 "find" 
+3f40c70c:400d1d7c code _find 
+3f40c710:3f40194f parm "_find" 
+----------------------
+141 W307 primitive type word eval 
+----------------------
+3f40c714:3f40c728 link to W306 
+3f40c718:00000307 flag primitive type word W307 
+3f40c71c:3f401955 name 0x4 "eval" 
+3f40c720:400d1d98 code _eval 
+3f40c724:3f40195b parm "_eval" 
+----------------------
+140 W306 primitive type word token 
+----------------------
+3f40c728:3f40c73c link to W305 
+3f40c72c:00000306 flag primitive type word W306 
+3f40c730:3f401961 name 0x5 "token" 
+3f40c734:400d1d00 code _token 
+3f40c738:3f401968 parm "_token" 
+----------------------
+139 W305 primitive type word word 
+----------------------
+3f40c73c:3f40c750 link to W304 
+3f40c740:00000305 flag primitive type word W305 
+3f40c744:3f40196f name 0x4 "word" 
+3f40c748:400d1d2c code _word 
+3f40c74c:3f401975 parm "_word" 
+----------------------
+138 W304 primitive type word type 
+----------------------
+3f40c750:3f40c764 link to W303 
+3f40c754:00000304 flag primitive type word W304 
+3f40c758:3f40197b name 0x4 "type" 
+3f40c75c:400d2b08 code _type 
+3f40c760:3f401981 parm "_type" 
+----------------------
+137 W303 primitive type word print 
+----------------------
+3f40c764:3f40c778 link to W302 
+3f40c768:00000303 flag primitive type word W303 
+3f40c76c:3f401987 name 0x5 "print" 
+3f40c770:400d1db0 code _print 
+3f40c774:3f40198e parm "_print" 
+----------------------
+136 W302 primitive type word emit 
+----------------------
+3f40c778:3f40c78c link to W301 
+3f40c77c:00000302 flag primitive type word W302 
+3f40c780:3f401995 name 0x4 "emit" 
+3f40c784:400d2b30 code _emit 
+3f40c788:3f40199b parm "_emit" 
+----------------------
+135 W301 constant type word bl 
+----------------------
+3f40c78c:3f40c7a0 link to W300 
+3f40c790:00000301 flag constant type word W301 
+3f40c794:3f4019a1 name 0x2 "bl" 
+3f40c798:400d1588 code _doCon 
+3f40c79c:00000020 parm 
+----------------------
+134 W300 IMMED primitive type word char 
+----------------------
+3f40c7a0:3f40c7b4 link to W235 
+3f40c7a4:80000300 flag IMMED primitive type word W300 
+3f40c7a8:3f4019a5 name 0x4 "char" 
+3f40c7ac:400d1dec code _char 
+3f40c7b0:3f4019ab parm "_char" 
+----------------------
+133 W235 primitive type word $= 
+----------------------
+3f40c7b4:3f40c7c8 link to W234 
+3f40c7b8:00000235 flag primitive type word W235 
+3f40c7bc:3f4019b1 name 0x2 "$=" 
+3f40c7c0:400d1ef4 code _strEq 
+3f40c7c4:3f4019b5 parm "_strEq" 
+----------------------
+132 W234 primitive type word >= 
+----------------------
+3f40c7c8:3f40c7dc link to W233 
+3f40c7cc:00000234 flag primitive type word W234 
+3f40c7d0:3f4019bc name 0x2 ">=" 
+3f40c7d4:400d170c code _ge 
+3f40c7d8:3f4019c0 parm "_ge" 
+----------------------
+131 W233 primitive type word <= 
+----------------------
+3f40c7dc:3f40c7f0 link to W232 
+3f40c7e0:00000233 flag primitive type word W233 
+3f40c7e4:3f4019c4 name 0x2 "<=" 
+3f40c7e8:400d1728 code _le 
+3f40c7ec:3f4019c8 parm "_le" 
+----------------------
+130 W232 primitive type word > 
+----------------------
+3f40c7f0:3f40c804 link to W231 
+3f40c7f4:00000232 flag primitive type word W232 
+3f40c7f8:3f4019cc name 0x1 ">" 
+3f40c7fc:400d1744 code _gt 
+3f40c800:3f4019cf parm "_gt" 
+----------------------
+129 W231 primitive type word < 
+----------------------
+3f40c804:3f40c818 link to W230 
+3f40c808:00000231 flag primitive type word W231 
+3f40c80c:3f4019d3 name 0x1 "<" 
+3f40c810:400d1760 code _lt 
+3f40c814:3f4019d6 parm "_lt" 
+----------------------
+128 W230 primitive type word != 
+----------------------
+3f40c818:3f40c82c link to W22f 
+3f40c81c:00000230 flag primitive type word W230 
+3f40c820:3f4019da name 0x2 "!=" 
+3f40c824:400d177c code _ne 
+3f40c828:3f4019de parm "_ne" 
+----------------------
+127 W22f primitive type word = 
+----------------------
+3f40c82c:3f40c840 link to W22e 
+3f40c830:0000022f flag primitive type word W22f 
+3f40c834:3f4019e2 name 0x1 "=" 
+3f40c838:400d17a0 code _eq 
+3f40c83c:3f4019e5 parm "_eq" 
+----------------------
+126 W22e primitive type word 0>= 
+----------------------
+3f40c840:3f40c854 link to W22d 
+3f40c844:0000022e flag primitive type word W22e 
+3f40c848:3f4019e9 name 0x3 "0>=" 
+3f40c84c:400d1548 code _0ge 
+3f40c850:3f4019ee parm "_0ge" 
+----------------------
+125 W22d primitive type word 0<= 
+----------------------
+3f40c854:3f40c868 link to W22c 
+3f40c858:0000022d flag primitive type word W22d 
+3f40c85c:3f4019f3 name 0x3 "0<=" 
+3f40c860:400d1530 code _0le 
+3f40c864:3f4019f8 parm "_0le" 
+----------------------
+124 W22c primitive type word 0> 
+----------------------
+3f40c868:3f40c87c link to W22b 
+3f40c86c:0000022c flag primitive type word W22c 
+3f40c870:3f4019fd name 0x2 "0>" 
+3f40c874:400d1514 code _0gt 
+3f40c878:3f401a01 parm "_0gt" 
+----------------------
+123 W22b primitive type word 0< 
+----------------------
+3f40c87c:3f40c890 link to W22a 
+3f40c880:0000022b flag primitive type word W22b 
+3f40c884:3f401a06 name 0x2 "0<" 
+3f40c888:400d1500 code _0lt 
+3f40c88c:3f401a0a parm "_0lt" 
+----------------------
+122 W22a primitive type word 0!= 
+----------------------
+3f40c890:3f40c8a4 link to W229 
+3f40c894:0000022a flag primitive type word W22a 
+3f40c898:3f401a0f name 0x3 "0!=" 
+3f40c89c:400d14e8 code _0ne 
+3f40c8a0:3f401a14 parm "_0ne" 
+----------------------
+121 W229 primitive type word 0= 
+----------------------
+3f40c8a4:3f40c8b8 link to W228 
+3f40c8a8:00000229 flag primitive type word W229 
+3f40c8ac:3f401a19 name 0x2 "0=" 
+3f40c8b0:400d14d0 code _0eq 
+3f40c8b4:3f401a1d parm "_0eq" 
+----------------------
+120 W228 primitive type word not 
+----------------------
+3f40c8b8:3f40c8cc link to W227 
+3f40c8bc:00000228 flag primitive type word W228 
+3f40c8c0:3f401a22 name 0x3 "not" 
+3f40c8c4:400d14b8 code _not 
+3f40c8c8:3f401a27 parm "_not" 
+----------------------
+119 W227 primitive type word xor 
+----------------------
+3f40c8cc:3f40c8e0 link to W226 
+3f40c8d0:00000227 flag primitive type word W227 
+3f40c8d4:3f401a2c name 0x3 "xor" 
+3f40c8d8:400d17c4 code _xor 
+3f40c8dc:3f401a31 parm "_xor" 
+----------------------
+118 W226 primitive type word or 
+----------------------
+3f40c8e0:3f40c8f4 link to W225 
+3f40c8e4:00000226 flag primitive type word W226 
+3f40c8e8:3f401a36 name 0x2 "or" 
+3f40c8ec:400d17e0 code _or 
+3f40c8f0:3f401a3a parm "_or" 
+----------------------
+117 W225 primitive type word and 
+----------------------
+3f40c8f4:3f40c908 link to W221 
+3f40c8f8:00000225 flag primitive type word W225 
+3f40c8fc:3f401a3e name 0x3 "and" 
+3f40c900:400d17fc code _and 
+3f40c904:3f401a43 parm "_and" 
+----------------------
+
+??? id 0221 not expected 0224 
+116 W221 primitive type word 2swap 
+----------------------
+3f40c908:3f40c91c link to W220 
+3f40c90c:00000221 flag primitive type word W221 
+3f40c910:3f401a48 name 0x5 "2swap" 
+3f40c914:400d1f20 code _2swap 
+3f40c918:3f401a4f parm "_2swap" 
+----------------------
+115 W220 primitive type word 2over 
+----------------------
+3f40c91c:3f40c930 link to W21f 
+3f40c920:00000220 flag primitive type word W220 
+3f40c924:3f401a56 name 0x5 "2over" 
+3f40c928:400d1f70 code _2over 
+3f40c92c:3f401a5d parm "_2over" 
+----------------------
+114 W21f primitive type word 2drop 
+----------------------
+3f40c930:3f40c944 link to W21e 
+3f40c934:0000021f flag primitive type word W21f 
+3f40c938:3f401a64 name 0x5 "2drop" 
+3f40c93c:400d14a4 code _2drop 
+3f40c940:3f401a6b parm "_2drop" 
+----------------------
+113 W21e primitive type word 2dup 
+----------------------
+3f40c944:3f40c958 link to W21d 
+3f40c948:0000021e flag primitive type word W21e 
+3f40c94c:3f401a72 name 0x4 "2dup" 
+3f40c950:400d1fac code _2dup 
+3f40c954:3f401a78 parm "_2dup" 
+----------------------
+112 W21d primitive type word -roll 
+----------------------
+3f40c958:3f40c96c link to W21c 
+3f40c95c:0000021d flag primitive type word W21d 
+3f40c960:3f401a7e name 0x5 "-roll" 
+3f40c964:400d1fd4 code _backRoll 
+3f40c968:3f401a85 parm "_backRoll" 
+----------------------
+111 W21c primitive type word -rot 
+----------------------
+3f40c96c:3f40c980 link to W21b 
+3f40c970:0000021c flag primitive type word W21c 
+3f40c974:3f401a8f name 0x4 "-rot" 
+3f40c978:400d1fec code _backRot 
+3f40c97c:3f401a95 parm "_backRot" 
+----------------------
+110 W21b primitive type word roll 
+----------------------
+3f40c980:3f40c994 link to W21a 
+3f40c984:0000021b flag primitive type word W21b 
+3f40c988:3f401a9e name 0x4 "roll" 
+3f40c98c:400d1f38 code _roll 
+3f40c990:3f401aa4 parm "_roll" 
+----------------------
+109 W21a primitive type word rot 
+----------------------
+3f40c994:3f40c9a8 link to W218 
+3f40c998:0000021a flag primitive type word W21a 
+3f40c99c:3f401aaa name 0x3 "rot" 
+3f40c9a0:400d1f50 code _rot 
+3f40c9a4:3f401aaf parm "_rot" 
+----------------------
+
+??? id 0218 not expected 0219 
+108 W218 primitive type word nip 
+----------------------
+3f40c9a8:3f40c9bc link to W217 
+3f40c9ac:00000218 flag primitive type word W218 
+3f40c9b0:3f401ab4 name 0x3 "nip" 
+3f40c9b4:400d15a4 code _nip 
+3f40c9b8:3f401ab9 parm "_nip" 
+----------------------
+107 W217 primitive type word drop 
+----------------------
+3f40c9bc:3f40c9d0 link to W216 
+3f40c9c0:00000217 flag primitive type word W217 
+3f40c9c4:3f401abe name 0x4 "drop" 
+3f40c9c8:400d1490 code _drop 
+3f40c9cc:3f401ac4 parm "_drop" 
+----------------------
+106 W216 primitive type word ?dup 
+----------------------
+3f40c9d0:3f40c9e4 link to W215 
+3f40c9d4:00000216 flag primitive type word W216 
+3f40c9d8:3f401aca name 0x4 "?dup" 
+3f40c9dc:400d1618 code _qdup 
+3f40c9e0:3f401ad0 parm "_qdup" 
+----------------------
+105 W215 primitive type word pick 
+----------------------
+3f40c9e4:3f40c9f8 link to W214 
+3f40c9e8:00000215 flag primitive type word W215 
+3f40c9ec:3f401ad6 name 0x4 "pick" 
+3f40c9f0:400d1fb8 code _pick 
+3f40c9f4:3f401adc parm "_pick" 
+----------------------
+104 W214 primitive type word dup 
+----------------------
+3f40c9f8:3f40ca0c link to W212 
+3f40c9fc:00000214 flag primitive type word W214 
+3f40ca00:3f401ae2 name 0x3 "dup" 
+3f40ca04:400d1630 code _dup 
+3f40ca08:3f401ae7 parm "_dup" 
+----------------------
+
+??? id 0212 not expected 0213 
+103 W212 primitive type word 2/ 
+----------------------
+3f40ca0c:3f40ca20 link to W211 
+3f40ca10:00000212 flag primitive type word W212 
+3f40ca14:3f401aec name 0x2 "2/" 
+3f40ca18:400d1478 code _2slash 
+3f40ca1c:3f401af0 parm "_2slash" 
+----------------------
+102 W211 primitive type word cells 
+----------------------
+3f40ca20:3f40ca34 link to W210 
+3f40ca24:00000211 flag primitive type word W211 
+3f40ca28:3f401af8 name 0x5 "cells" 
+3f40ca2c:400d1464 code _cells 
+3f40ca30:3f401aff parm "_cells" 
+----------------------
+101 W210 primitive type word 2* 
+----------------------
+3f40ca34:3f40ca48 link to W20f 
+3f40ca38:00000210 flag primitive type word W210 
+3f40ca3c:3f401b06 name 0x2 "2*" 
+3f40ca40:400d1450 code _2times 
+3f40ca44:3f401b0a parm "_2times" 
+----------------------
+100 W20f primitive type word cell- 
+----------------------
+3f40ca48:3f40ca5c link to W20e 
+3f40ca4c:0000020f flag primitive type word W20f 
+3f40ca50:3f401b12 name 0x5 "cell-" 
+3f40ca54:400d143c code _4minus 
+3f40ca58:3f401b19 parm "_4minus" 
+----------------------
+099 W20e primitive type word 2- 
+----------------------
+3f40ca5c:3f40ca70 link to W20d 
+3f40ca60:0000020e flag primitive type word W20e 
+3f40ca64:3f401b21 name 0x2 "2-" 
+3f40ca68:400d1428 code _2minus 
+3f40ca6c:3f401b25 parm "_2minus" 
+----------------------
+098 W20d primitive type word 1- 
+----------------------
+3f40ca70:3f40ca84 link to W20c 
+3f40ca74:0000020d flag primitive type word W20d 
+3f40ca78:3f401b2d name 0x2 "1-" 
+3f40ca7c:400d1414 code _1minus 
+3f40ca80:3f401b31 parm "_1minus" 
+----------------------
+097 W20c primitive type word cell+ 
+----------------------
+3f40ca84:3f40ca98 link to W20b 
+3f40ca88:0000020c flag primitive type word W20c 
+3f40ca8c:3f401b39 name 0x5 "cell+" 
+3f40ca90:400d1400 code _4plus 
+3f40ca94:3f401b40 parm "_4plus" 
+----------------------
+096 W20b primitive type word 2+ 
+----------------------
+3f40ca98:3f40caac link to W20a 
+3f40ca9c:0000020b flag primitive type word W20b 
+3f40caa0:3f401b47 name 0x2 "2+" 
+3f40caa4:400d13ec code _2plus 
+3f40caa8:3f401b4b parm "_2plus" 
+----------------------
+095 W20a primitive type word 1+ 
+----------------------
+3f40caac:3f40cac0 link to W209 
+3f40cab0:0000020a flag primitive type word W20a 
+3f40cab4:3f401b52 name 0x2 "1+" 
+3f40cab8:400d13d8 code _1plus 
+3f40cabc:3f401b56 parm "_1plus" 
+----------------------
+094 W209 primitive type word iSqrt 
+----------------------
+3f40cac0:3f40cad4 link to W208 
+3f40cac4:00000209 flag primitive type word W209 
+3f40cac8:3f401b5d name 0x5 "iSqrt" 
+3f40cacc:400d1bb4 code _iSqrt 
+3f40cad0:3f401b64 parm "_iSqrt" 
+----------------------
+093 W208 primitive type word ** 
+----------------------
+3f40cad4:3f40cae8 link to W207 
+3f40cad8:00000208 flag primitive type word W208 
+3f40cadc:3f401b6b name 0x2 "**" 
+3f40cae0:400d1b10 code _power 
+3f40cae4:3f401b6f parm "_power" 
+----------------------
+092 W207 primitive type word min 
+----------------------
+3f40cae8:3f40cafc link to W206 
+3f40caec:00000207 flag primitive type word W207 
+3f40caf0:3f401b76 name 0x3 "min" 
+3f40caf4:400d1818 code _min_ 
+3f40caf8:3f401b7b parm "_min_" 
+----------------------
+091 W206 primitive type word max 
+----------------------
+3f40cafc:3f40cb10 link to W205 
+3f40cb00:00000206 flag primitive type word W206 
+3f40cb04:3f401b81 name 0x3 "max" 
+3f40cb08:400d1838 code _max_ 
+3f40cb0c:3f401b86 parm "_max_" 
+----------------------
+090 W205 primitive type word abs 
+----------------------
+3f40cb10:3f40cb24 link to W204 
+3f40cb14:00000205 flag primitive type word W205 
+3f40cb18:3f401b8c name 0x3 "abs" 
+3f40cb1c:400d1858 code _abs 
+3f40cb20:3f401b91 parm "_abs" 
+----------------------
+089 W204 primitive type word negate 
+----------------------
+3f40cb24:3f40cb38 link to W203 
+3f40cb28:00000204 flag primitive type word W204 
+3f40cb2c:3f401b96 name 0x6 "negate" 
+3f40cb30:400d13c4 code _negate 
+3f40cb34:3f401b9e parm "_negate" 
+----------------------
+088 W203 primitive type word mod 
+----------------------
+3f40cb38:3f40cb4c link to W202 
+3f40cb3c:00000203 flag primitive type word W203 
+3f40cb40:3f401ba6 name 0x3 "mod" 
+3f40cb44:400d1870 code _mod 
+3f40cb48:3f401bab parm "_mod" 
+----------------------
+087 W202 primitive type word / 
+----------------------
+3f40cb4c:3f40cb60 link to W201 
+3f40cb50:00000202 flag primitive type word W202 
+3f40cb54:3f401bb0 name 0x1 "/" 
+3f40cb58:400d188c code _div 
+3f40cb5c:3f401bb3 parm "_div" 
+----------------------
+086 W201 primitive type word * 
+----------------------
+3f40cb60:3f40cb74 link to W200 
+3f40cb64:00000201 flag primitive type word W201 
+3f40cb68:3f401bb8 name 0x1 "*" 
+3f40cb6c:400d18a8 code _mul 
+3f40cb70:3f401bbb parm "_mul" 
+----------------------
+085 W200 primitive type word + 
+----------------------
+3f40cb74:3f40cb88 link to W120 
+3f40cb78:00000200 flag primitive type word W200 
+3f40cb7c:3f401bc0 name 0x1 "+" 
+3f40cb80:400d18c4 code _add 
+3f40cb84:3f401bc3 parm "_add" 
+----------------------
+084 W120 primitive type word log10 
+----------------------
+3f40cb88:3f40cb9c link to W11f 
+3f40cb8c:00000120 flag primitive type word W120 
+3f40cb90:3f401bc8 name 0x5 "log10" 
+3f40cb94:400d1cc8 code _log10 
+3f40cb98:3f401bcf parm "_log10" 
+----------------------
+083 W11f primitive type word log 
+----------------------
+3f40cb9c:3f40cbb0 link to W11e 
+3f40cba0:0000011f flag primitive type word W11f 
+3f40cba4:3f401bd6 name 0x3 "log" 
+3f40cba8:400d1ca8 code _log 
+3f40cbac:3f401bdb parm "_log" 
+----------------------
+082 W11e primitive type word fAbs 
+----------------------
+3f40cbb0:3f40cbc4 link to W11d 
+3f40cbb4:0000011e flag primitive type word W11e 
+3f40cbb8:3f401be0 name 0x4 "fAbs" 
+3f40cbbc:400d13a8 code _fAbs 
+3f40cbc0:3f401be6 parm "_fAbs" 
+----------------------
+081 W11d primitive type word f% 
+----------------------
+3f40cbc4:3f40cbd8 link to W11c 
+3f40cbc8:0000011d flag primitive type word W11d 
+3f40cbcc:3f401bec name 0x2 "f%" 
+3f40cbd0:400d1c78 code _fMod 
+3f40cbd4:3f401bf0 parm "_fMod" 
+----------------------
+080 W11c primitive type word f/ 
+----------------------
+3f40cbd8:3f40cbec link to W11b 
+3f40cbdc:0000011c flag primitive type word W11c 
+3f40cbe0:3f401bf6 name 0x2 "f/" 
+3f40cbe4:400d16f0 code _fDiv 
+3f40cbe8:3f401bfa parm "_fDiv" 
+----------------------
+079 W11b primitive type word f* 
+----------------------
+3f40cbec:3f40cc00 link to W11a 
+3f40cbf0:0000011b flag primitive type word W11b 
+3f40cbf4:3f401c00 name 0x2 "f*" 
+3f40cbf8:400d16cc code _fMul 
+3f40cbfc:3f401c04 parm "_fMul" 
+----------------------
+078 W11a primitive type word f- 
+----------------------
+3f40cc00:3f40cc14 link to W119 
+3f40cc04:0000011a flag primitive type word W11a 
+3f40cc08:3f401c0a name 0x2 "f-" 
+3f40cc0c:400d16a8 code _fMinus 
+3f40cc10:3f401c0e parm "_fMinus" 
+----------------------
+077 W119 primitive type word f+ 
+----------------------
+3f40cc14:3f40cc28 link to W118 
+3f40cc18:00000119 flag primitive type word W119 
+3f40cc1c:3f401c16 name 0x2 "f+" 
+3f40cc20:400d1684 code _atan2fPlus 
+3f40cc24:3f401c1a parm "_atan2fPlus" 
+----------------------
+076 W118 primitive type word atan2 
+----------------------
+3f40cc28:3f40cc3c link to W117 
+3f40cc2c:00000118 flag primitive type word W118 
+3f40cc30:3f401c26 name 0x5 "atan2" 
+3f40cc34:400d1c48 code _atan2 
+3f40cc38:3f401c2d parm "_atan2" 
+----------------------
+075 W117 primitive type word atan 
+----------------------
+3f40cc3c:3f40cc50 link to W116 
+3f40cc40:00000117 flag primitive type word W117 
+3f40cc44:3f401c34 name 0x4 "atan" 
+3f40cc48:400d1c2c code _atan 
+3f40cc4c:3f401c3a parm "_atan" 
+----------------------
+074 W116 primitive type word tan 
+----------------------
+3f40cc50:3f40cc64 link to W115 
+3f40cc54:00000116 flag primitive type word W116 
+3f40cc58:3f401c40 name 0x3 "tan" 
+3f40cc5c:400d1c10 code _tan 
+3f40cc60:3f401c45 parm "_tan" 
+----------------------
+073 W115 primitive type word sqrt 
+----------------------
+3f40cc64:3f40cc78 link to W114 
+3f40cc68:00000115 flag primitive type word W115 
+3f40cc6c:3f401c4a name 0x4 "sqrt" 
+3f40cc70:400d1b94 code _sqrt 
+3f40cc74:3f401c50 parm "_sqrt" 
+----------------------
+072 W114 primitive type word pow 
+----------------------
+3f40cc78:3f40cc8c link to W113 
+3f40cc7c:00000114 flag primitive type word W114 
+3f40cc80:3f401c56 name 0x3 "pow" 
+3f40cc84:400d1adc code _pow 
+3f40cc88:3f401c5b parm "_pow" 
+----------------------
+071 W113 primitive type word exp 
+----------------------
+3f40cc8c:3f40cca0 link to W112 
+3f40cc90:00000113 flag primitive type word W113 
+3f40cc94:3f401c60 name 0x3 "exp" 
+3f40cc98:400d1abc code _exp 
+3f40cc9c:3f401c65 parm "_exp" 
+----------------------
+070 W112 primitive type word cos 
+----------------------
+3f40cca0:3f40ccb4 link to W111 
+3f40cca4:00000112 flag primitive type word W112 
+3f40cca8:3f401c6a name 0x3 "cos" 
+3f40ccac:400d1aa0 code _cos 
+3f40ccb0:3f401c6f parm "_cos" 
+----------------------
+069 W111 primitive type word sin 
+----------------------
+3f40ccb4:3f40ccc8 link to W110 
+3f40ccb8:00000111 flag primitive type word W111 
+3f40ccbc:3f401c74 name 0x3 "sin" 
+3f40ccc0:400d1a84 code _sin 
+3f40ccc4:3f401c79 parm "_sin" 
+----------------------
+068 W110 primitive type word ceil 
+----------------------
+3f40ccc8:3f40ccdc link to W10f 
+3f40cccc:00000110 flag primitive type word W110 
+3f40ccd0:3f401c7e name 0x4 "ceil" 
+3f40ccd4:400d1a68 code _ceil 
+3f40ccd8:3f401c84 parm "_ceil" 
+----------------------
+067 W10f primitive type word floor 
+----------------------
+3f40ccdc:3f40ccf0 link to W10e 
+3f40cce0:0000010f flag primitive type word W10f 
+3f40cce4:3f401c8a name 0x5 "floor" 
+3f40cce8:400d1a4c code _floor 
+3f40ccec:3f401c91 parm "_floor" 
+----------------------
+066 W10e primitive type word float> 
+----------------------
+3f40ccf0:3f40cd04 link to W10d 
+3f40ccf4:0000010e flag primitive type word W10e 
+3f40ccf8:3f401c98 name 0x6 "float>" 
+3f40ccfc:400d1394 code _floatFrom 
+3f40cd00:3f401ca0 parm "_floatFrom" 
+----------------------
+065 W10d primitive type word >float 
+----------------------
+3f40cd04:3f40cd18 link to W10c 
+3f40cd08:0000010d flag primitive type word W10d 
+3f40cd0c:3f401cab name 0x6 ">float" 
+3f40cd10:400d137c code _toFloat 
+3f40cd14:3f401cb3 parm "_toFloat" 
+----------------------
+064 W10c primitive type word f. 
+----------------------
+3f40cd18:3f40cd2c link to W10b 
+3f40cd1c:0000010c flag primitive type word W10c 
+3f40cd20:3f401cbc name 0x2 "f." 
+3f40cd24:400d1a30 code _fDot 
+3f40cd28:3f401cc0 parm "_fDot" 
+----------------------
+063 W10b primitive type word .0r 
+----------------------
+3f40cd2c:3f40cd40 link to W10a 
+3f40cd30:0000010b flag primitive type word W10b 
+3f40cd34:3f401cc6 name 0x3 ".0r" 
+3f40cd38:400d1a0c code _dotZR 
+3f40cd3c:3f401ccb parm "_dotZR" 
+----------------------
+062 W10a primitive type word .r 
+----------------------
+3f40cd40:3f40cd54 link to W109 
+3f40cd44:0000010a flag primitive type word W10a 
+3f40cd48:3f401cd2 name 0x2 ".r" 
+3f40cd4c:400d19e8 code _dotR 
+3f40cd50:3f401cd6 parm "_dotR" 
+----------------------
+061 W109 primitive type word . 
+----------------------
+3f40cd54:3f40cd68 link to W108 
+3f40cd58:00000109 flag primitive type word W109 
+3f40cd5c:3f401cdc name 0x1 "." 
+3f40cd60:400d19b8 code _dot 
+3f40cd64:3f401cdf parm "_dot" 
+----------------------
+060 W108 primitive type word c@ 
+----------------------
+3f40cd68:3f40cd7c link to W107 
+3f40cd6c:00000108 flag primitive type word W108 
+3f40cd70:3f401ce4 name 0x2 "c@" 
+3f40cd74:400d1668 code _cFetch 
+3f40cd78:3f401ce8 parm "_cFetch" 
+----------------------
+059 W107 primitive type word c! 
+----------------------
+3f40cd7c:3f40cd90 link to W106 
+3f40cd80:00000107 flag primitive type word W107 
+3f40cd84:3f401cf0 name 0x2 "c!" 
+3f40cd88:400d18e0 code _cStore 
+3f40cd8c:3f401cf4 parm "_cStore" 
+----------------------
+058 W106 primitive type word @ 
+----------------------
+3f40cd90:3f40cda4 link to W104 
+3f40cd94:00000106 flag primitive type word W106 
+3f40cd98:3f401cfc name 0x1 "@" 
+3f40cd9c:400d18fc code _fetch 
+3f40cda0:3f401cff parm "_fetch" 
+----------------------
+
+??? id 0104 not expected 0105 
+057 W104 primitive type word base 
+----------------------
+3f40cda4:3f40cdb8 link to W103 
+3f40cda8:00000104 flag primitive type word W104 
+3f40cdac:3f401d06 name 0x4 "base" 
+3f40cdb0:400d15d4 code _base 
+3f40cdb4:3f401d0c parm "_base" 
+----------------------
+056 W103 primitive type word hex 
+----------------------
+3f40cdb8:3f40cdcc link to W102 
+3f40cdbc:00000103 flag primitive type word W103 
+3f40cdc0:3f401d12 name 0x3 "hex" 
+3f40cdc4:400d136c code _hex 
+3f40cdc8:3f401d17 parm "_hex" 
+----------------------
+055 W102 primitive type word decimal 
+----------------------
+3f40cdcc:3f40cde0 link to W101 
+3f40cdd0:00000102 flag primitive type word W102 
+3f40cdd4:3f401d1c name 0x7 "decimal" 
+3f40cdd8:400d135c code _decimal 
+3f40cddc:3f401d25 parm "_decimal" 
+----------------------
+054 W101 primitive type word octal 
+----------------------
+3f40cde0:3f40cdf4 link to W100 
+3f40cde4:00000101 flag primitive type word W101 
+3f40cde8:3f401d2e name 0x5 "octal" 
+3f40cdec:400d134c code _octal 
+3f40cdf0:3f401d35 parm "_octal" 
+----------------------
+053 W100 primitive type word binary 
+----------------------
+3f40cdf4:3f40ce08 link to W033 
+3f40cdf8:00000100 flag primitive type word W100 
+3f40cdfc:3f401d3c name 0x6 "binary" 
+3f40ce00:400d133c code _binary 
+3f40ce04:3f401d44 parm "_binary" 
+----------------------
+052 W033 IMMED primitive type word z" 
+----------------------
+3f40ce08:3f40ce1c link to W03c 
+3f40ce0c:80000033 flag IMMED primitive type word W033 
+3f40ce10:3f401d4c name 0x2 "z"" 
+3f40ce14:400d1e24 code _zstrQ 
+3f40ce18:3f401d50 parm "_zstrQ" 
+----------------------
+
+??? id 003c not expected 0032 
+051 W03c primitive type word #> 
+----------------------
+3f40ce1c:3f40ce30 link to W03b 
+3f40ce20:0000003c flag primitive type word W03c 
+3f40ce24:3f401d57 name 0x2 "#>" 
+3f40ce28:400d20d0 code _theDigits 
+3f40ce2c:3f401d5b parm "_theDigits" 
+----------------------
+050 W03b primitive type word #s 
+----------------------
+3f40ce30:3f40ce44 link to W03a 
+3f40ce34:0000003b flag primitive type word W03b 
+3f40ce38:3f401d66 name 0x2 "#s" 
+3f40ce3c:400d211c code _toDigits 
+3f40ce40:3f401d6a parm "_toDigits" 
+----------------------
+049 W03a primitive type word # 
+----------------------
+3f40ce44:3f40ce58 link to W039 
+3f40ce48:0000003a flag primitive type word W03a 
+3f40ce4c:3f401d74 name 0x1 "#" 
+3f40ce50:400d20f0 code _toDigit 
+3f40ce54:3f401d77 parm "_toDigit" 
+----------------------
+048 W039 primitive type word hold 
+----------------------
+3f40ce58:3f40ce6c link to W038 
+3f40ce5c:00000039 flag primitive type word W039 
+3f40ce60:3f401d80 name 0x4 "hold" 
+3f40ce64:400d1914 code _hold 
+3f40ce68:3f401d86 parm "_hold" 
+----------------------
+047 W038 primitive type word <# 
+----------------------
+3f40ce6c:3f40ce80 link to W037 
+3f40ce70:00000038 flag primitive type word W038 
+3f40ce74:3f401d8c name 0x2 "<#" 
+3f40ce78:400d1324 code _bToDigits 
+3f40ce7c:3f401d90 parm "_bToDigits" 
+----------------------
+046 W037 primitive type word last 
+----------------------
+3f40ce80:3f40ce94 link to W036 
+3f40ce84:00000037 flag primitive type word W037 
+3f40ce88:3f401d9b name 0x4 "last" 
+3f40ce8c:400d15e4 code _last 
+3f40ce90:3f401da1 parm "_last" 
+----------------------
+045 W036 primitive type word ? 
+----------------------
+3f40ce94:3f40cea8 link to W035 
+3f40ce98:00000036 flag primitive type word W036 
+3f40ce9c:3f401da7 name 0x1 "?" 
+3f40cea0:400d19d0 code _quest 
+3f40cea4:3f401daa parm "_quest" 
+----------------------
+044 W035 IMMED COMPO primitive type word literal 
+----------------------
+3f40cea8:3f40cebc link to W034 
+3f40ceac:c0000035 flag IMMED COMPO primitive type word W035 
+3f40ceb0:3f401db1 name 0x7 "literal" 
+3f40ceb4:400d1e5c code _literal 
+3f40ceb8:3f401dba parm "_literal" 
+----------------------
+043 W034 IMMED primitive type word ( 
+----------------------
+3f40cebc:3f40ced0 link to W033 
+3f40cec0:80000034 flag IMMED primitive type word W034 
+3f40cec4:3f401dc3 name 0x1 "(" 
+3f40cec8:400d1d4c code _paren 
+3f40cecc:3f401dc6 parm "_paren" 
+----------------------
+042 W033 IMMED primitive type word $" 
+----------------------
+3f40ced0:3f40cee4 link to W032 
+3f40ced4:80000033 flag IMMED primitive type word W033 
+3f40ced8:3f401dcd name 0x2 "$"" 
+3f40cedc:400d1e7c code _strQ 
+3f40cee0:3f401dd1 parm "_strQ" 
+----------------------
+041 W032 primitive type word hidden 
+----------------------
+3f40cee4:3f40cef8 link to W031 
+3f40cee8:00000032 flag primitive type word W032 
+3f40ceec:3f401dd7 name 0x6 "hidden" 
+3f40cef0:400d1308 code _hidden 
+3f40cef4:3f401ddf parm "_hidden" 
+----------------------
+040 W031 primitive type word compile-only 
+----------------------
+3f40cef8:3f40cf0c link to W030 
+3f40cefc:00000031 flag primitive type word W031 
+3f40cf00:3f401de7 name 0xc "compile-only" 
+3f40cf04:400d12ec code _compile_only 
+3f40cf08:3f401df5 parm "_compile_only" 
+----------------------
+039 W030 primitive type word immediate 
+----------------------
+3f40cf0c:3f40cf20 link to W025 
+3f40cf10:00000030 flag primitive type word W030 
+3f40cf14:3f401e03 name 0x9 "immediate" 
+3f40cf18:400d12d0 code _immediate 
+3f40cf1c:3f401e0e parm "_immediate" 
+----------------------
+
+??? id 0025 not expected 002f 
+038 W025 primitive type word swap 
+----------------------
+3f40cf20:3f40cf34 link to W024 
+3f40cf24:00000025 flag primitive type word W025 
+3f40cf28:3f401e19 name 0x4 "swap" 
+3f40cf2c:400d1f60 code _swap 
+3f40cf30:3f401e1f parm "_swap" 
+----------------------
+037 W024 primitive type word over 
+----------------------
+3f40cf34:3f40cf48 link to W023 
+3f40cf38:00000024 flag primitive type word W024 
+3f40cf3c:3f401e25 name 0x4 "over" 
+3f40cf40:400d1f94 code _over 
+3f40cf44:3f401e2b parm "_over" 
+----------------------
+036 W023 primitive type word ! 
+----------------------
+3f40cf48:3f40cf5c link to W022 
+3f40cf4c:00000023 flag primitive type word W023 
+3f40cf50:3f401e31 name 0x1 "!" 
+3f40cf54:400d1930 code _store 
+3f40cf58:3f401e34 parm "_store" 
+----------------------
+035 W022 primitive type word cell/ 
+----------------------
+3f40cf5c:3f40cf70 link to W021 
+3f40cf60:00000022 flag primitive type word W022 
+3f40cf64:3f401e3b name 0x5 "cell/" 
+3f40cf68:400d12b8 code _4slash 
+3f40cf6c:3f401e42 parm "_4slash" 
+----------------------
+034 W021 primitive type word - 
+----------------------
+3f40cf70:3f40cf84 link to W020 
+3f40cf74:00000021 flag primitive type word W021 
+3f40cf78:3f401e4a name 0x1 "-" 
+3f40cf7c:400d1948 code _sub 
+3f40cf80:3f401e4d parm "_sub" 
+----------------------
+033 W020 primitive type word r> 
+----------------------
+3f40cf84:3f40cf98 link to W01f 
+3f40cf88:00000020 flag primitive type word W020 
+3f40cf8c:3f401e52 name 0x2 "r>" 
+3f40cf90:400d213c code _rFrom 
+3f40cf94:3f401e56 parm "_rFrom" 
+----------------------
+032 W01f primitive type word r@ 
+----------------------
+3f40cf98:3f40cfac link to W01e 
+3f40cf9c:0000001f flag primitive type word W01f 
+3f40cfa0:3f401e5d name 0x2 "r@" 
+3f40cfa4:400d15f4 code _rFetch 
+3f40cfa8:3f401e61 parm "_rFetch" 
+----------------------
+051 W01e primitive type word >r 
+----------------------
+3f40cfac:3f40cfc0 link to W01d 
+3f40cfb0:0000001e flag primitive type word W01e 
+3f40cfb4:3f401e69 name 0x2 ">r" 
+3f40cfb8:400d2154 code _toR 
+3f40cfbc:3f401e6d parm "_toR" 
+----------------------
+050 W01d primitive type word , 
+----------------------
+3f40cfc0:3f40cfd4 link to W01c 
+3f40cfc4:0000001d flag primitive type word W01d 
+3f40cfc8:3f401e72 name 0x1 "," 
+3f40cfcc:400d1eb4 code _comma 
+3f40cfd0:3f401e75 parm "_comma" 
+----------------------
+049 W01c primitive type word here 
+----------------------
+3f40cfd4:3f40cfe8 link to W01b 
+3f40cfd8:0000001c flag primitive type word W01c 
+3f40cfdc:3f401e7c name 0x4 "here" 
+3f40cfe0:400d1608 code _here 
+3f40cfe4:3f401e82 parm "_here" 
+----------------------
+048 W01b COMPO HIDEN primitive type word compile 
+----------------------
+3f40cfe8:3f40cffc link to W01a 
+3f40cfec:6000001b flag COMPO HIDEN primitive type word W01b 
+3f40cff0:3f401e88 name 0x7 "compile" 
+3f40cff4:400d129c code _compile 
+3f40cff8:3f401e91 parm "_compile" 
+----------------------
+047 W01a IMMED primitive type word ; 
+----------------------
+3f40cffc:3f40d010 link to W019 
+3f40d000:8000001a flag IMMED primitive type word W01a 
+3f40d004:3f401e9a name 0x1 ";" 
+3f40d008:400d21a0 code _semicolon 
+3f40d00c:3f401e9d parm "_semicolon" 
+----------------------
+046 W019 primitive type word : 
+----------------------
+3f40d010:3f40d024 link to W018 
+3f40d014:00000019 flag primitive type word W019 
+3f40d018:3f401ea8 name 0x1 ":" 
+3f40d01c:400d224c code _colon 
+3f40d020:3f401eab parm "_colon" 
+----------------------
+045 W018 IMMED primitive type word [ 
+----------------------
+3f40d024:3f40d038 link to W017 
+3f40d028:80000018 flag IMMED primitive type word W018 
+3f40d02c:3f401eb2 name 0x1 "[" 
+3f40d030:400d1284 code _lBracket 
+3f40d034:3f401eb5 parm "_lBracket" 
+----------------------
+044 W017 primitive type word ] 
+----------------------
+3f40d038:3f40d04c link to W016 
+3f40d03c:00000017 flag primitive type word W017 
+3f40d040:3f401ebf name 0x1 "]" 
+3f40d044:400d126c code _rBracket 
+3f40d048:3f401ec2 parm "_rBracket" 
+----------------------
+043 W016 primitive type word variable 
+----------------------
+3f40d04c:3f40d060 link to W015 
+3f40d050:00000016 flag primitive type word W016 
+3f40d054:3f401ecc name 0x8 "variable" 
+3f40d058:400d21c8 code _variable 
+3f40d05c:3f401ed6 parm "_variable" 
+----------------------
+042 W015 IMMED primitive type word to 
+----------------------
+3f40d060:3f40d074 link to W014 
+3f40d064:80000015 flag IMMED primitive type word W015 
+3f40d068:3f401ee0 name 0x2 "to" 
+3f40d06c:400d2278 code _to 
+3f40d070:3f401ee4 parm "_to" 
+----------------------
+041 W014 primitive type word value 
+----------------------
+3f40d074:3f40d088 link to W013 
+3f40d078:00000014 flag primitive type word W014 
+3f40d07c:3f401ee8 name 0x5 "value" 
+3f40d080:400d21ec code _value 
+3f40d084:3f401eef parm "_value" 
+----------------------
+040 W013 primitive type word constant 
+----------------------
+3f40d088:3f40d09c link to W012 
+3f40d08c:00000013 flag primitive type word W013 
+3f40d090:3f401ef6 name 0x8 "constant" 
+3f40d094:400d221c code _constant 
+3f40d098:3f401f00 parm "_constant" 
+----------------------
+039 W012 COMPO HIDEN primitive type word (to) 
+----------------------
+3f40d09c:3f40d0b0 link to W011 
+3f40d0a0:60000012 flag COMPO HIDEN primitive type word W012 
+3f40d0a4:3f401f0a name 0x4 "(to)" 
+3f40d0a8:400d1964 code _pto 
+3f40d0ac:3f401f10 parm "_pto" 
+----------------------
+038 W011 COMPO HIDEN primitive type word (repeat) 
+----------------------
+3f40d0b0:3f40d0c4 link to W010 
+3f40d0b4:60000011 flag COMPO HIDEN primitive type word W011 
+3f40d0b8:3f401f15 name 0x8 "(repeat)" 
+3f40d0bc:400d1258 code _bran 
+3f40d0c0:3f401f1f parm "_bran" 
+----------------------
+037 W010 COMPO HIDEN primitive type word (while) 
+----------------------
+3f40d0c4:3f40d0d8 link to W00f 
+3f40d0c8:60000010 flag COMPO HIDEN primitive type word W010 
+3f40d0cc:3f401f25 name 0x7 "(while)" 
+3f40d0d0:400d2ab0 code _zbran 
+3f40d0d4:3f401f2e parm "_zbran" 
+----------------------
+036 W00f COMPO HIDEN primitive type word (until) 
+----------------------
+3f40d0d8:3f40d0ec link to W00e 
+3f40d0dc:6000000f flag COMPO HIDEN primitive type word W00f 
+3f40d0e0:3f401f35 name 0x7 "(until)" 
+3f40d0e4:400d2ab0 code _zbran 
+3f40d0e8:3f401f2e parm "_zbran" 
+----------------------
+035 W00e COMPO HIDEN primitive type word (again) 
+----------------------
+3f40d0ec:3f40d100 link to W00d 
+3f40d0f0:6000000e flag COMPO HIDEN primitive type word W00e 
+3f40d0f4:3f401f3e name 0x7 "(again)" 
+3f40d0f8:400d1258 code _bran 
+3f40d0fc:3f401f1f parm "_bran" 
+----------------------
+034 W00d COMPO HIDEN primitive type word (begin) 
+----------------------
+3f40d100:3f40d114 link to W00c 
+3f40d104:6000000d flag COMPO HIDEN primitive type word W00d 
+3f40d108:3f401f47 name 0x7 "(begin)" 
+3f40d10c:400f0074 code _doNon 
+3f40d110:3f401f50 parm "_doNon" 
+----------------------
+033 W00c COMPO HIDEN primitive type word (then) 
+----------------------
+3f40d114:3f40d128 link to W00b 
+3f40d118:6000000c flag COMPO HIDEN primitive type word W00c 
+3f40d11c:3f401f57 name 0x6 "(then)" 
+3f40d120:400f0074 code _doNon 
+3f40d124:3f401f50 parm "_doNon" 
+----------------------
+032 W00b COMPO HIDEN primitive type word (else) 
+----------------------
+3f40d128:3f40d13c link to W00a 
+3f40d12c:6000000b flag COMPO HIDEN primitive type word W00b 
+3f40d130:3f401f5f name 0x6 "(else)" 
+3f40d134:400d1258 code _bran 
+3f40d138:3f401f1f parm "_bran" 
+----------------------
+031 W00a COMPO HIDEN primitive type word (if) 
+----------------------
+3f40d13c:3f40d150 link to W009 
+3f40d140:6000000a flag COMPO HIDEN primitive type word W00a 
+3f40d144:3f401f67 name 0x4 "(if)" 
+3f40d148:400d2ab0 code _zbran 
+3f40d14c:3f401f2e parm "_zbran" 
+----------------------
+030 W009 COMPO HIDEN primitive type word (next) 
+----------------------
+3f40d150:3f40d164 link to W008 
+3f40d154:60000009 flag COMPO HIDEN primitive type word W009 
+3f40d158:3f401f6d name 0x6 "(next)" 
+3f40d15c:400d2174 code _doNext 
+3f40d160:3f401f75 parm "_doNext" 
+----------------------
+019 W008 COMPO HIDEN primitive type word (for) 
+----------------------
+3f40d164:3f40d178 link to W007 
+3f40d168:60000008 flag COMPO HIDEN primitive type word W008 
+3f40d16c:3f401f7d name 0x5 "(for)" 
+3f40d170:400d216c code _doFor 
+3f40d174:3f401f84 parm "_doFor" 
+----------------------
+018 W007 COMPO HIDEN primitive type word (str) 
+----------------------
+3f40d178:3f40d18c link to W006 
+3f40d17c:60000007 flag COMPO HIDEN primitive type word W007 
+3f40d180:3f401f8b name 0x5 "(str)" 
+3f40d184:400d15bc code _doLit 
+3f40d188:3f401f92 parm "_doLit" 
+----------------------
+017 W006 COMPO HIDEN primitive type word (lit) 
+----------------------
+3f40d18c:3f40d1a0 link to W005 
+3f40d190:60000006 flag COMPO HIDEN primitive type word W006 
+3f40d194:3f401f99 name 0x5 "(lit)" 
+3f40d198:400d15bc code _doLit 
+3f40d19c:3f401f92 parm "_doLit" 
+----------------------
+016 W005 COMPO primitive type word exit 
+----------------------
+3f40d1a0:3f40d1b4 link to W004 
+3f40d1a4:40000005 flag COMPO primitive type word W005 
+3f40d1a8:3f401fa0 name 0x4 "exit" 
+3f40d1ac:400d1644 code _ret 
+3f40d1b0:3f401fa6 parm "_ret" 
+----------------------
+015 W004 COMPO HIDEN primitive type word (;) 
+----------------------
+3f40d1b4:3f40d1c8 link to W003 
+3f40d1b8:60000004 flag COMPO HIDEN primitive type word W004 
+3f40d1bc:3f401fab name 0x3 "(;)" 
+3f40d1c0:400d1644 code _ret 
+3f40d1c4:3f401fa6 parm "_ret" 
+----------------------
+014 W003 HIDEN constant type word (:) 
+----------------------
+3f40d1c8:3f40d1dc link to W002 
+3f40d1cc:20000003 flag HIDEN constant type word W003 
+3f40d1d0:3f401fb0 name 0x3 "(:)" 
+3f40d1d4:400d1588 code _doCon 
+3f40d1d8:400d1650 parm _doCol 
+----------------------
+013 W002 HIDEN constant type word (var) 
+----------------------
+3f40d1dc:3f40d1f0 link to W001 
+3f40d1e0:20000002 flag HIDEN constant type word W002 
+3f40d1e4:3f401fb5 name 0x5 "(var)" 
+3f40d1e8:400d1588 code _doCon 
+3f40d1ec:400d1560 parm _doVar 
+----------------------
+012 W001 HIDEN constant type word (val) 
+----------------------
+3f40d1f0:3f40d204 link to W000 
+3f40d1f4:20000001 flag HIDEN constant type word W001 
+3f40d1f8:3f401fbc name 0x5 "(val)" 
+3f40d1fc:400d1588 code _doCon 
+3f40d200:400d1574 parm _doVal 
+----------------------
+011 W000 HIDEN constant type word (con) 
+----------------------
+3f40d204:00000000 link 
+3f40d208:20000000 flag HIDEN constant type word W000 
+3f40d20c:3f401fc3 name 0x5 "(con)" 
+3f40d210:400d1588 code _doCon 
+3f40d214:400d1588 parm _doCon 
+----------------------
