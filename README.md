@@ -60,3 +60,20 @@ setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino fun
 
 一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的
 Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並且顯示 所耗時間。
+
+
+## 相關準備
+
+### 1. 為 Arduino IDE 安裝 esp32 選項
+
+### 2. 從 github 取得 範例 blink00, blink01, blink02, blink03, fvm02, wifiboy
+
+### 3. 將 fvm02 及 wifiboy 加入 Arduino libraries
+
+
+## FVM 虛擬機 簡要說明
+
+
+## 虛擬機 範例指令 簡要說明
+
+
