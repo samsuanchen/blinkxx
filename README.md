@@ -59,4 +59,4 @@ setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino fun
   
 
 一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的
-Serial Monitor Console Input 輸入格, 讓 虛擬機 畫圖寫字 並且在 Console Output 顯示 畫圖寫字 所耗時間。
+Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並且顯示 所耗時間。
