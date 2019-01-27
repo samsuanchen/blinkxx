@@ -74,6 +74,57 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 ## FVM 虛擬機 簡要說明
 
 
-## 虛擬機 範例指令 簡要說明
+## blink02 虛擬機 範例指令 簡要說明
 
+    (
+    wb_init
+    img
+    wb_drawImage
+    ms
+    last
+    @
+    :
+    for
+    r@
+    ^
+    1+
+    wbRED
+    2b_drawLine
+    next
+    ;
+    !
+    wbCYAN
+    wb_setTextColor
+    z"
+    wb_drawString
+    drop
+    wbWHITE
+    
 
+## blink03 虛擬機 範例指令 簡要說明
+
+    compile
+    (if)
+    here
+    immediate
+    >r
+    (else)
+    ,
+    r@
+    -
+    cell/
+    r>
+    (begin)
+    (again)
+    (until)
+    (while)
+    (repeat)
+    swap
+    over
+    cr
+    dup
+    .(
+    .
+    context
+    
+    
