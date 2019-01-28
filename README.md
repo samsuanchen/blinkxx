@@ -77,7 +77,7 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 
 	將 fvm02 與 wifiboy 資料夾 加入 Arduino IDE 的 libraries
 
-## FVM 虛擬機 功能
+## FVM 虛擬機 功能 簡要說明
 
 	FVM f				clame f as an instance of FVM.
 	f.init(baud)			initialize f with given baud rate without predefined word set.
