@@ -91,74 +91,73 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 
 ## 虛擬機 test.txt 範例 引用的指令 簡要說明
 
-	'			( <name> -- w )	find the word of given name
-	-			( n1 n2 -- n1-n2 ) subtract n1 by n2
-	!			( v a -- ) store value v to address a
-	(			ignore string until right parenthesis
+	'		( <name> -- w )	find the word of given name
+	-		( n1 n2 -- n1-n2 ) subtract n1 by n2
+	!		( v a -- ) store value v to address a
+	(		ignore string until right parenthesis
 	(again)		compile only code for the end of begin-again
-				loop construct
+			loop construct
 	(begin)		compile only code for the begin of begin-again,
-				begin-until, or begin-while-repeat loop construct
+			begin-until, or begin-while-repeat loop construct
 	(else)		compile only code for the else of if-else-then
-				branch construct
+			branch construct
 	(for)		compile only code for the begin of for-next
-				loop construct
+			loop construct
 	(if)		compile only code for the begin of if-else-then
-				branch construct
+			branch construct
 	(next)		compile only code for the end of for-next
-				loop construct
+			loop construct
 	(repeat)	compile only code for the end of begin-while-repeat 
-				loop construct
+			loop construct
 	(then)		compile only code for the end of if-else-then
-				branch construct
+			branch construct
 	(until)		compile only code for the end of begin-until
-				loop construct
+			loop construct
 	(while)		compile only code for the while of 
-				begin-while-repeat loop construct
-	,			( n -- ) compile n into high level colon word-list
-	.			( n -- ) print n and a space
-	.(			print string until right parenthesis
-	.id			( w -- ) print the id and name of given word w
-	:			create high level definition word of given name
-	;			end of high level definition
+			begin-while-repeat loop construct
+	,		( n -- ) compile n into high level colon word-list
+	.		( n -- ) print n and a space
+	.(		print string until right parenthesis
+	.id		( w -- ) print the id and name of given word w
+	:		create high level definition word of given name
+	;		end of high level definition
 	?dup		( n -- n n | 0 ) duplicate n if n is not 0
-	@			( a -- v ) fetch value v from address a
-	=			( n1 n2 -- n1==n2 ) check if n1 equal to n2
-	>r			( n -- ) push n onto return stack
-	0=			( n -- n==0 ) check if n equal to 0
-	1+			( n -- n+1 ) increment n by 1
+	@		( a -- v ) fetch value v from address a
+	=		( n1 n2 -- n1==n2 ) check if n1 equal to n2
+	>r		( n -- ) push n onto return stack
+	0=		( n -- n==0 ) check if n equal to 0
+	1+		( n -- n+1 ) increment n by 1
 	2dup		( n1 n2 -- n1 n2 n1 n2 ) duplicate n1 and n2
 	cell/		( n -- n/4 ) divide n by 4
 	compile		compile the word after
 	constant	( n -- ) create constant of given name as value n
 	context		( -- a ) the address of saving the last word in 
-						 dictionary
-	cr			print carriage return and line feed
+			dictionary
+	cr		print carriage return and line feed
 	drop		( n -- ) drop n
-	dup			( n -- n n ) duplicate n
+	dup		( n -- n n ) duplicate n
 	exit		exit from high level definition
-	for			( n -- ) setup for-next loop to run the words
-						 before next n+1 times
+	for		( n -- ) setup for-next loop to run the words
+				before next n+1 times
 	here		( -- a ) the address of end of compiled space
-	img			( -- a ) the address of a sample image
+	img		( -- a ) the address of a sample image
 	immediate	set the last word to be immediate
 	last		( -- a ) the address of saving the word just
-						 defined but not in dictionary yet
-	ms			( n -- ) delay n milli seconds
+				defined but not in dictionary yet
+	ms		( n -- ) delay n milli seconds
 	next		end of for-next loop
 	output		( pin -- ) setup given pin as an output device
 	over		( n1 n2 -- n1 n2 n1 ) duplicate n1
-	r@			( -- n ) duplicate the value n on return stack 
-	r>			( -- n ) pop the value n on return stack
+	r@		( -- n ) duplicate the value n on return stack 
+	r>		( -- n ) pop the value n on return stack
 	swap		( n1 n2 -- n2 n1 ) swap two values on data stack
 	toggle		( pin -- ) toggle HIGH/LOW level of given pin
-	wb_drawLine		( x1 y1 x2 y2 color width -- ) 
+	wb_drawLine	( x1 y1 x2 y2 color width -- ) 
 	wb_drawImage	( x y w h adr -- )
 	wb_drawString	( adr x y type size -- )
-	wb_init			( -- )
+	wb_init		( -- )
 	wb_setTextColor	( color -- )
-	wbCYAN			( -- colorCYAN )
-	wbRED			( -- colorRED )
-	wbWHITE			( -- colorWHITE )
-	z"			( -- adr ) the address of string before
-						   double quote "
+	wbCYAN		( -- colorCYAN )
+	wbRED		( -- colorRED )
+	wbWHITE		( -- colorWHITE )
+	z"		( -- adr ) the address of string before double quote "
