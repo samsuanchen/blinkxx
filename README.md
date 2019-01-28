@@ -79,14 +79,14 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 
 ## FVM 虛擬機 功能
 
-	FVM f
-	f.init(baud)
-	f.init(baud,wordSet)
-	f.eval(script)
-	f.newPrimitive(name,func)
-	f.newConstant(name,number)
-	f.newVariable(name,address)
-	f.update()
+	FVM f				clame f as an instance of FVM.
+	f.init(baud)			initialize f with given baud rate without predefined word set.
+	f.init(baud,wordSet)		initialize f with given baud rate with predefined word set.
+	f.eval(script)			eval given script.
+	f.newPrimitive(name,func)	create new primitive type word of given name to run given function.
+	f.newConstant(name,number)	create new constant type word of given name to return given number.
+	f.newVariable(name,address)	create new variable type word of given name to return given address.
+	f.update()			update state of f
 
 
 ## 虛擬機 test.txt 範例 引用的指令 簡要說明
