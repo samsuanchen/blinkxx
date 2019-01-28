@@ -12,7 +12,7 @@
 
 在原 Arduino Blink 範例中, 多加一行 如下 #define 指令 讓程式 正常運行, 持續閃 led 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
 
-	#define LED_BUILTIN 16 // for WIFIBOY 32
+		#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
 ## blink01
@@ -24,19 +24,19 @@
 
 1. 在原 blink01 程式中, setup() 前, 加 2 行 如下 指令, 讓程式 載入 FVM 虛擬機:
 
-	#include <fvm02.h>                                // ##### 1.1. load FVM the Forth virtual machine
-	FVM F;                                            // ##### 1.2. define F as an instence of FVM
+		#include <fvm02.h>                                // ##### 1.1. load FVM the Forth virtual machine
+		FVM F;                                            // ##### 1.2. define F as an instence of FVM
 
 
 2. setup() 中, 多加 2 行 如下 指令, 讓程式 啟動 FVM 虛擬機:
 
-	extern Word* word_set;                            // ##### 3.1. load external word set (defined in fvm02_word_set.cpp)
-	F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
+		extern Word* word_set;                            // ##### 3.1. load external word set (defined in fvm02_word_set.cpp)
+		F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
 
 
 3. loop() 中, 多加 1 行 如下 指令, 讓程式 更新 FVM 虛擬機 狀態:
 
-	F.update();                                       // ##### 5. in loop(), update F state
+		F.update();                                       // ##### 5. in loop(), update F state
 
 
 一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的 Serial Monitor Console Input 輸入格, 讓 虛擬機 畫圖寫字。
