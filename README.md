@@ -12,7 +12,7 @@
 
 在原 Arduino Blink 範例中, 多加一行 如下 #define 指令 讓程式 正常運行, 持續閃 led 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
 
-	#define LED_BUILTIN 16 // for WIFIBOY 32
+		#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
 ## blink01
@@ -71,7 +71,7 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 
 ### 2. 從 github 取得 範例 blink00, blink01, blink02, blink03, fvm02, wifiboy
 
-		git clone https://github.com/samsuanchen/blinkxx
+	git clone https://github.com/samsuanchen/blinkxx
 
 ### 3. 將 fvm02 及 wifiboy 加入 Arduino libraries
 
