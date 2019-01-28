@@ -12,7 +12,7 @@
 
 在原 Arduino Blink 範例中, 多加一行 如下 #define 指令 讓程式 正常運行, 持續閃 led 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
 
-    #define LED_BUILTIN 16 // for WIFIBOY 32
+	#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
 ## blink01
@@ -24,19 +24,19 @@
 
 1. 在原 blink01 程式中, setup() 前, 加 2 行 如下 指令, 讓程式 載入 FVM 虛擬機:
 
-    #include <fvm02.h>                                // ##### 1.1. load FVM the Forth virtual machine
-    FVM F;                                            // ##### 1.2. define F as an instence of FVM
+	#include <fvm02.h>                                // ##### 1.1. load FVM the Forth virtual machine
+	FVM F;                                            // ##### 1.2. define F as an instence of FVM
 
 
 2. setup() 中, 多加 2 行 如下 指令, 讓程式 啟動 FVM 虛擬機:
 
-    extern Word* word_set;                            // ##### 3.1. load external word set (defined in fvm02_word_set.cpp)
-    F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
+	extern Word* word_set;                            // ##### 3.1. load external word set (defined in fvm02_word_set.cpp)
+	F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
 
 
 3. loop() 中, 多加 1 行 如下 指令, 讓程式 更新 FVM 虛擬機 狀態:
 
-    F.update();                                       // ##### 5. in loop(), update F state
+	F.update();                                       // ##### 5. in loop(), update F state
 
 
 一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的 Serial Monitor Console Input 輸入格, 讓 虛擬機 畫圖寫字。
@@ -46,16 +46,16 @@
 
 1. 在原 blink02 程式中, setup() 前, 定義 3 個 Arduino functions, 以設定 led 亮/滅 時間, 以取得 當前時間。
 
-    void setPeriodHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setPeriodHIGH
-    void setPeriodLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setPeriodLOW
-    void getMillis() { F.dPush( millis() ); }           // ##### 2.3. define the function getMillis
+	void setPeriodHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setPeriodHIGH
+	void setPeriodLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setPeriodLOW
+	void getMillis() { F.dPush( millis() ); }           // ##### 2.3. define the function getMillis
 
 
 2. setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino function。
 
-    F.newPrimitive( "setPeriodHIGH", setPeriodHIGH ); // ##### 4.1. add new primitive word setPeriodHIGH in F
-    F.newPrimitive( "setPeriodLOW",  setPeriodLOW  ); // ##### 4.2. add new primitive word setPeriodLOW  in F
-    F.newPrimitive( "getMillis"   ,  getMillis     ); // ##### 4.3. add new primitive word getMillis     in F
+	F.newPrimitive( "setPeriodHIGH", setPeriodHIGH ); // ##### 4.1. add new primitive word setPeriodHIGH in F
+	F.newPrimitive( "setPeriodLOW",  setPeriodLOW  ); // ##### 4.2. add new primitive word setPeriodLOW  in F
+	F.newPrimitive( "getMillis"   ,  getMillis     ); // ##### 4.3. add new primitive word getMillis     in F
   
 
 一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的
@@ -71,22 +71,22 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 
 ### 2. 從 github 取得 範例 blink00, blink01, blink02, blink03, fvm02, wifiboy
 
-    git clone https://github.com/samsuanchen/blinkxx
+	git clone https://github.com/samsuanchen/blinkxx
 
 ### 3. 將 fvm02 及 wifiboy 加入 Arduino libraries
 
-    將 fvm02 與 wifiboy 資料夾 加入 Arduino IDE 的 libraries
+	將 fvm02 與 wifiboy 資料夾 加入 Arduino IDE 的 libraries
 
-## FVM 虛擬機 功能 簡要說明
+## FVM 虛擬機 功能
 
-    FVM f
-    f.init(baud)
-    f.init(baud,wordSet)
-    f.eval(script)
-    f.newPrimitive(name,func)
-    f.newConstant(name,number)
-    f.newVariable(name,address)
-    f.update()
+	FVM f
+	f.init(baud)
+	f.init(baud,wordSet)
+	f.eval(script)
+	f.newPrimitive(name,func)
+	f.newConstant(name,number)
+	f.newVariable(name,address)
+	f.update()
 
 
 ## 虛擬機 test.txt 範例 引用的指令 簡要說明
