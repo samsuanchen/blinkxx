@@ -10,9 +10,9 @@
 
 ## blink00
 
-在原 Arduino Blink 範例中, 多加一行 如下 #define 指令 讓程式 正常運行, 持續閃 led 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
+在原 Arduino Blink 範例中, 多加一行 如下 巨集指令 程式就能使 WiFiBoy 板背面 led 持續閃 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
 
-		#define LED_BUILTIN 16 // for WIFIBOY 32
+	#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
 ## blink01
