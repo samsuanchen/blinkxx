@@ -29,7 +29,7 @@ void setPeriodHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the fun
 void setPeriodLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setPeriodLOW
 void getMillis() { F.dPush( millis() ); }           // ##### 2.3. define the function getMillis
 
-#define LED_BUILTIN 16 // for wifiboy 32
+#define LED_BUILTIN 2 // for wifiboy 32
 
 // the setup function runs once when you press reset or power the board
 void setup() {
