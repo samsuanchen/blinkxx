@@ -1,65 +1,203 @@
-# 為 簡單的 Arduino Blink 範例 加上 夢幻後門
+# 為 Arduino 開扇門
 
-我們提供 一系列 簡單的 blink 範例, 在 esp32 的 WiFiBoy 開發板上, 逐步使 blink 範例 加上 後門, 展現夢幻效果。
+在 esp32 的 WiFiBoy 開發板上, 我們逐步展示 一系列 簡單 blink 範例
+ (都是使 WiFiBoy 板背 led 小燈持續不停 亮 1 秒 滅 1), 
+如何為 Arduino  開扇夢幻後門。
 
-我們所謂 後門, 就是要在 Arduino 程式中, 啟動 我們提供的 FVM 虛擬機 (virtual machine)。 在程式執行的同時, 這虛擬機 可接受指令, 進行一些 額外工作,
-或 直接改變 程式的 執行狀態和效果。
+所謂 後門, 就是在 Arduino 程式中, 啟動 所提供的 FVM 虛擬機 (virtual machine)。
+在程式執行同時, 接受指令 以進行 檢視、監控、測試、 ... 等額外工作, 
+或 直接改變 程式 執行狀態與效果。
 
-我們提供的 一系列 blink 範例 及 FVM 虛擬機, 包括: blink00, blink01, blink02, blink03, fvm02。
+在 blinkxx 資料夾 的 libraries 子目錄中 有 fvm 及 wifiboy_lib 兩個子目錄, 請先 複製到
+Arduino user 的 libraries 工作子目錄, 例如在 windows 其路徑如下:
+(請替換其中 <name> 為正確名字)
 
-
-## blink00
-
-在原 Arduino Blink 範例中, 多加一行 如下 巨集指令 程式就能使 WiFiBoy 板背面 led 持續閃 亮 1 秒 滅 1 秒 亮 1 秒 滅 1 秒 ...。
-
-	#define LED_BUILTIN 16 // for WIFIBOY 32
-
-
-## blink01
-
-改寫 Blink00 程式, 在 loop() 子程式中, 不用 delay(1000) 來維持 亮/滅 1 秒, 改用 millis() 來檢視時間, 直到過了 1 秒 才改變 亮/滅 並 設定下一個檢視時間。 這樣的設計 可讓我們有機會 善用 1 秒 的等待時間 去做些別的事。
-
- 
-## blink02
-
-1. 在原 blink01 程式中, setup() 前, 加 2 行 如下 指令, 讓程式 載入 FVM 虛擬機:
-
-		#include <fvm02.h>                                // ##### 1.1. load FVM the Forth virtual machine
-		FVM F;                                            // ##### 1.2. define F as an instence of FVM
+		C:\Users\<name>\Documents\Arduino\libraries
 
 
-2. setup() 中, 多加 2 行 如下 指令, 讓程式 啟動 FVM 虛擬機:
-
-		extern Word* word_set;                            // ##### 3.1. load external word set (defined in fvm02_word_set.cpp)
-		F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
-
-
-3. loop() 中, 多加 1 行 如下 指令, 讓程式 更新 FVM 虛擬機 狀態:
-
-		F.update();                                       // ##### 5. in loop(), update F state
+在 blinkxx 資料夾中還有 8 個 blink 範例 (依編號逐步增加其複雜度):
+		
+		blink00, blink01, blink02, blink03,
+		blink10, blink11, blink12, blink13,
 
 
-一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的 Serial Monitor Console Input 輸入格, 讓 虛擬機 畫圖寫字。
+## blink00 範例
+
+這範例 其實就是原 Arduino Basic Blink 範例, 我們多加了如下一行, 以定義 led 的 pin 腳號碼為 16。
+
+		#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
-## blink03
+## blink01 範例
 
-1. 在原 blink02 程式中, setup() 前, 定義 3 個 Arduino functions, 以設定 led 亮/滅 時間, 以取得 當前時間。
+這範例在 blink00 中多加 3 行, 就啟動了 FVM 虛擬機。
 
-		void setPeriodHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setPeriodHIGH
-		void setPeriodLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setPeriodLOW
-		void getMillis() { F.dPush( millis() ); }           // ##### 2.3. define the function getMillis
+1. 在 blink00 範例, setup() 前, 加如下兩行, 讓程式 載入 FVM 虛擬機:
+
+		#include <fvm02.h>                      // ##### 1.1. load FVM class, the Forth virtual machine
+		FVM F;                                  // ##### 1.2. define F as an instence of FVM
+
+
+2. 在 blink00 範例, setup() 中, 多加如下 1 行, 讓程式 啟動 FVM 虛擬機:
+
+		F.init( 115200 );                       // ##### 3.1. in setup(), initialize F
+
+
+一旦 啟動了 FVM 虛擬機, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 可逐行輸入下列指令, 以關 led 燈、開屏幕背光、讓蜂鳴器發 C4 音、再多發 E4 與 A4 兩個音。
+
+		16 input
+  		27 output 27 high
+		25 17 buzzerSetup buzzerOn 261.6 tone
+		329.6 tone 1000 ms  440.0 tone buzzerOff
+
+
+## blink02 範例
+
+這範例 主要是希望將 blink01 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代。
+在 blink01 中多加 6 行, 就可下 虛擬機 指令 改變 控制變數的值。
+
+1. 在 blink01 範例, #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個控制變數:
+
+		int  led          = LED_BUILTIN;
+		int  delayHIGH    = 1000;
+		int  delayLOW     = 1000;
+
+
+2. 以 led, delayHIGH, delayLOW 三個控制變數取代 blink01 中相關常數。
+
+
+3. 在 blink01 範例, F.init() 之後, 多加如下 3 行, 讓虛擬機 分別知道 這三變數各自的記憶體位址:
+
+		F.newVariable( "\x0d" "delayHIGH", &delayHIGH );
+		F.newVariable( "\x0c" "delayLOW" , &delayLOW  );
+		F.newVariable( "\x05" "led"      , &led       );
+
+
+一旦 這樣啟動了 FVM 虛擬機, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 就可逐行輸入下列指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
+
+		50 delayLOW  !
+		50 delayHIGH !
+		25 led ! 25 output 17 output 17 high
+		25 input
+
+
+## blink03 範例
+
+這範例 要顯示如何增加 虛擬機 的 新指令, 以執行相關 控制功能。另一方面, 也是為確保記憶體安全,
+藉此展示如何可 藉自訂 fuctions 以存取 控制變數, 而不讓 虛擬機 直接到記憶體存取 控制變數的值。
+
+1. 在 blink02 範例, setup() 前, 定義  Arduino functions, 以設定 led 亮/滅 時間, 以及 led 。
+
+		void setDelayHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
+		void setDelayLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
+		void setLed()       { led       =F.dPop(); }       // ##### 2.3. define the function setLed
 
 
 2. setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino function。
 
-		F.newPrimitive( "setPeriodHIGH", setPeriodHIGH ); // ##### 4.1. add new primitive word setPeriodHIGH in F
-		F.newPrimitive( "setPeriodLOW",  setPeriodLOW  ); // ##### 4.2. add new primitive word setPeriodLOW  in F
-		F.newPrimitive( "getMillis"   ,  getMillis     ); // ##### 4.3. add new primitive word getMillis     in F
+		F.newPrimitive( "\x0d" "setDelayHIGH", setDelayHIGH ); // ##### 4.1. add new primitive word setDelayHIGH in F
+		F.newPrimitive( "\x0c" "setDelayLOW",  setDelayLOW  ); // ##### 4.2. add new primitive word setDelayLOW  in F
+		F.newPrimitive( "\x06" "setLed"     ,  setLed       ); // ##### 4.3. add new primitive word setLed       in F
   
 
-一旦 啟動 FVM 虛擬機, 在 閃 led 的同時, 我們可試將 test.txt 中的 虛擬機 範例指令 貼到 Arduino IDE 的
-Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並且顯示 所耗時間。
+一旦 這樣啟動了 FVM 虛擬機, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 就可逐行輸入下列指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
+
+		50 setDelayLOW
+		50 setDelayHIGH
+		25 setLed 25 output 17 output 17 high
+		25 input
+
+
+## blink10 範例
+
+這範例 改寫 blink00, 在 loop() 子程式中, 不用 delay() 來維持 亮/滅 時間, 改以 millis() 檢視時間,
+直到過了 指定時間 才改變 亮/滅 並 設定下一個檢視時間。 這樣的設計 可讓我們有機會 善用 1 秒 的等待時間 去做些別的事。
+
+
+## blink11 範例
+
+這範例在 blink10 中多加 3 行, 就啟動了 FVM 虛擬機。
+
+1. 在 blink10 範例, setup() 前, 加如下兩行, 讓程式 載入 FVM 虛擬機:
+
+		#include <fvm02.h>                      // ##### 1.1. load FVM class, the Forth virtual machine
+		FVM F;                                  // ##### 1.2. define F as an instence of FVM
+
+
+2. 在 blink10 範例, setup() 中, 多加如下 1 行, 讓程式 啟動 FVM 虛擬機:
+
+		F.init( 115200 );                       // ##### 3.1. in setup(), initialize F
+
+
+一旦 啟動了 FVM 虛擬機, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 可逐行輸入下列指令, 以關 led 燈、開屏幕背光、讓蜂鳴器發 C4 音、再多發 E4 與 A4 兩個音。
+
+		16 input
+  		27 output 27 high
+		25 17 buzzerSetup buzzerOn 261.6 tone
+		329.6 tone 1000 ms  440.0 tone buzzerOff
+
+
+## blink12 範例
+
+這範例 主要是希望將 blink11 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代。
+在 blink01 中多加 6 行, 就可下 虛擬機 指令 改變 控制變數的值。
+
+1. 在 blink11 範例, #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個控制變數:
+
+		int  led          = LED_BUILTIN;
+		int  delayHIGH    = 1000;
+		int  delayLOW     = 1000;
+
+
+2. 以 led, delayHIGH, delayLOW 三個控制變數取代 blink01 中相關常數。
+
+
+3. 在 blink11 範例, F.init() 之後, 多加如下 3 行, 讓虛擬機 分別知道 這三變數各自的記憶體位址:
+
+		F.newVariable( "\x0d" "delayHIGH", &delayHIGH );
+		F.newVariable( "\x0c" "delayLOW" , &delayLOW  );
+		F.newVariable( "\x05" "led"      , &led       );
+
+
+一旦 這樣啟動了 FVM 虛擬機, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 就可逐行輸入下列指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
+
+		50 delayLOW  !
+		50 delayHIGH !
+		25 led ! 25 output 17 output 17 high
+		25 input
+
+
+## blink13 範例
+
+這範例 要顯示如何增加 虛擬機 的 新指令, 以執行相關 控制功能。另一方面, 也是為確保記憶體安全,
+藉此展示如何可 藉自訂 fuctions 以存取 控制變數, 而不讓 虛擬機 直接到記憶體存取 控制變數的值。
+
+1. 在 blink12 範例, setup() 前, 定義  Arduino functions, 以設定 led 亮/滅 時間, 以及 led 。
+
+		void setDelayHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
+		void setDelayLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
+		void setLed()       { led       =F.dPop(); }       // ##### 2.3. define the function setLed
+
+
+2. setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino function。
+
+		F.newPrimitive( "\x0d" "setDelayHIGH", setDelayHIGH ); // ##### 4.1. add new primitive word setDelayHIGH in F
+		F.newPrimitive( "\x0c" "setDelayLOW",  setDelayLOW  ); // ##### 4.2. add new primitive word setDelayLOW  in F
+		F.newPrimitive( "\x06" "setLed"     ,  setLed       ); // ##### 4.3. add new primitive word setLed       in F
+  
+
+一旦 這樣啟動了 FVM 虛擬機, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+從 input box 中, 就可逐行輸入下列指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
+
+		50 setDelayLOW
+		50 setDelayHIGH
+		25 setLed 25 output 17 output 17 high
+		25 input
 
 
 ## 相關準備
@@ -69,24 +207,22 @@ Serial Monitor Console Input 輸入格, 改變 閃滅速度, 畫圖寫字, 並�
 請參閱 https://wifiboy.club/category/9/wifiboy32-esp32 檢視「如何安裝 Arduino IDE for WiFiBoy32」
 
 
-### 2. 從 github 取得 範例 blink00, blink01, blink02, blink03, fvm02, wifiboy
+### 2. 從 github 取得 blinkxx 相關資料
 
 	git clone https://github.com/samsuanchen/blinkxx
 
-### 3. 將 fvm02 及 wifiboy 加入 Arduino libraries
+### 3. 將 fvm 及 wifiboy_lib 加入 Arduino libraries
 
-	將 fvm02 與 wifiboy 資料夾 加入 Arduino IDE 的 libraries
+	將 fvm 與 wifiboy_lib 資料夾 加入 Arduino IDE 的 libraries
 
 ## FVM 虛擬機 功能 簡要說明
 
-	FVM f				clame f as an instance of FVM.
-	f.init(baud)			initialize f with given baud rate without predefined word set.
-	f.init(baud,wordSet)		initialize f with given baud rate with predefined word set.
-	f.eval(script)			eval given script.
-	f.newPrimitive(name,func)	create new primitive type word of given name to run given function.
-	f.newConstant(name,number)	create new constant type word of given name to return given number.
-	f.newVariable(name,address)	create new variable type word of given name to return given address.
-	f.update()			update state of f
+	FVM F				clame F as an instance of FVM.
+	F.init(baud)			initialize F with given baud rate.
+	F.init(baud,cpu)		initialize F with given baud rate to run at given cpu.
+	F.newPrimitive(name,func)	create new primitive type word of given name to run given function.
+	F.newConstant(name,number)	create new constant type word of given name to return given number.
+	F.newVariable(name,address)	create new variable type word of given name to return given address.
 
 
 ## 虛擬機 test.txt 範例 引用的指令 簡要說明

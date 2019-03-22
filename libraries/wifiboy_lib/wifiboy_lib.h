@@ -1,3 +1,5 @@
+#ifndef _WIFIBOY_LIB_H_
+#define _WIFIBOY_LIB_H_
 #ifdef __cplusplus
 extern "C"
 {
@@ -12,7 +14,7 @@ extern "C"
 #define wbOLIVE       0xE07B      /* 128, 128,   0 */
 #define wbLIGHTGREY   0x18C6      /* 192, 192, 192 */
 #define wbDARKGREY    0xEF7B      /* 128, 128, 128 */
-#define wbBLUE        0x1F00     /*   0,   0, 255 */
+#define wbBLUE        0x1F00      /*   0,   0, 255 */
 #define wbGREEN       0xE007      /*   0, 255,   0 */
 #define wbCYAN        0xFF07      /*   0, 255, 255 */
 #define wbRED         0x00F8      /* 255,   0,   0 */
@@ -78,5 +80,5 @@ void wb_tickerDisable();
 
 #ifdef __cplusplus
 }
-#endif
-
+#endif // __cplusplus
+#endif // _WIFIBOY_LIB_H_

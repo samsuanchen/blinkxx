@@ -1,1202 +1,982 @@
-// fvm02_word_set.cpp
+// fvm_wifiboyWordset.cpp
 #ifndef WORD_SET
 #define WORD_SET
+//                    "/////////////////////////////////////////////////"
+char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190317    //\n";
+//                    "/////////////////////////////////////////////////"
+#include <Arduino.h>
 #include <math.h>
-#include <fvm02.h>
+#include <fvm.h>
 #include <wifiboy_lib.h>
-extern FVM F;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define level(pin) digitalRead(pin)
+#define low(pin) digitalWrite(pin, LOW)
+#define high(pin) digitalWrite(pin, HIGH)
+#define toggle(pin) digitalWrite(pin, HIGH-digitalRead(pin))
+#define input(pin) pinMode(pin, INPUT)
+#define output(pin) pinMode(pin, OUTPUT)
+#define _us micros()
+
+uint64_t usTimeToToggle = 0;
+uint32_t usPeriodHIGH = 1000000; // 1 second delay for working pin level HIGH
+uint32_t usPeriodLOW = 1000000; // 1 second delay for working pin level LOW
+uint32_t usPeriod; // usPeriodHIGH+usPeriodLOW
+uint8_t  usDuty = 2; // (0-99) default as 2% duty cycle
+uint16_t usFreq = 0; // (0-12000) default 0 to mute
+
+void periodUpdate(){
+  output(27), low(27);
+  usPeriod = 1000000 / usFreq;
+  usPeriodHIGH = usPeriod * usDuty / 100;
+  usPeriodLOW = usPeriod - usPeriodHIGH;
+//Serial.printf("usPeriod=%d, usPeriodHIGH=%d, usPeriodLOW=%d\n",usPeriod, usPeriodHIGH, usPeriodLOW);
+}
+void pinFreq( uint8_t pin, uint16_t freq ){ 
+  usFreq = max( 0, min( 12000, (int)freq ) );
+  if( usFreq == 0 ) return;
+  if( usDuty == 0 || usDuty == 100 ) return;
+  periodUpdate();
+}
+void pinDuty( uint8_t pin, uint8_t duty ){
+  usDuty = min( 0, max( 100, (int)duty ));
+  if( usDuty == 0 ) usPeriod = 0, low( pin );
+  if( usDuty == 100 ) usPeriod = 0, high( pin );
+  if( usFreq == 0 ) return;
+  periodUpdate();
+}
+void pinUpdate( uint8_t pin ){
+  if( usFreq==0 || usDuty==0 || usDuty==100 ) return;
+//Serial.printf("usFreq=%d pin=%d usTimeToToggle=%d\n", usFreq, pin, usTimeToToggle);
+  uint64_t time_us = _us;
+  if( usTimeToToggle == 0 ) usTimeToToggle = time_us+usPeriodHIGH;
+//Serial.printf("time_us=%d\n",time_us);
+//Serial.printf("usPeriodHIGH=%d\n", usPeriodHIGH);
+//Serial.printf("usPeriodHIGH+time_us=%d\n",time_us+usPeriodHIGH);
+//Serial.printf("usTimeToToggle=%d\n", usTimeToToggle);
+//while(1);
+  uint64_t usTime = _us;
+  if( usTime >= usTimeToToggle ){ toggle( pin );
+    Serial.printf("usTime=%d >= usTimeToToggle=%d ", usTime, usTimeToToggle);
+    uint32_t usPeriodLEVEL = level( pin )==HIGH ? usPeriodHIGH : usPeriodLOW;
+    usTimeToToggle += usPeriodLEVEL;
+    if( usTime >= usTimeToToggle ) usTimeToToggle = usTime + usPeriodLEVEL;
+    Serial.printf("usTimeToToggle=%d\n",usTimeToToggle);
+  }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define WORD( name ) (Word*)&W ## name
+#define CONST( id, flag, symbol, name, value ) const Word W ## name = {LAST, id, flag, symbol, _doCon, (int)value}
+#define PRIMI( id, flag, symbol, name, func ) const Word W ## name = {LAST, id, flag, symbol, func, (int)#func}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define LAST 0
-
-#define WORD( label ) (Word*)&W ## label
-#define CONSTANT( id, flag, symbol, label, value ) const Word W ## label PROGMEM = { LAST, id, flag, symbol, _doCon, (int)value }
-#define PRIMITIVE( id, flag, symbol, label, func ) const Word W ## label PROGMEM = { LAST, id, flag, symbol, func, (int)#func }
-
+extern FVM F;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// word set 0 ( handlers of different word types and programming control flows )
+// wordset 0 ( handlers of different word types and programming control flows )
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W000 (con) ( -- a ) Get the address of constant type handler _doCon.
 static void _doCon(){ F.dPush( F.T->W->p.con ); } // push P field content of the running forth word to stack.
-//        id     flag   symbol          label   value
-CONSTANT( 0x000, HIDEN, "\x05" "(con)", _doCon, _doCon );
+CONST( 0x000, HIDEN, "\x05" "(con)", _doCon, _doCon );
 #define LAST WORD( _doCon )
-
-Word*firstDefined = LAST;
 //////////////////////////////////////////////////////////////////////////
 // W001 (val) ( -- a ) Get the address of value type handler _doVal.
 static void _doVal(){ F.dPush( F.T->W->p.con ); } // push P field content of the running forth word to stack.
-//        id     flag   symbol          label   value
-CONSTANT( 0x001, HIDEN, "\x05" "(val)", _doVal, _doVal );
+CONST( 0x001, HIDEN, "\x05" "(val)", _doVal, _doVal );
 #define LAST WORD( _doVal )
-
 //////////////////////////////////////////////////////////////////////////
 // W002 (var) ( -- a ) Get the address of variable type handler _doVar.
 static void _doVar(){ F.dPush( (int)( &F.T->W->p.con ) ); } // push P field address of the running forth word to stack.
-//        id     flag   symbol          label   value
-CONSTANT( 0x002, HIDEN, "\x05" "(var)", _doVar, _doVar );
+CONST( 0x002, HIDEN, "\x05" "(var)", _doVar, _doVar );
 #define LAST WORD( _doVar )
-
 //////////////////////////////////////////////////////////////////////////
 // W003 (col) ( -- )( -- w ip ) Get the address of colon type handler _doCol.
 static void _doCol(){ F.ipPush(), F.T->IP = F.T->W->p.wpl; } // setup calling word-list pointed by P field content of the running forth word.
-//        id     flag   symbol        label   value
-CONSTANT( 0x003, HIDEN, "\x03" "(:)", _doCol, _doCol );
+CONST( 0x003, HIDEN, "\x03" "(:)", _doCol, _doCol );
 #define LAST WORD( _doCol )
-
-
 //////////////////////////////////////////////////////////////////////////
 // W004 (;) ( -- )( w ip -- ) end of colon type word definition (pop IP from return stack).
 static void _ret(){ F.ipPop(); } // end of calling (return from word-list)
-//         id     flag         symbol        label func
-PRIMITIVE( 0x004, COMPO_HIDEN, "\x03" "(;)", _ret, _ret );
+PRIMI( 0x004, COMPO_HIDEN, "\x03" "(;)", _ret, _ret );
 #define LAST WORD( _ret )
-
 Word *w_doLit=LAST;
 //////////////////////////////////////////////////////////////////////////
 // W005 exit ( -- )( w ip -- ) Exit from colon type word definition (pop IP from return stack).
-//         id     flag   symbol        label   func
-PRIMITIVE( 0x005, COMPO, "\x04" "exit", _exit, _ret );
+PRIMI( 0x005, COMPO, "\x04" "exit", _exit, _ret );
 #define LAST WORD( _exit )
-
 //////////////////////////////////////////////////////////////////////////
 // W006 (lit) ( -- n ) number in the next code cell pointed by IP.
 static void _doLit(){ F.dPush( (int)*F.T->IP++ ); } // push the value pointed by IP to stack.
-//         id     flag         symbol          label   func
-PRIMITIVE( 0x006, COMPO_HIDEN, "\x05" "(lit)", _doLit, _doLit );
+PRIMI( 0x006, COMPO_HIDEN, "\x05" "(lit)", _doLit, _doLit );
 #define LAST WORD( _doLit )
-// PRIMITIVE(  0x006, COMPO_HIDEN, "\x05" "(lit)", , _doLit, _doLit );
-// #define LAST WORD( _doLit ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W007 (str) ( -- addr ) string addr in the code cell pointed by IP.
-//         id     flag         symbol          label   func
-PRIMITIVE( 0x007, COMPO_HIDEN, "\x05" "(str)", _doStr, _doLit );
+PRIMI( 0x007, COMPO_HIDEN, "\x05" "(str)", _doStr, _doLit );
 #define LAST WORD( _doStr )
-// PRIMITIVE( 0x007, COMPO_HIDEN, "\x05" "(str)", _doStr, _doLit );
-// #define LAST WORD( _doStr ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W008 (for) ( n -- )( -- n ) push n to return stack as loop counter.
 static void _doFor(){ F.rPush( F.dPop() ); } // push loop counter from stack to rack.
-//         id     flag         symbol          label   func
-PRIMITIVE( 0x008, COMPO_HIDEN, "\x05" "(for)", _doFor, _doFor );
+PRIMI( 0x008, COMPO_HIDEN, "\x05" "(for)", _doFor, _doFor );
 #define LAST WORD( _doFor )
-
 //////////////////////////////////////////////////////////////////////////
 // W009 (next) ( -- )( n -- n-1 | ) decreases loop counter n, branch back relatively to the word after (for) if n>0.
 static void _doNext(){ int n = F.rPop(); if( n ) F.rPush( --n ), F.T->IP += (int)*F.T->IP; else F.T->IP++; } // pop and dec loop counter, push and loop back relatively if non-zero
-//         id     flag         symbol           label    func
-PRIMITIVE( 0x009, COMPO_HIDEN, "\x06" "(next)", _doNext, _doNext );
+PRIMI( 0x009, COMPO_HIDEN, "\x06" "(next)", _doNext, _doNext );
 #define LAST WORD( _doNext )
-
 //////////////////////////////////////////////////////////////////////////
 // W00a (if) ( flag -- ) branch forward relatively to the word after (else) or (then) if flag==0.
 static void _zbran(){ if( F.dPop() == 0 ) F.T->IP += (int)*F.T->IP; else F.T->IP++; } // pop flag and branch relatively if flag==0
-//         id     flag         symbol         label  func
-PRIMITIVE( 0x00a, COMPO_HIDEN, "\x04" "(if)", _doIf, _zbran );
-#define LAST WORD( _doIf ) 
-
+PRIMI( 0x00a, COMPO_HIDEN, "\x04" "(if)", _doIf, _zbran );
+#define LAST WORD( _doIf )
 //////////////////////////////////////////////////////////////////////////
 // W00b (else) ( -- ) branch forward relatively to the word after (then).
 static void _bran(){ F.T->IP += (int)*F.T->IP; } // branch relatively 
-//         id     flag         symbol           label    func
-PRIMITIVE( 0x00b, COMPO_HIDEN, "\x06" "(else)", _doElse, _bran );
+PRIMI( 0x00b, COMPO_HIDEN, "\x06" "(else)", _doElse, _bran );
 #define LAST WORD( _doElse )
-
 //////////////////////////////////////////////////////////////////////////
 // W00c (then) ( -- ) end of the if-then or the if-else-then control flow.
-static void _doNone(){ } // 
-//         id     flag         symbol           label    func
-PRIMITIVE( 0x00c, COMPO_HIDEN, "\x06" "(then)", _doThen, _doNone );
-#define LAST WORD( _doThen ) 
-
+PRIMI( 0x00c, COMPO_HIDEN, "\x06" "(then)", _doThen, 0 );
+#define LAST WORD( _doThen )
 //////////////////////////////////////////////////////////////////////////
 // W00d (begin) ( -- ) begin of the begin-again, begin-until, or begin-while-repeat control flows.
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x00d, COMPO_HIDEN, "\x07" "(begin)", _doBegin, _doNone );
+PRIMI( 0x00d, COMPO_HIDEN, "\x07" "(begin)", _doBegin, 0 );
 #define LAST WORD( _doBegin )
-
 //////////////////////////////////////////////////////////////////////////
 // W00e (again) ( -- ) branch backward relatively to the word after (begin).
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x00e, COMPO_HIDEN, "\x07" "(again)", _doAgain, _bran );
+PRIMI( 0x00e, COMPO_HIDEN, "\x07" "(again)", _doAgain, _bran );
 #define LAST WORD( _doAgain )
-
 //////////////////////////////////////////////////////////////////////////
 // W00f (until) ( flag -- ) branch backward relatively to the word after (begin) if flag==0.
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x00f, COMPO_HIDEN, "\x07" "(until)", _doUntil, _zbran );
+PRIMI( 0x00f, COMPO_HIDEN, "\x07" "(until)", _doUntil, _zbran );
 #define LAST WORD( _doUntil )
-
 //////////////////////////////////////////////////////////////////////////
 // W010 (while) ( flag -- ) branch foreward relatively to the word after (repeat) if flag==0.
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x010, COMPO_HIDEN, "\x07" "(while)", _doWhile, _zbran );
+PRIMI( 0x010, COMPO_HIDEN, "\x07" "(while)", _doWhile, _zbran );
 #define LAST WORD( _doWhile )
-
 //////////////////////////////////////////////////////////////////////////
 // W011 (repeat) ( -- ) branch backward relatively to the word after (begin).
-//         id     flag         symbol             label      func
-PRIMITIVE( 0x011, COMPO_HIDEN, "\x08" "(repeat)", _doRepeat, _bran );
+PRIMI( 0x011, COMPO_HIDEN, "\x08" "(repeat)", _doRepeat, _bran );
 #define LAST WORD( _doRepeat )
-
 //////////////////////////////////////////////////////////////////////////
 // W012 (to) ( n -- ) store n to value type word which is in next code cell pointer by IP.
 static void _pto(){ Word *w =* F.T->IP++; w->p.con = F.dPop(); } // store value to P field of value type word pointed by IP
-//         id     flag         symbol         label func
-PRIMITIVE( 0x012, COMPO_HIDEN, "\x04" "(to)", _pto, _pto );
+PRIMI( 0x012, COMPO_HIDEN, "\x04" "(to)", _pto, _pto );
 #define LAST WORD( _pto )
-
 //////////////////////////////////////////////////////////////////////////
 // W013 constant <name> ( n -- ) define constant type word of given name by n.
-static void _constant() { F.createWord( 0, F.voc->nWord, F.parseToken( ' ' ), _doCon, F.dPop() ); }
-//         id     flag  symbol          label      func
-PRIMITIVE( 0x013, 0, "\x08" "constant", _constant, _constant );
+static void _constant() { char*tkn = F.parseToken( ' ' ); F.createWord( 0, F.voc->nWord, tkn, _doCon, F.dPop() ); }
+PRIMI( 0x013, 0, "\x08" "constant", _constant, _constant );
 #define LAST WORD( _constant )
-// PRIMITIVE( 0x013, 0, "\x08" "constant", _constant, _constant );
-// #define LAST WORD( _constant ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W014 value <name> ( n -- ) define value type word of given name by n.
-static void _value() { F.createWord( 0, F.voc->nWord, F.parseToken( ' ' ), _doVal, F.dPop() ); }
-//         id     flag  symbol       label   func
-PRIMITIVE( 0x014, 0, "\x05" "value", _value, _value );
+static void _value() { char*tkn = F.parseToken( ' ' ); F.createWord( 0, F.voc->nWord, tkn, _doVal, F.dPop() ); }
+PRIMI( 0x014, 0, "\x05" "value", _value, _value );
 #define LAST WORD( _value )
-
 //////////////////////////////////////////////////////////////////////////
 // W015 to <name> ( n -- ) store number to the value type word of given name.
 static void _to() { 
   char*name = F.parseToken( ' ' );
   if ( ! name ) {
-    ABORT( F.T->error, 601, F.initTib, "\"to <name>\" name of value type word not given ", 0 ); return; }
+    F.abort( 601, "to value type word not given" ); return; }
   Word*w = F.vocSearch( name ); // find the word of given name
-  if ( ! w ) { ABORT( F.T->error, 602, F.initTib, "\"to %s\", 0x%x \"%s\" unDef", name+1, *(name), name+1 ); return; }
+  if ( ! w ) { F.abort( 602, "to value type word unDef" ); return; }
   if( (int)w->code != (&W_doVal)->p.con ) {
-    ABORT( F.T->error, 603, F.initTib, "\"to %s\", %s not value type word ", name+1, name+1 ); return;
+    F.abort( 603, "to non value type word" ); return;
   }
   if ( F.T->state&CMPLING ) { // compiling
     F.compile( WORD( _pto ) ), F.compile( w ); return;
   }
   w->p.con = F.dPop(); return; // pop number and store to value type word
 }
-//         id     flag   symbol       label func
-PRIMITIVE( 0x015, IMMED, "\x02" "to", _to, _to );
+PRIMI( 0x015, IMMED, "\x02" "to", _to, _to );
 #define LAST WORD( _to )
-
 //////////////////////////////////////////////////////////////////////////
 // W016 variable <name> ( -- ) define variable type word of given name.
-static void _variable() { F.createWord(0, F.voc->nWord, F.parseToken(' '), _doVar, 0 ); }
-//         id     flag   symbol         label      func
-PRIMITIVE( 0x016, 0, "\x08" "variable", _variable, _variable );
+static void _variable() { char*tkn = F.parseToken(' '); F.createWord(0, F.voc->nWord, tkn, _doVar, 0 ); }
+PRIMI( 0x016, 0, "\x08" "variable", _variable, _variable );
 #define LAST WORD( _variable )
-
 //////////////////////////////////////////////////////////////////////////
 // W017 ] ( -- ) enter compiling state
 static void _rBracket() { F.T->state |= CMPLING; }
-//         id     flag   symbol  label      func
-PRIMITIVE( 0x017, 0, "\x01" "]", _rBracket, _rBracket );
+PRIMI( 0x017, 0, "\x01" "]", _rBracket, _rBracket );
 #define LAST WORD( _rBracket ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W018 [ ( -- ) leave compiling state.
 static void _lBracket() { F.T->state ^= CMPLING; }
-//         id     flag   symbol      label      func
-PRIMITIVE( 0x018, IMMED, "\x01" "[", _lBracket, _lBracket );
+PRIMI( 0x018, IMMED, "\x01" "[", _lBracket, _lBracket );
 #define LAST WORD( _lBracket ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W019 : <name> ( -- ) define colon type word of given name.
 static void _colon() { char *tkn=F.parseToken(' ');
   Word *w = F.createWord(0, F.voc->nWord, tkn, _doCol, 0); F.cpInit(), _rBracket(); }
-//         id     flag   symbol  label   func
-PRIMITIVE( 0x019, 0, "\x01" ":", _colon, _colon );
+PRIMI( 0x019, 0, "\x01" ":", _colon, _colon );
 #define LAST WORD( _colon ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01a ; ( -- ) end of colon type word definition.
 static void _semicolon() { F.compile( WORD( _ret ) ); Word *w = F.T->last;
     w->p.wpl = F.cpClone(); F.vocAdd( w ), _lBracket(); }
-//         id     flag   symbol      label       func
-PRIMITIVE( 0x01a, IMMED, "\x01" ";", _semicolon, _semicolon );
+PRIMI( 0x01a, IMMED, "\x01" ";", _semicolon, _semicolon );
 #define LAST WORD( _semicolon ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01b compile ( -- ) compile the forth word in the code cell pointed by IP.
 static void _compile(){ *F.T->CP++ = *F.T->IP++; } // compile the value pointed by IP
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x01b, COMPO_HIDEN, "\x07" "compile", _compile, _compile );
+PRIMI( 0x01b, COMPO_HIDEN, "\x07" "compile", _compile, _compile );
 #define LAST WORD( _compile ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01c here ( -- addr ) end of compiled code.
 static void _here(){ F.dPush((int)F.T->CP); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x01c, 0, "\x04" "here", _here, _here );
+PRIMI( 0x01c, 0, "\x04" "here", _here, _here );
 #define LAST WORD( _here ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01d comma ( n -- ) compile given number.
-static void _comma(){ F.compile((Word*)F.dPop()); }
-//         id     flag   symbol  label   func
-PRIMITIVE( 0x01d, 0, "\x01" ",", _comma, _comma );
+static void _comma(){
+//PRINTF("\n_comma() 0x%x ",F.dPick(0));
+  F.compile((Word*)F.dPop()); }
+PRIMI( 0x01d, 0, "\x01" ",", _comma, _comma );
 #define LAST WORD( _comma ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01e >r ( n -- )( -- n ) push number onto return stack.
 static void _toR () { F.rPush(F.dPop()); }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x01e, 0, "\x02" ">r", _toR, _toR );
+PRIMI( 0x01e, 0, "\x02" ">r", _toR, _toR );
 #define LAST WORD( _toR ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W01f r@ ( -- n )( n -- n ) top number of return stack.
 static void _rFetch () { F.dPush(*(F.T->RP)); }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x01f, 0, "\x02" "r@", _rFetch, _rFetch );
+PRIMI( 0x01f, 0, "\x02" "r@", _rFetch, _rFetch );
 #define LAST WORD( _rFetch ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W020 r> ( -- n )( n -- ) pop number from return stack.
 static void _rFrom () { F.dPush(F.rPop()); }
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x020, 0, "\x02" "r>", _rFrom, _rFrom );
+PRIMI( 0x020, 0, "\x02" "r>", _rFrom, _rFrom );
 #define LAST WORD( _rFrom ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W021 - ( a b -- a-b ) difference of 2 integer numbers, a-b.
 static void _sub () { *(F.T->DP)-=F.dPop(); }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x021, 0, "\x01" "-", _sub, _sub );
+PRIMI( 0x021, 0, "\x01" "-", _sub, _sub );
 #define LAST WORD( _sub ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W022 cell/ ( n -- n/4 ) divide given integer number by 4.
 static void _4slash () { (*(F.T->DP))/=4; }
-//         id     flag   symbol      label    func
-PRIMITIVE( 0x022, 0, "\x05" "cell/", _4slash, _4slash );
+PRIMI( 0x022, 0, "\x05" "cell/", _4slash, _4slash );
 #define LAST WORD( _4slash ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W023 ! ( n addr -- ) store 32-bit number into given memory address.
 static void _store () { int *a=(int*)F.dPop(); *a=F.dPop(); }
-//         id     flag   symbol  label   func
-PRIMITIVE( 0x023, 0, "\x01" "!", _store, _store );
+PRIMI( 0x023, 0, "\x01" "!", _store, _store );
 #define LAST WORD( _store ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W024 over ( n1 n0  -- n1 n0 n1 ) copy the next number on top to data stack.
 static void _over () { F.dPush(F.dPick(1)); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x024, 0, "\x04" "over", _over, _over );
+PRIMI( 0x024, 0, "\x04" "over", _over, _over );
 #define LAST WORD( _over ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W025 swap ( n1 n0  -- n0 n1 ) swap top 2 numbers of data stack.
 static void _swap () { F.dRoll(1); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x025, 0, "\x04" "swap", _swap, _swap );
+PRIMI( 0x025, 0, "\x04" "swap", _swap, _swap );
 #define LAST WORD( _swap ) 
-/*
 //////////////////////////////////////////////////////////////////////////
 // W026 if ( -- a ) begin TRUE-part control flow (until "else" or "then").
-const Word* L_if[] PROGMEM = { &W_compile, &W_doIf, &W_here, &W_doLit, (Word*)0, &W_comma, &W_ret };
-//         id     flag   symbol     label  func
-const Word W_if PROGMEM = { LAST, 0x026, IMMED_COMPO, "\x02" "if", _doCol, (int)L_if };
+const Word* L_if[] = { &W_compile, &W_doIf, &W_here, &W_doLit, (Word*)0, &W_comma, &W_ret };
+const Word W_if = { LAST, 0x026, IMMED_COMPO, "\x02" "if", _doCol, (int)L_if };
 #define LAST WORD( _if ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W027 else ( a -- a' ) begin FALSE-part control flow (until "then").
-const Word* L_else[] PROGMEM = { &W_toR, &W_compile, &W_doElse, &W_here, &W_doLit, (Word*)0, &W_comma,
+const Word* L_else[] = { &W_toR, &W_compile, &W_doElse, &W_here, &W_doLit, (Word*)0, &W_comma,
   &W_here, &W_rFetch, &W_sub, &W_4slash, &W_rFrom, &W_store, &W_ret };
-const Word W_else PROGMEM = { LAST, 0x027, IMMED_COMPO, "\x04" "else", _doCol, (int)L_else };
+const Word W_else = { LAST, 0x027, IMMED_COMPO, "\x04" "else", _doCol, (int)L_else };
 #define LAST WORD( _else ) 
 //////////////////////////////////////////////////////////////////////////
 // W028 then ( a -- ) end of TRUE-part or FALSE-part control flow.
-const Word* L_then[] PROGMEM = { &W_here, &W_over, &W_sub, &W_4slash, &W_swap, &W_store, &W_ret };
-const Word W_then PROGMEM = { LAST, 0x028, IMMED_COMPO, "\x04" "then", _doCol, (int)L_then };
+const Word* L_then[] = { &W_here, &W_over, &W_sub, &W_4slash, &W_swap, &W_store, &W_ret };
+const Word W_then = { LAST, 0x028, IMMED_COMPO, "\x04" "then", _doCol, (int)L_then };
 #define LAST WORD( _then ) 
 //////////////////////////////////////////////////////////////////////////
 // W029 for ( -- a ) begin of counted loop control flow (until "next").
-const Word* L_for[] PROGMEM = { &W_compile, &W_doFor, &W_here, &W_ret };
-const Word W_for PROGMEM = { LAST, 0x029, IMMED_COMPO, "\x03" "for", _doCol, (int)L_for };
+const Word* L_for[] = { &W_compile, &W_doFor, &W_here, &W_ret };
+const Word W_for = { LAST, 0x029, IMMED_COMPO, "\x03" "for", _doCol, (int)L_for };
 #define LAST WORD( _for ) 
 //////////////////////////////////////////////////////////////////////////
 // W02a next ( a -- ) end of counted loop control flow.
-const Word* L_next[] PROGMEM = { &W_compile, &W_doNext, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
-const Word W_next PROGMEM = { LAST, 0x02a, IMMED_COMPO, "\x04" "next", _doCol, (int)L_next };
+const Word* L_next[] = { &W_compile, &W_doNext, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
+const Word W_next = { LAST, 0x02a, IMMED_COMPO, "\x04" "next", _doCol, (int)L_next };
 #define LAST WORD( _next ) 
 //////////////////////////////////////////////////////////////////////////
 // W02b begin ( -- a ) begin of loop control flow (until "again", "until", or "while").
-const Word* L_begin[] PROGMEM = { &W_compile, &W_doBegin, &W_here, &W_ret };
-const Word W_begin PROGMEM = { LAST, 0x02b, IMMED_COMPO, "\x05" "begin", _doCol, (int)L_begin };
+const Word* L_begin[] = { &W_compile, &W_doBegin, &W_here, &W_ret };
+const Word W_begin = { LAST, 0x02b, IMMED_COMPO, "\x05" "begin", _doCol, (int)L_begin };
 #define LAST WORD( _begin ) 
 //////////////////////////////////////////////////////////////////////////
 // W02c again ( a -- ) end of infinite loop control flow.
-const Word* L_again[] PROGMEM = { &W_compile, &W_doAgain, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
-const Word W_again PROGMEM = { LAST, 0x02c, IMMED_COMPO, "\x05" "again", _doCol, (int)L_again };
+const Word* L_again[] = { &W_compile, &W_doAgain, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
+const Word W_again = { LAST, 0x02c, IMMED_COMPO, "\x05" "again", _doCol, (int)L_again };
 #define LAST WORD( _again ) 
 //////////////////////////////////////////////////////////////////////////
 // W02d until ( a -- ) end of loop control flow.
-const Word* L_until[] PROGMEM = { &W_compile, &W_doUntil, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
-const Word W_until PROGMEM = { LAST, 0x02d, IMMED_COMPO, "\x05" "until", _doCol, (int)L_until };
+const Word* L_until[] = { &W_compile, &W_doUntil, &W_here, &W_sub, &W_4slash, &W_comma, &W_ret };
+const Word W_until = { LAST, 0x02d, IMMED_COMPO, "\x05" "until", _doCol, (int)L_until };
 #define LAST WORD( _until ) 
 //////////////////////////////////////////////////////////////////////////
 // W02e while ( a -- a b ) begin TRUE-part loop control flow (until "repeat").
-const Word* L_while[] PROGMEM = { &W_compile, &W_doWhile, &W_here, &W_doLit, (Word*)0, &W_comma, &W_ret };
-const Word W_while PROGMEM = { LAST, 0x02e, IMMED_COMPO, "\x05" "while", _doCol, (int)L_while };
+const Word* L_while[] = { &W_compile, &W_doWhile, &W_here, &W_doLit, (Word*)0, &W_comma, &W_ret };
+const Word W_while = { LAST, 0x02e, IMMED_COMPO, "\x05" "while", _doCol, (int)L_while };
 #define LAST WORD( _while ) 
 //////////////////////////////////////////////////////////////////////////
 // W02f repeat ( a b -- ) end of TRUE-part loop control flow.
-const Word* L_repeat[] PROGMEM = { &W_compile, &W_doRepeat, &W_swap, &W_here, &W_sub, &W_4slash, &W_comma, 
+const Word* L_repeat[] = { &W_compile, &W_doRepeat, &W_swap, &W_here, &W_sub, &W_4slash, &W_comma, 
   &W_here, &W_over, &W_sub, &W_4slash, &W_swap, &W_store, &W_ret };
-const Word W_repeat PROGMEM = { LAST, 0x02f, IMMED_COMPO, "\x06" "repeat", _doCol, (int)L_repeat };
+const Word W_repeat = { LAST, 0x02f, IMMED_COMPO, "\x06" "repeat", _doCol, (int)L_repeat };
 #define LAST WORD( _repeat ) 
-*/
 //////////////////////////////////////////////////////////////////////////
 // W030 immediate ( -- ) set the last defined forth word as immediate type.
 static void _immediate() { F.T->last->flag |= IMMED; }
-//         id     flag   symbol          label       func
-PRIMITIVE( 0x030, 0, "\x09" "immediate", _immediate, _immediate );
+PRIMI( 0x030, 0, "\x09" "immediate", _immediate, _immediate );
 #define LAST WORD( _immediate ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W031 compile-only ( -- ) set the last defined word as compile-only type.
 static void _compile_only() { F.T->last->flag |= COMPO; }
-//         id     flag   symbol             label          func
-PRIMITIVE( 0x031, 0, "\x0c" "compile-only", _compile_only, _compile_only );
+PRIMI( 0x031, 0, "\x0c" "compile-only", _compile_only, _compile_only );
 #define LAST WORD( _compile_only ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W032 hidden ( -- ) set the last defined word as hidden type.
 static void _hidden() { F.T->last->flag |= HIDEN; }
-//         id     flag   symbol       label    func
-PRIMITIVE( 0x032, 0, "\x06" "hidden", _hidden, _hidden );
+PRIMI( 0x032, 0, "\x06" "hidden", _hidden, _hidden );
 #define LAST WORD( _hidden ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W033 $" <string>" ( -- nStr ) create nString or compile nString.
 static void _strQ () { 
   char *tkn=F.parseToken('"');
   if(F.T->state&CMPLING) F.compile( WORD( _doStr ) ), F.compile( (Word*)tkn );
   else F.dPush( (int)tkn ); }
-//         id     flag   symbol        label  func
-PRIMITIVE( 0x033, IMMED, "\x02" "$\"", _strQ, _strQ );
+PRIMI( 0x033, IMMED, "\x02" "$\"", _strQ, _strQ );
 #define LAST WORD( _strQ ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W034 ( <string>) ( -- ) ignore string delimited by right parenthesis.
 static void _paren() { F.parseToken(')'); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x034, IMMED, "\x01" "(", _paren, _paren );
+PRIMI( 0x034, IMMED, "\x01" "(", _paren, _paren );
 #define LAST WORD( _paren ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W035 literal ( n --  ) compile literal n.
 static void _literal() { F.compile( WORD( _doLit ) ), F.compile( (Word*)F.dPop() ); }
-//         id     flag         symbol            label     func
-PRIMITIVE( 0x035, IMMED_COMPO, "\x07" "literal", _literal, _literal );
+PRIMI( 0x035, IMMED_COMPO, "\x07" "literal", _literal, _literal );
 #define LAST WORD( _literal ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W036 ? ( addr -- ) print 32-bit integer at given memory address.
 static void _quest(){ F.dot( *(int*)( F.dPop() ) ); } //
-//         id     flag   symbol  label   func
-PRIMITIVE( 0x036, 0, "\x01" "?", _quest, _quest );
+PRIMI( 0x036, 0, "\x01" "?", _quest, _quest );
 #define LAST WORD( _quest ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W037 last ( -- addr ) in given address, pointer to the forth word just created (may not in vocabulary yet).
 static void _last() { F.dPush( (int) &(F.T->last) ); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x037, 0, "\x04" "last", _last, _last );
+PRIMI( 0x037, 0, "\x04" "last", _last, _last );
 #define LAST WORD( _last ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W038 <# ( i -- i ) begin to convert integer to digits string.
 static void _bToDigits() { F.T->hld = F.tmp+TMP_SIZE-1, *(F.T->hld)=0; }
-//         id     flag   symbol    label      func
-PRIMITIVE( 0x038, 0, "\x02" "<#", _bToDigits, _bToDigits );
+PRIMI( 0x038, 0, "\x02" "<#", _bToDigits, _bToDigits );
 #define LAST WORD( _bToDigits ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W039 hold ( char -- ) insert given char to digits string (may be ',').
 static void _hold() { *(--(F.T->hld)) = F.dPop(); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x039, 0, "\x04" "hold", _hold, _hold );
+PRIMI( 0x039, 0, "\x04" "hold", _hold, _hold );
 #define LAST WORD( _hold ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W03a # ( i -- i/b ) convert i%b to a digit into tmp string buffer
-static void _toDigit() { uint i = *(F.T->DP); int8_t b = F.T->base;
-  *(F.T->DP) = i/b; F.dPush(F.toDigit(i%b)); _hold(); }
-//         id     flag   symbol  label     func
-PRIMITIVE( 0x03a, 0, "\x01" "#", _toDigit, _toDigit );
+static void _toDigit() { uint i = *F.T->DP; int8_t b = F.T->base;
+  *F.T->DP = i/b; F.dPush(F.toDigit(i%b)); _hold(); }
+PRIMI( 0x03a, 0, "\x01" "#", _toDigit, _toDigit );
 #define LAST WORD( _toDigit ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W03b #s ( i -- ) convert i to digits into tmp string buffer
-static void _toDigits() { while(*(F.T->DP)) _toDigit(); F.T->DP--; }
-//         id     flag   symbol   label      func
-PRIMITIVE( 0x03b, 0, "\x02" "#s", _toDigits, _toDigits );
-#define LAST WORD( _toDigits ) 
-
+static void _toStr() { while(*(F.T->DP)) _toDigit(); F.T->DP--; }
+PRIMI( 0x03b, 0, "\x02" "#s", _toStr, _toStr );
+#define LAST WORD( _toStr ) 
 //////////////////////////////////////////////////////////////////////////
 // W03c #> ( -- nStr ) end of number conversion, push the digits string onto data stack.
 static void _theDigits() { char*p = F.T->hld, n = strlen(p); *(--p) = n; F.dPush( (int)p ); }
-//         id     flag   symbol   label       func
-PRIMITIVE( 0x03c, 0, "\x02" "#>", _theDigits, _theDigits );
+PRIMI( 0x03c, 0, "\x02" "#>", _theDigits, _theDigits );
 #define LAST WORD( _theDigits ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W03d z" <string>" ( -- zStr ) create zString or compile zString.
 static void _zstrQ () { 
   char *tkn=F.parseToken('"')+1;
   if(F.T->state&CMPLING) F.compile( WORD( _doStr ) ), F.compile( (Word*)tkn );
   else F.dPush( (int)tkn ); }
-//         id     flag   symbol        label   func
-PRIMITIVE( 0x033, IMMED, "\x02" "z\"", _zstrQ, _zstrQ );
+PRIMI( 0x033, IMMED, "\x02" "z\"", _zstrQ, _zstrQ );
 #define LAST WORD( _zstrQ ) 
-
 //////////////////////////////////////////////////////////////////////////
-// word set 1 ( number conversion base and memory access forth words )
+// wordset 1 ( number conversion base and memory access forth words )
 //////////////////////////////////////////////////////////////////////////
 // W100 binary ( -- ) set number conversion base = 2.
 static void _binary() { F.T->base=2; }
-//         id     flag   symbol       label    func
-PRIMITIVE( 0x100, 0, "\x06" "binary", _binary, _binary );
+PRIMI( 0x100, 0, "\x06" "binary", _binary, _binary );
 #define LAST WORD( _binary ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W101 octal ( -- ) set number conversion base = 8.
 static void _octal() { F.T->base=8; }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x101, 0, "\x05" "octal", _octal, _octal );
+PRIMI( 0x101, 0, "\x05" "octal", _octal, _octal );
 #define LAST WORD( _octal ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W102 decimal ( -- ) set number conversion base = 10.
 static void _decimal() { F.T->base=10; }
-//         id     flag   symbol        label     func
-PRIMITIVE( 0x102, 0, "\x07" "decimal", _decimal, _decimal );
+PRIMI( 0x102, 0, "\x07" "decimal", _decimal, _decimal );
 #define LAST WORD( _decimal ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W103 hex ( -- ) set number conversion base = 16.
 static void _hex() { F.T->base=16; }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x103, 0, "\x03" "hex", _hex, _hex );
+PRIMI( 0x103, 0, "\x03" "hex", _hex, _hex );
 #define LAST WORD( _hex ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W104 base ( -- a ) push address of number conversion base to stack.
 static void _base() { F.dPush((int)&(F.T->base)); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x104, 0, "\x04" "base", _base, _base );
+PRIMI( 0x104, 0, "\x04" "base", _base, _base );
 #define LAST WORD( _base ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W106 @ ( a -- i ) fetch 32-bit number from given memory address.
 static void _fetch () { F.dPush(*(int*)F.dPop()); }
-//         id     flag   symbol  label   func
-PRIMITIVE( 0x106, 0, "\x01" "@", _fetch, _fetch );
+PRIMI( 0x106, 0, "\x01" "@", _fetch, _fetch );
 #define LAST WORD( _fetch ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W107 c! ( c a -- ) store 8-bit number into given memory address.
 static void _cStore() { uint8_t *p=(uint8_t *)F.dPop(); *p=(uint8_t)F.dPop(); }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x107, 0, "\x02" "c!", _cStore, _cStore );
+PRIMI( 0x107, 0, "\x02" "c!", _cStore, _cStore );
 #define LAST WORD( _cStore ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W108 c@ ( a -- c ) fetch 8-bit char from given memory address.
 void _cFetch() { F.dPush(*(int8_t *)F.dPop()); }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x108, 0, "\x02" "c@", _cFetch, _cFetch );
+PRIMI( 0x108, 0, "\x02" "c@", _cFetch, _cFetch );
 #define LAST WORD( _cFetch ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W109 . ( n -- ) print given integer number and a space.
 void _dot() { F.dot(F.dPop()); } 
-//         id     flag   symbol  label func
-PRIMITIVE( 0x109, 0, "\x01" ".", _dot, _dot );
+PRIMI( 0x109, 0, "\x01" ".", _dot, _dot );
 #define LAST WORD( _dot ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W10a .r ( n m -- ) print given integer number right aligned in m-char wide (fill leading spaces if needed).
 void _dotR() { int8_t n=F.dPop(); F.dotR(F.dPop(), n, ' '); } 
-//         id     flag   symbol   label  func
-PRIMITIVE( 0x10a, 0, "\x02" ".r", _dotR, _dotR );
+PRIMI( 0x10a, 0, "\x02" ".r", _dotR, _dotR );
 #define LAST WORD( _dotR ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W10b .0r ( n m -- ) print given integer number right aligned in m-char wide (fill leading '0' if needed).
 void _dotZR() { int8_t n=F.dPop(); F.dotR(F.dPop(), n, '0'); } 
-//         id     flag   symbol    label   func
-PRIMITIVE( 0x10b, 0, "\x03" ".0r", _dotZR, _dotZR );
+PRIMI( 0x10b, 0, "\x03" ".0r", _dotZR, _dotZR );
 #define LAST WORD( _dotZR ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W10c f. ( f -- ) print given floating number and a space.
-void _fDot() { X x; x.i=F.dPop(); PRINTF("%e ", x.f); } 
-//         id     flag   symbol   label  func
-PRIMITIVE( 0x10c, 0, "\x02" "f.", _fDot, _fDot );
+void _fDot() { X x; x.i=F.dPop(); PRINTF("%f ", x.f); } 
+PRIMI( 0x10c, 0, "\x02" "f.", _fDot, _fDot );
 #define LAST WORD( _fDot ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W10d >float ( i -- f ) convert number from integer to float.
 void _toFloat() { X x; x.f=(float)*(F.T->DP); *(F.T->DP)=x.i; } 
-//         id     flag   symbol       label     func
-PRIMITIVE( 0x10d, 0, "\x06" ">float", _toFloat, _toFloat );
-#define LAST WORD( _toFloat )
- 
+PRIMI( 0x10d, 0, "\x06" ">float", _toFloat, _toFloat );
+#define LAST WORD( _toFloat ) 
 //////////////////////////////////////////////////////////////////////////
 // W10e float> ( f -- i ) convert number from float to integer.
 void _floatFrom() { X x; x.i=*(F.T->DP); *(F.T->DP)=(int)(x.f); } 
-//         id     flag   symbol       label       func
-PRIMITIVE( 0x10e, 0, "\x06" "float>", _floatFrom, _floatFrom );
+PRIMI( 0x10e, 0, "\x06" "float>", _floatFrom, _floatFrom );
 #define LAST WORD( _floatFrom ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W10f floor ( f -- f' ) the largest integer float not greater than given floating number.
 void _floor() { X x; x.i=*(F.T->DP); x.f=floor(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x10f, 0, "\x05" "floor", _floor, _floor );
-#define LAST WORD( _floor )
-
+PRIMI( 0x10f, 0, "\x05" "floor", _floor, _floor );
+#define LAST WORD( _floor ) 
 //////////////////////////////////////////////////////////////////////////
 // W110 ceil ( f -- f' ) the smallest integer float not less than given floating number.
 void _ceil() { X x; x.i=*(F.T->DP); x.f=ceil(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x110, 0, "\x04" "ceil", _ceil, _ceil );
-#define LAST WORD( _ceil )
-
+PRIMI( 0x110, 0, "\x04" "ceil", _ceil, _ceil );
+#define LAST WORD( _ceil ) 
 //////////////////////////////////////////////////////////////////////////
 // W111 sin ( f -- sin(f) ) sine value of given angle (floating number expressed in radians).
 void _sin() { X x; x.i=*(F.T->DP); x.f=sin(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x111, 0, "\x03" "sin", _sin, _sin );
-#define LAST WORD( _sin )
-
+PRIMI( 0x111, 0, "\x03" "sin", _sin, _sin );
+#define LAST WORD( _sin ) 
 //////////////////////////////////////////////////////////////////////////
 // W112 cos ( f -- cos(f) ) cosine value of given angle (floating number expressed in radians).
 void _cos() { X x; x.i=*(F.T->DP); x.f=cos(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x112, 0, "\x03" "cos", _cos, _cos );
-#define LAST WORD( _cos )
-
+PRIMI( 0x112, 0, "\x03" "cos", _cos, _cos );
+#define LAST WORD( _cos ) 
 //////////////////////////////////////////////////////////////////////////
 // W113 exp ( f -- exp(f) ) exponential value of given floating number.
 void _exp() { X x; x.i=*(F.T->DP); x.f=exp(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x113, 0, "\x03" "exp", _exp, _exp );
-#define LAST WORD( _exp )
-
+PRIMI( 0x113, 0, "\x03" "exp", _exp, _exp );
+#define LAST WORD( _exp ) 
 //////////////////////////////////////////////////////////////////////////
 // W114 pow ( x y -- pow(x,y) ) raise given floating number x to fractional power y.
 void _pow() { X x, y; x.i=F.dPop(), y.i=F.dPop(); x.f=pow((double)x.f,(double)y.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x114, 0, "\x03" "pow", _pow, _pow );
-#define LAST WORD( _pow )
-
+PRIMI( 0x114, 0, "\x03" "pow", _pow, _pow );
+#define LAST WORD( _pow ) 
 //////////////////////////////////////////////////////////////////////////
 // W115 sqrt ( f -- sqrt(f) ) the square root of given floating number.
 void _sqrt() { X x; x.i=*(F.T->DP); x.f=sqrt(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x115, 0, "\x04" "sqrt", _sqrt, _sqrt );
-#define LAST WORD( _sqrt )
-
+PRIMI( 0x115, 0, "\x04" "sqrt", _sqrt, _sqrt );
+#define LAST WORD( _sqrt ) 
 //////////////////////////////////////////////////////////////////////////
 // W116 tan ( f -- tan(f) ) tangent of an angle (given floating number expressed in radians).
 void _tan() { X x; x.i=*(F.T->DP); x.f=tan(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x116, 0, "\x03" "tan", _tan, _tan );
-#define LAST WORD( _tan )
-
+PRIMI( 0x116, 0, "\x03" "tan", _tan, _tan );
+#define LAST WORD( _tan ) 
 //////////////////////////////////////////////////////////////////////////
 // W117 atan ( x -- atan(x) ) arc tangent (in radians) of given floating number.
 void _atan() { X x; x.i=*(F.T->DP); x.f=atan(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x117, 0, "\x04" "atan", _atan, _atan );
-#define LAST WORD( _atan )
-
+PRIMI( 0x117, 0, "\x04" "atan", _atan, _atan );
+#define LAST WORD( _atan ) 
 //////////////////////////////////////////////////////////////////////////
 // W118 atan2 ( y x -- tan2(y,x) ) arc tangent of 2 floating numbers y and x, y/x.
 void _atan2() { X y, x; x.i=F.dPop(), y.i=*(F.T->DP); x.f=atan2(y.f,x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x118, 0, "\x05" "atan2", _atan2, _atan2 );
-#define LAST WORD( _atan2 )
-
+PRIMI( 0x118, 0, "\x05" "atan2", _atan2, _atan2 );
+#define LAST WORD( _atan2 ) 
 //////////////////////////////////////////////////////////////////////////
 // W119 f+ ( x y -- x+y ) sum of 2 floating numbers, x+y.
 void _fPlus() { X x, y; y.i=F.dPop(), x.i=*(F.T->DP); x.f+=y.f; *(F.T->DP)=x.i; } 
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x119, 0, "\x02" "f+", _fPlus, _fPlus );
-#define LAST WORD( _fPlus )
-
+const Word W_fPlus = { LAST, 0x119, 0, "\x02" "f+", _fPlus, (int)"_atan2fPlus" };
+#define LAST WORD( _fPlus ) 
 //////////////////////////////////////////////////////////////////////////
 // W11a f- ( x y -- x-y ) difference of 2 floating numbers, x-y.
 void _fMinus() { X x, y; y.i=F.dPop(), x.i=*(F.T->DP); x.f-=y.f; *(F.T->DP)=x.i; } 
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x11a, 0, "\x02" "f-", _fMinus, _fMinus );
-#define LAST WORD( _fMinus )
-
+PRIMI( 0x11a, 0, "\x02" "f-", _fMinus, _fMinus );
+#define LAST WORD( _fMinus ) 
 //////////////////////////////////////////////////////////////////////////
 // W11b f* ( x y -- x*y ) product of 2 floating numbers, x*y.
 void _fMul() { X x, y; y.i=F.dPop(), x.i=*(F.T->DP); x.f*=y.f; *(F.T->DP)=x.i; } 
-//         id     flag   symbol   label  func
-PRIMITIVE( 0x11b, 0, "\x02" "f*", _fMul, _fMul );
-#define LAST WORD( _fMul )
-
+PRIMI( 0x11b, 0, "\x02" "f*", _fMul, _fMul );
+#define LAST WORD( _fMul ) 
 //////////////////////////////////////////////////////////////////////////
 // W11c f/ ( x y -- x/y ) quotient of 2 floating numbers, x/y.
 void _fDiv() { X x, y; y.i=F.dPop(), x.i=*(F.T->DP); x.f/=y.f; *(F.T->DP)=x.i; } 
-PRIMITIVE( 0x11c, 0, "\x02" "f/", _fDiv, _fDiv );
+PRIMI( 0x11c, 0, "\x02" "f/", _fDiv, _fDiv );
 #define LAST WORD( _fDiv ) 
 //////////////////////////////////////////////////////////////////////////
 // W11d f% ( x y -- x%y ) remainder of 2 floating numbers, x%y.
 void _fMod() { X x, y; y.i=F.dPop(), x.i=*(F.T->DP); x.f=fmod(x.f,y.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol   label  func
-PRIMITIVE( 0x11d, 0, "\x02" "f%", _fMod, _fMod );
-#define LAST WORD( _fMod )
-
+PRIMI( 0x11d, 0, "\x02" "f%", _fMod, _fMod );
+#define LAST WORD( _fMod ) 
 //////////////////////////////////////////////////////////////////////////
 // W11e fAbs ( x -- abs(x) ) absolute value of given floating number.
 void _fAbs() { X x; x.i=*(F.T->DP); x.f=fabs(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x11e, 0, "\x04" "fAbs", _fAbs, _fAbs );
-#define LAST WORD( _fAbs )
-
+PRIMI( 0x11e, 0, "\x04" "fAbs", _fAbs, _fAbs );
+#define LAST WORD( _fAbs ) 
 //////////////////////////////////////////////////////////////////////////
 // W11f log ( x -- log(x) ) natural logarithm of given floating number.
 void _log() { X x; x.i=*(F.T->DP); x.f=log(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol    label func
-PRIMITIVE( 0x11f, 0, "\x03" "log", _log, _log );
-#define LAST WORD( _log )
-
+PRIMI( 0x11f, 0, "\x03" "log", _log, _log );
+#define LAST WORD( _log ) 
 //////////////////////////////////////////////////////////////////////////
 // W120 log10 ( x -- log10(x) ) logarithm of given floating number to base 10.
 void _log10() { X x; x.i=*(F.T->DP); x.f=log10(x.f); *(F.T->DP)=x.i; } 
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x120, 0, "\x05" "log10", _log10, _log10 );
-#define LAST WORD( _log10 )
-
+PRIMI( 0x120, 0, "\x05" "log10", _log10, _log10 );
+#define LAST WORD( _log10 ) 
 //////////////////////////////////////////////////////////////////////////
-// word set 2 ( arithmetic and stack operation words )
+// wordset 2 ( arithmetic and stack operation words )
 //////////////////////////////////////////////////////////////////////////
 // W200 + ( a b -- a+b ) sum of 2 integer numbers, a+b.
 static void _add () { *(F.T->DP)+=F.dPop(); }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x200, 0, "\x01" "+", _add, _add );
-#define LAST WORD( _add )
-
+PRIMI( 0x200, 0, "\x01" "+", _add, _add );
+#define LAST WORD( _add ) 
 //////////////////////////////////////////////////////////////////////////
 // W201 * ( a b -- a*b ) product of 2 integer numbers, a*b.
 static void _mul () { *(F.T->DP)*=F.dPop(); }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x201, 0, "\x01" "*", _mul, _mul );
-#define LAST WORD( _mul )
-
+PRIMI( 0x201, 0, "\x01" "*", _mul, _mul );
+#define LAST WORD( _mul ) 
 //////////////////////////////////////////////////////////////////////////
 // W202 / ( a b -- a/b ) quotient of 2 integer numbers, a/b.
 static void _div () { *(F.T->DP)/=F.dPop(); }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x202, 0, "\x01" "/", _div, _div );
-#define LAST WORD( _div )
-
+PRIMI( 0x202, 0, "\x01" "/", _div, _div );
+#define LAST WORD( _div ) 
 //////////////////////////////////////////////////////////////////////////
 // W203 mod ( a b -- a%b ) remainder of 2 integer numbers, a%b.
 static void _mod () { *(F.T->DP)%=F.dPop(); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x203, 0, "\x03" "mod", _mod, _mod );
-#define LAST WORD( _mod )
-
+PRIMI( 0x203, 0, "\x03" "mod", _mod, _mod );
+#define LAST WORD( _mod ) 
 //////////////////////////////////////////////////////////////////////////
 // W204 negate ( n -- -n ) negative value of given integer number.
 static void _negate () { *(F.T->DP)=-*(F.T->DP); }
-//         id     flag   symbol       label    func
-PRIMITIVE( 0x204, 0, "\x06" "negate", _negate, _negate );
-#define LAST WORD( _negate )
-
+PRIMI( 0x204, 0, "\x06" "negate", _negate, _negate );
+#define LAST WORD( _negate ) 
 //////////////////////////////////////////////////////////////////////////
 // W205 abs ( n -- abs(n) ) absolute value of given integer number.
 static void _abs () { int v=F.dPop(); F.dPush( abs(v) ); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x205, 0, "\x03" "abs", _abs, _abs );
-#define LAST WORD( _abs )
-
+PRIMI( 0x205, 0, "\x03" "abs", _abs, _abs );
+#define LAST WORD( _abs ) 
 //////////////////////////////////////////////////////////////////////////
 // W206 max ( a b -- max(a,b) )  maximum value of 2 integer numbers a and b,
 static void _max_ () { int b=F.dPop(), a=F.dPop(); F.dPush( a>b?a:b ); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x206, 0, "\x03" "max", _max, _max_ );
+PRIMI( 0x206, 0, "\x03" "max", _max, _max_ );
 #define LAST WORD( _max ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W207 min ( a b -- min(a,b) )  minimum value of a and b
 static void _min_ () { int b=F.dPop(), a=F.dPop(); F.dPush( a<b?a:b ); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x207, 0, "\x03" "min", _min, _min_ );
-#define LAST WORD( _min )
-
+PRIMI( 0x207, 0, "\x03" "min", _min, _min_ );
+#define LAST WORD( _min ) 
 //////////////////////////////////////////////////////////////////////////
 // W208 ** ( a b -- a**b ) raise given integer number a to a integer power b.
 static void _power () { float b=F.dPop(), a=F.dPop(); F.dPush(round(pow(a,b))); }
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x208, 0, "\x02" "**", _power, _power );
-#define LAST WORD( _power )
-
+PRIMI( 0x208, 0, "\x02" "**", _power, _power );
+#define LAST WORD( _power ) 
 //////////////////////////////////////////////////////////////////////////
 // W209 iSqrt ( v -- v**.5 )  sqrt(v)
-static void _iSqrt () { float v=F.dPop(); F.dPush(round(sqrt(v))); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x209, 0, "\x05" "iSqrt", _iSqrt, _iSqrt );
-#define LAST WORD( _iSqrt )
-
+static void _iSqrt () { float v=F.dPop(); F.dPush( round( sqrt( v ) ) ); }
+PRIMI( 0x209, 0, "\x05" "iSqrt", _iSqrt, _iSqrt );
+#define LAST WORD( _iSqrt ) 
 //////////////////////////////////////////////////////////////////////////
 // W20a 1+ ( n -- n+1 ) increase given integer number by 1.
-static void _1plus () { (*(F.T->DP))++; }
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x20a, 0, "\x02" "1+", _1plus, _1plus );
-#define LAST WORD( _1plus )
-
+static void _1plus () { (*F.T->DP)++; }
+PRIMI( 0x20a, 0, "\x02" "1+", _1plus, _1plus );
+#define LAST WORD( _1plus ) 
 //////////////////////////////////////////////////////////////////////////
 // W20b 2+ ( n -- n+2 ) increase given integer number by 2.
-static void _2plus () { (*(F.T->DP))+=2; }
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x20b, 0, "\x02" "2+", _2plus, _2plus );
-#define LAST WORD( _2plus )
-
+static void _2plus () { *F.T->DP += 2; }
+PRIMI( 0x20b, 0, "\x02" "2+", _2plus, _2plus );
+#define LAST WORD( _2plus ) 
 //////////////////////////////////////////////////////////////////////////
 // W20c cell+ ( n -- n+4 ) increase given integer number by 4.
-static void _4plus () { (*(F.T->DP))+=4; }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x20c, 0, "\x05" "cell+", _4plus, _4plus );
-#define LAST WORD( _4plus )
-
+static void _4plus () { *F.T->DP += 4; }
+PRIMI( 0x20c, 0, "\x05" "cell+", _4plus, _4plus );
+#define LAST WORD( _4plus ) 
 //////////////////////////////////////////////////////////////////////////
-// W20d 1- ( n -- n-1 ) decrease given integer number by 1.
-static void _1minus () { (*(F.T->DP))--; }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x20d, 0, "\x02" "1-", _1minus, _1minus );
-#define LAST WORD( _1minus )
-
+// W20d 1- ( n -- n-1 ) decrease given integer number by 1.5 1
+static void _1minus () { (*F.T->DP)--; }
+PRIMI( 0x20d, 0, "\x02" "1-", _1minus, _1minus );
+#define LAST WORD( _1minus ) 
 //////////////////////////////////////////////////////////////////////////
 // W20e 2- ( n -- n-2 ) decrease given integer number by 2.
-static void _2minus () { (*(F.T->DP))-=2; }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x20e, 0, "\x02" "2-", _2minus, _2minus );
-#define LAST WORD( _2minus )
-
+static void _2minus () { *F.T->DP -= 2; }
+PRIMI( 0x20e, 0, "\x02" "2-", _2minus, _2minus );
+#define LAST WORD( _2minus ) 
 //////////////////////////////////////////////////////////////////////////
 // W20f cell- ( n -- n-4 ) decrease given integer number by 4.
-static void _4minus () { (*(F.T->DP))-=4; }
-//         id     flag   symbol      label    func
-PRIMITIVE( 0x20f, 0, "\x05" "cell-", _4minus, _4minus );
-#define LAST WORD( _4minus )
-
+static void _4minus () { *F.T->DP -= 4; }
+PRIMI( 0x20f, 0, "\x05" "cell-", _4minus, _4minus );
+#define LAST WORD( _4minus ) 
 //////////////////////////////////////////////////////////////////////////
 // W210 2* ( n -- n*2 ) multiply given integer number by 2.
-static void _2times () { (*(F.T->DP))*=2; }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x210, 0, "\x02" "2*", _2times, _2times );
-#define LAST WORD( _2times )
-
+static void _2times () { *F.T->DP *= 2; }
+PRIMI( 0x210, 0, "\x02" "2*", _2times, _2times );
+#define LAST WORD( _2times ) 
 //////////////////////////////////////////////////////////////////////////
 // W211 cells ( n -- n*4 ) multiply given integer number by 4.
-static void _cells () { (*(F.T->DP))*=4; }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x211, 0, "\x05" "cells", _cells, _cells );
-#define LAST WORD( _cells )
-
+static void _cells () { *F.T->DP *= 4; }
+PRIMI( 0x211, 0, "\x05" "cells", _cells, _cells );
+#define LAST WORD( _cells ) 
 //////////////////////////////////////////////////////////////////////////
 // W212 2/ ( n -- n/2 ) divide given integer number by 2.
-static void _2slash () { (*(F.T->DP))/=2; }
-//         id     flag   symbol   label    func
-PRIMITIVE( 0x212, 0, "\x02" "2/", _2slash, _2slash );
-#define LAST WORD( _2slash )
-
+static void _2slash () { *F.T->DP /= 2; }
+PRIMI( 0x212, 0, "\x02" "2/", _2slash, _2slash );
+#define LAST WORD( _2slash ) 
 //////////////////////////////////////////////////////////////////////////
 // W214 dup ( n -- n n ) copy the top of data stack.
-static void _dup () { F.dPush( *(F.T->DP) ); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x214, 0, "\x03" "dup", _dup, _dup );
-#define LAST WORD( _dup )
-
+static void _dup () { F.dPush( *F.T->DP ); }
+PRIMI( 0x214, 0, "\x03" "dup", _dup, _dup );
+#define LAST WORD( _dup ) 
 //////////////////////////////////////////////////////////////////////////
 // W215 pick ( ni .. n1 n0 i -- ni .. n1 n0 ni ) copy the top i-th of data stack.
-static void _pick () { F.dPush(F.dPick(F.dPop())); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x215, 0, "\x04" "pick", _pick, _pick );
-#define LAST WORD( _pick )
-
+static void _pick () { F.dPush( F.dPick( F.dPop() ) ); }
+PRIMI( 0x215, 0, "\x04" "pick", _pick, _pick );
+#define LAST WORD( _pick ) 
 //////////////////////////////////////////////////////////////////////////
 // W216 ?dup ( n -- n n | 0 ) copy the top of data stack if the top is not 0.
-static void _qdup () { if(*(F.T->DP)) F.dPush(*(F.T->DP)); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x216, 0, "\x04" "?dup", _qdup, _qdup );
-#define LAST WORD( _qdup )
-
+static void _qdup () { if(*F.T->DP) F.dPush(*F.T->DP); }
+PRIMI( 0x216, 0, "\x04" "?dup", _qdup, _qdup );
+#define LAST WORD( _qdup ) 
 //////////////////////////////////////////////////////////////////////////
 // W217 drop ( n -- ) drop the top of data stack.
 static void _drop () { F.T->DP--; }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x217, 0, "\x04" "drop", _drop, _drop );
-#define LAST WORD( _drop )
-
+PRIMI( 0x217, 0, "\x04" "drop", _drop, _drop );
+#define LAST WORD( _drop ) 
 //////////////////////////////////////////////////////////////////////////
 // W218 nip ( n1 n0 -- n0 ) drop the top next of data stack.
 static void _nip () { int X=*(F.T->DP); F.T->DP-=2; F.dPush(X); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x218, 0, "\x03" "nip", _nip, _nip );
-#define LAST WORD( _nip )
-
+PRIMI( 0x218, 0, "\x03" "nip", _nip, _nip );
+#define LAST WORD( _nip ) 
 //////////////////////////////////////////////////////////////////////////
 // W21a rot ( n2 n1 n0  -- n1 n0 n2 ) roll n2 to top of data stack.
 static void _rot () { F.dRoll(2); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x21a, 0, "\x03" "rot", _rot, _rot );
+PRIMI( 0x21a, 0, "\x03" "rot", _rot, _rot );
 #define LAST WORD( _rot ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W21b roll ( ni .. n1 n0 i -- .. n1 n0 ni ) roll ni to top of data stack.
 static void _roll () { F.dRoll(F.dPop()); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x21b, 0, "\x04" "roll", _roll, _roll );
-#define LAST WORD( _roll )
-
+PRIMI( 0x21b, 0, "\x04" "roll", _roll, _roll );
+#define LAST WORD( _roll ) 
 //////////////////////////////////////////////////////////////////////////
 // W21c -rot ( n2 n1 n0  -- n0 n2 n1 ) back roll top of data stack to n2.
 static void _backRot () { F.dBackRoll(2); }
-//         id     flag   symbol     label     func
-PRIMITIVE( 0x21c, 0, "\x04" "-rot", _backRot, _backRot );
-#define LAST WORD( _backRot )
-
+PRIMI( 0x21c, 0, "\x04" "-rot", _backRot, _backRot );
+#define LAST WORD( _backRot ) 
 //////////////////////////////////////////////////////////////////////////
 // W21d -roll ( ni .. n1 n0 i -- n0 ni .. n1 ) back roll top of data stack to ni.
 static void _backRoll () { F.dBackRoll(F.dPop()); }
-//         id     flag   symbol      label      func
-PRIMITIVE( 0x21d, 0, "\x05" "-roll", _backRoll, _backRoll );
+PRIMI( 0x21d, 0, "\x05" "-roll", _backRoll, _backRoll );
 #define LAST WORD( _backRoll ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W21e 2dup ( n1 n0 -- n1 n0 n1 n0 )  copy top double-number of data stack.
 static void _2dup () { _over(), _over(); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x21e, 0, "\x04" "2dup", _2dup, _2dup );
-#define LAST WORD( _2dup )
-
+PRIMI( 0x21e, 0, "\x04" "2dup", _2dup, _2dup );
+#define LAST WORD( _2dup ) 
 //////////////////////////////////////////////////////////////////////////
 // W21f 2drop ( n1 n0 -- ) drop top double-number of data stack.
 static void _2drop () { F.T->DP-=2; }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x21f, 0, "\x05" "2drop", _2drop, _2drop );
-#define LAST WORD( _2drop )
-
+PRIMI( 0x21f, 0, "\x05" "2drop", _2drop, _2drop );
+#define LAST WORD( _2drop ) 
 //////////////////////////////////////////////////////////////////////////
 // W220 2over ( n3 n2 n1 n0 -- n3 n2 n1 n0 n3 n2 ) copy top next double-number of data stack.
 static void _2over () { F.dPush(F.dPick(3)), F.dPush(F.dPick(3)); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x220, 0, "\x05" "2over", _2over, _2over );
+PRIMI( 0x220, 0, "\x05" "2over", _2over, _2over );
 #define LAST WORD( _2over ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W221 2swap ( n3 n2 n1 n0  -- n1 n0 n3 n2 ) swap top 2 double-numbers of data stack.
 static void _2swap () { F.dRoll(3), F.dRoll(3); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x221, 0, "\x05" "2swap", _2swap, _2swap );
+PRIMI( 0x221, 0, "\x05" "2swap", _2swap, _2swap );
 #define LAST WORD( _2swap ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W225 and ( a b -- a&b ) bitwise AND operation of 2 given numbers.
-static void _and () { *(F.T->DP)&=F.dPop(); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x225, 0, "\x03" "and", _and, _and );
-#define LAST WORD( _and )
-
+static void _and () { *F.T->DP &= F.dPop(); }
+PRIMI( 0x225, 0, "\x03" "and", _and, _and );
+#define LAST WORD( _and ) 
 //////////////////////////////////////////////////////////////////////////
 // W226 or ( a b -- a|b ) bitwise OR operation of 2 given numbers.
-static void _or () { *(F.T->DP)|=F.dPop(); }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x226, 0, "\x02" "or", _or, _or );
-#define LAST WORD( _or )
-
+static void _or () { *F.T->DP |= F.dPop(); }
+PRIMI( 0x226, 0, "\x02" "or", _or, _or );
+#define LAST WORD( _or ) 
 //////////////////////////////////////////////////////////////////////////
 // W227 xor ( a b -- a^b ) bitwise XOR operation of 2 given numbers.
-static void _xor () { *(F.T->DP)^=F.dPop(); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x227, 0, "\x03" "xor", _xor, _xor );
-#define LAST WORD( _xor )
-
+static void _xor () { *F.T->DP ^= F.dPop(); }
+PRIMI( 0x227, 0, "\x03" "xor", _xor, _xor );
+#define LAST WORD( _xor ) 
 //////////////////////////////////////////////////////////////////////////
 // W228 not ( n -- n^-1 ) bitwise XOR given number by -1.
-static void _not () { *(F.T->DP)^=-1; }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x228, 0, "\x03" "not", _not, _not );
-#define LAST WORD( _not )
-
+static void _not () { *F.T->DP ^= -1; }
+PRIMI( 0x228, 0, "\x03" "not", _not, _not );
+#define LAST WORD( _not ) 
 //////////////////////////////////////////////////////////////////////////
 // W229 0= ( n -- n==0 ) check top integer on data stack if it is 0.
-static void _0eq () { *(F.T->DP) = *(F.T->DP)==0; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x229, 0, "\x02" "0=", _0eq, _0eq );
-#define LAST WORD( _0eq )
-
+static void _0eq () { *F.T->DP = *F.T->DP==0; }
+PRIMI( 0x229, 0, "\x02" "0=", _0eq, _0eq );
+#define LAST WORD( _0eq ) 
 //////////////////////////////////////////////////////////////////////////
 // W22a 0!= ( n -- n!=0 ) check top integer on data stack if it is not 0.
-static void _0ne () { *(F.T->DP) = *(F.T->DP)!=0; }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x22a, 0, "\x03" "0!=", _0ne, _0ne );
-#define LAST WORD( _0ne )
-
+static void _0ne () { *F.T->DP = *F.T->DP!=0; }
+PRIMI( 0x22a, 0, "\x03" "0!=", _0ne, _0ne );
+#define LAST WORD( _0ne ) 
 //////////////////////////////////////////////////////////////////////////
 // W22b 0< ( n -- n<0 ) check top integer on data stack if it is less than 0.
-static void _0lt () { *(F.T->DP) = *(F.T->DP)<0; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x22b, 0, "\x02" "0<", _0lt, _0lt );
-#define LAST WORD( _0lt )
-
+static void _0lt () { *F.T->DP = *F.T->DP<0; }
+PRIMI( 0x22b, 0, "\x02" "0<", _0lt, _0lt );
+#define LAST WORD( _0lt ) 
 //////////////////////////////////////////////////////////////////////////
 // W22c 0> ( n -- n>0 ) check top integer on data stack if it is greater than 0.
-static void _0gt () { *(F.T->DP) = *(F.T->DP)>0; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x22c, 0, "\x02" "0>", _0gt, _0gt );
-#define LAST WORD( _0gt )
-
+static void _0gt () { *F.T->DP = *F.T->DP>0; }
+PRIMI( 0x22c, 0, "\x02" "0>", _0gt, _0gt );
+#define LAST WORD( _0gt ) 
 //////////////////////////////////////////////////////////////////////////
 // W22d 0<= ( n -- n<=0 ) check top integer on data stack if it is not greater than 0.
-static void _0le () { *(F.T->DP) = *(F.T->DP)<=0; }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x22d, 0, "\x03" "0<=", _0le, _0le );
-#define LAST WORD( _0le )
-
+static void _0le () { *F.T->DP = *F.T->DP<=0; }
+PRIMI( 0x22d, 0, "\x03" "0<=", _0le, _0le );
+#define LAST WORD( _0le ) 
 //////////////////////////////////////////////////////////////////////////
 // W22e 0>= ( n -- n>=0 ) check top integer on data stack if it is not less than 0.
-static void _0ge () { *(F.T->DP) = *(F.T->DP)>=0; }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x22e, 0, "\x03" "0>=", _0ge, _0ge );
-#define LAST WORD( _0ge )
-
+static void _0ge () { *F.T->DP = *F.T->DP>=0; }
+PRIMI( 0x22e, 0, "\x03" "0>=", _0ge, _0ge );
+#define LAST WORD( _0ge ) 
 //////////////////////////////////////////////////////////////////////////
 // W22f = ( a b -- a==b ) check top 2 integers on data stack if they are equal.
-static void _eq () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)==X; }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x22f, 0, "\x01" "=", _eq, _eq );
+static void _eq () { int X=F.dPop(); *F.T->DP = *F.T->DP==X; }
+PRIMI( 0x22f, 0, "\x01" "=", _eq, _eq );
 #define LAST WORD( _eq ) 
-
 //////////////////////////////////////////////////////////////////////////
 // W230 != ( a b -- a!=b ) check top 2 integers on data stack if they are not equal.
-static void _ne () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)!=X; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x230, 0, "\x02" "!=", _ne, _ne );
-#define LAST WORD( _ne )
-
+static void _ne () { int X=F.dPop(); *F.T->DP = *F.T->DP!=X; }
+PRIMI( 0x230, 0, "\x02" "!=", _ne, _ne );
+#define LAST WORD( _ne ) 
 //////////////////////////////////////////////////////////////////////////
 // W231 < ( a b -- a<b ) check top 2 integers on data stack if a<b.
-static void _lt () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)<X; }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x231, 0, "\x01" "<", _lt, _lt );
-#define LAST WORD( _lt )
-
+static void _lt () { int X=F.dPop(); *F.T->DP = *F.T->DP<X; }
+PRIMI( 0x231, 0, "\x01" "<", _lt, _lt );
+#define LAST WORD( _lt ) 
 //////////////////////////////////////////////////////////////////////////
 // W232 > ( a b -- a>b ) check top 2 integers on data stack if a>b.
-static void _gt () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)>X; }
-//         id     flag   symbol  label func
-PRIMITIVE( 0x232, 0, "\x01" ">", _gt, _gt );
-#define LAST WORD( _gt )
-
+static void _gt () { int X=F.dPop(); *F.T->DP = *F.T->DP>X; }
+PRIMI( 0x232, 0, "\x01" ">", _gt, _gt );
+#define LAST WORD( _gt ) 
 //////////////////////////////////////////////////////////////////////////
 // W233 <= ( a b -- a<=b ) check top 2 integers on data stack if a<=b.
-static void _le () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)<=X; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x233, 0, "\x02" "<=", _le, _le );
-#define LAST WORD( _le )
-
+static void _le () { int X=F.dPop(); *F.T->DP = *F.T->DP<=X; }
+PRIMI( 0x233, 0, "\x02" "<=", _le, _le );
+#define LAST WORD( _le ) 
 //////////////////////////////////////////////////////////////////////////
 // W234 >= ( a b -- a>=b ) check top 2 integers on data stack if a>=b.
-static void _ge () { int X=F.dPop(); *(F.T->DP) = *(F.T->DP)>=X; }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x234, 0, "\x02" ">=", _ge, _ge );
-#define LAST WORD( _ge )
-
+static void _ge () { int X=F.dPop(); *F.T->DP = *F.T->DP>=X; }
+PRIMI( 0x234, 0, "\x02" ">=", _ge, _ge );
+#define LAST WORD( _ge ) 
 //////////////////////////////////////////////////////////////////////////
 // W235 $= ( nStr1 nStr2 -- flag ) check if nStr1 == nStr2
-static void _strEq () { F.dPush(strcmp( (char*)F.dPop(), (char*)F.dPop() ) == 0 ); }
-//         id     flag   symbol   label   func
-PRIMITIVE( 0x235, 0, "\x02" "$=", _strEq, _strEq );
+static void _strEq () { F.dPush( strcmp( (char*)F.dPop(), (char*)F.dPop() ) == 0 ); }
+PRIMI( 0x235, 0, "\x02" "$=", _strEq, _strEq );
 #define LAST WORD( _strEq )
-
 //////////////////////////////////////////////////////////////////////////
-// word set 3 ( other primitive words )
+// W236 depth ( -- depth ) depth of data stack
+static void _depth () { F.dPush(F.dDepth()); }
+PRIMI( 0x236, 0, "\x05" "depth", _depth, _depth );
+#define LAST WORD( _depth )
+//////////////////////////////////////////////////////////////////////////
+// W239 .s ( -- ) show data stack
+static void _dotS() { F.dotS(); }
+PRIMI( 0x239, 0, "\x02" ".s", _dotS, _dotS );
+#define LAST WORD( _dotS )
+//////////////////////////////////////////////////////////////////////////
+// wordset 3 ( other primitive words )
 //////////////////////////////////////////////////////////////////////////
 // W300 char <char> ( -- ascii ) ascii code of given char.
 static void _char () { 
   char c=*(F.parseToken(' ')+1);
   if(F.T->state&CMPLING) F.compile( WORD( _doLit ) ), F.compile( (Word*)c );
   else F.dPush( (int)c ); }
-//         id     flag   symbol         label  func
-PRIMITIVE( 0x300, IMMED, "\x04" "char", _char, _char );
-#define LAST WORD( _char )
-
+PRIMI( 0x300, IMMED, "\x04" "char", _char, _char );
+#define LAST WORD( _char ) 
 //////////////////////////////////////////////////////////////////////////
 // W301 bl ( -- 0x20 ) ascii code of char blank.
-//        id     flag   symbol   label   value
-CONSTANT( 0x301, 0, "\x02" "bl", _bl, ' ' );
-#define LAST WORD( _bl )
-
+const Word W_bl = { LAST, 0x301, 0, "\x02" "bl", _doCon, ' ' };
+#define LAST WORD( _bl ) 
 //////////////////////////////////////////////////////////////////////////
 // W302 emit ( ascii -- ) print the char of given ascii code.
-static void _emit () { WRITE(F.dPop()); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x302, 0, "\x04" "emit", _emit, _emit );
-#define LAST WORD( _emit )
-
+static void _emit () { 
+  F.print((char)F.dPop()); }
+PRIMI( 0x302, 0, "\x04" "emit", _emit, _emit );
+#define LAST WORD( _emit ) 
 //////////////////////////////////////////////////////////////////////////
 // W303 print ( nStr -- ) print given nStr.
-static void _print () { PRINT((char*)(F.dPop())+1); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x303, 0, "\x05" "print", _print, _print );
-#define LAST WORD( _print )
-
+static void _print () { 
+  F.print((char*)(F.dPop())+1); }
+PRIMI( 0x303, 0, "\x05" "print", _print, _print );
+#define LAST WORD( _print ) 
 //////////////////////////////////////////////////////////////////////////
 // W304 type ( addr n -- ) print string of given number of chars at given address.
-static void _type () { char nch=F.dPop(), *adr=(char*)F.dPop(); while(*adr) WRITE(*adr++); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x304, 0, "\x04" "type", _type, _type );
-#define LAST WORD( _type )
-
+static void _type () { char nch=F.dPop(), *adr=(char*)F.dPop(); while(*adr) F.print(*adr++); }
+PRIMI( 0x304, 0, "\x04" "type", _type, _type );
+#define LAST WORD( _type ) 
 //////////////////////////////////////////////////////////////////////////
 // W305 word <str> ( delimiter -- nStr ) parse string by given delimiter.
-static void _word () { F.dPush( (int)F.parseToken( (char)F.dPop() ) ); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x305, 0, "\x04" "word", _word, _word );
-#define LAST WORD( _word )
-
+static void _word () { 
+  F.dPush( (int)F.parseToken( (char)F.dPop() ) ); }
+PRIMI( 0x305, 0, "\x04" "word", _word, _word );
+#define LAST WORD( _word ) 
 //////////////////////////////////////////////////////////////////////////
 // W306 token <str> ( -- nStr ) parse string by white space (length trucated at 30).
-static void _token () { char *t = F.parseToken(' '), n=*t; if(n>0x1f){ *t=n=0x1f, *(t+n+1)=0; } F.dPush( (int)t ); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x306, 0, "\x05" "token", _token, _token );
-#define LAST WORD( _token )
-
+static void _token () { 
+  char *tkn=F.parseToken(' '), n=*tkn; if(n>0x1f){ *tkn=n=0x1f, *(tkn+n+1)=0; } F.dPush( (int)tkn ); }
+PRIMI( 0x306, 0, "\x05" "token", _token, _token );
+#define LAST WORD( _token ) 
 //////////////////////////////////////////////////////////////////////////
 // W307 eval ( nStr -- ) evaluate given nStr.
 static void _eval(){ F.eval((char*)F.dPop()); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x307, 0, "\x04" "eval", _eval, _eval );
-#define LAST WORD( _eval )
-
+PRIMI( 0x307, 0, "\x04" "eval", _eval, _eval );
+#define LAST WORD( _eval ) 
 //////////////////////////////////////////////////////////////////////////
 // W308 find  ( nStr -- word ) find the forth word which name is of given nStr.
-static void _find () { Word*w=F.vocSearch((char*)F.dPop()); F.dPush((int)w); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x308, 0, "\x04" "find", _find, _find );
-#define LAST WORD( _find )
-
+static void _find () { 
+  Word*w=F.vocSearch((char*)F.dPop()); F.dPush((int)w); }
+PRIMI( 0x308, 0, "\x04" "find", _find, _find );
+#define LAST WORD( _find ) 
 //////////////////////////////////////////////////////////////////////////
 // W309 ' ( <nStr> -- word ) find the forth word of given name.
-static void _tick () { Word*w=F.vocSearch(F.parseToken(' ')); F.dPush((int)w); }
-//         id     flag   symbol  label  func
-PRIMITIVE( 0x309, 0, "\x01" "'", _tick, _tick );
-#define LAST WORD( _tick )
-
+static void _tick () { 
+  Word*w=F.vocSearch(F.parseToken(' ')); F.dPush((int)w); }
+PRIMI( 0x309, 0, "\x01" "'", _tick, _tick );
+#define LAST WORD( _tick ) 
 //////////////////////////////////////////////////////////////////////////
 // W30a context ( -- lfa ) the address contain the last word defined.
-static void _context () { F.dPush( (int)&F.voc->context ); }
-//         id     flag   symbol        label     func
-PRIMITIVE( 0x30a, 0, "\x07" "context", _context, _context );
-#define LAST WORD( _context )
-
+static void _context () { F.dPush((int)&(F.voc->context)); }
+PRIMI( 0x30a, 0, "\x07" "context", _context, _context );
+#define LAST WORD( _context ) 
 //////////////////////////////////////////////////////////////////////////
 // W30b ms ( n -- ) wait for n milli seconds
-static void _ms () { F.ms( F.dPop() ); }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x30b, 0, "\x02" "ms", _ms, _ms );
-#define LAST WORD( _ms )
-
+static void _ms () {
+  F.ms(F.dPop()); }
+PRIMI( 0x30b, 0, "\x02" "ms", _ms, _ms );
+#define LAST WORD( _ms ) 
 //////////////////////////////////////////////////////////////////////////
 // W30f ." <string>" ( --  ) Print a string delimited by quote. compile only.
-static void _dotQ() { F.compile( WORD( _doStr ) ), F.compile( (Word*)F.parseToken('"')), F.compile( WORD( _print) ); }
-//         id     flag         symbol        label  func
-PRIMITIVE( 0x30f, IMMED_COMPO, "\x02" ".\"", _dotQ, _dotQ );
-#define LAST WORD( _dotQ )
-
+static void _dotQ() { F.compile( WORD( _doStr ) ), F.compile( (Word*)F.parseToken('"')), F.compile( WORD( _print ) ); }
+PRIMI( 0x30f, IMMED_COMPO, "\x02" ".\"", _dotQ, _dotQ );
+#define LAST WORD( _dotQ ) 
 //////////////////////////////////////////////////////////////////////////
 // W310 .( <string>) ( --  ) Print a string delimited by right parenthesis.
-static void _dotP() { PRINT(F.parseToken(')')+1); }
-//         id     flag   symbol   label  func
-PRIMITIVE( 0x310, 0, "\x02" ".(", _dotP, _dotP );
-#define LAST WORD( _dotP )
-
+static void _dotP() { F.print(F.parseToken(')')+1); }
+PRIMI( 0x310, 0, "\x02" ".(", _dotP, _dotP );
+#define LAST WORD( _dotP ) 
 //////////////////////////////////////////////////////////////////////////
 // W311 cr ( --  ) Print carriage return line feed.
-static void _cr() { PRINT( "\t\n" ); }
-//         id     flag   symbol   label func
-PRIMITIVE( 0x311, 0, "\x02" "cr", _cr, _cr );
-#define LAST WORD( _cr )
-
+static void _cr() { F.print("\n"); }
+PRIMI( 0x311, 0, "\x02" "cr", _cr, _cr );
+#define LAST WORD( _cr ) 
 //////////////////////////////////////////////////////////////////////////
-// word set 4 ( tools )
+// W312 (forget) ( nStr -- ) forget all words since the word of given name
+static void _pForget() { F.forgetWord((char*)F.dPop()); }
+PRIMI( 0x312, 0, "\x08" "(forget)", _pForget, _pForget );
+#define LAST WORD( _pForget )
+//////////////////////////////////////////////////////////////////////////
+// W313 forget ( <name> -- ) forget all words since the word of given name
+const Word* L_forget[] = { &W_bl, &W_word, &W_pForget, &W_ret };
+const Word W_forget = { LAST, 0x313, 0, "\x06" "forget", _doCol, (int)L_forget };
+#define LAST WORD( _forget ) 
+//////////////////////////////////////////////////////////////////////////
+// W312 ?cr ( --  ) Print '\n', if strlen(F.tob)>=F.tobLmt.
+void _qcr(){ F.qcr(); }
+PRIMI( 0x312, 0, "\x03" "?cr", _qcr, _qcr );
+#define LAST WORD( _qcr ) 
+//////////////////////////////////////////////////////////////////////////
+// wordset 4 ( tools )
 //////////////////////////////////////////////////////////////////////////
 // W400 words          ( -- ) show all word names
 //      words <substr> ( -- ) show all word names including given substring
-static void _words () { F.words( F.parseToken(' ') ); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x400, 0, "\x05" "words", _words, _words );
-#define LAST WORD( _words )
-
+static void _words () {
+  char *tkn=F.parseToken(' '); F.words(tkn); }
+PRIMI( 0x400, 0, "\x05" "words", _words, _words );
+#define LAST WORD( _words ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // W401 (see) ( w -- ) see the given word
 static void _psee   () { F.see((Word*)F.dPop()); }
-//         id     flag   symbol      label  func
-PRIMITIVE( 0x401, 0, "\x05" "(see)", _psee, _psee );
-#define LAST WORD( _psee )
-
+PRIMI( 0x401, 0, "\x05" "(see)", _psee, _psee );
+#define LAST WORD( _psee ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // W402 see <name>     ( -- ) see the word of given name
-static void _see   () { F.see( F.vocSearch( F.parseToken(' ') ) ); }
-//         id     flag   symbol    label func
-PRIMITIVE( 0x402, 0, "\x03" "see", _see, _see );
-#define LAST WORD( _see )
-
+static void _see   () { 
+  F.see(F.vocSearch(F.parseToken(' '))); }
+PRIMI( 0x402, 0, "\x03" "see", _see, _see );
+#define LAST WORD( _see ) 
 //////////////////////////////////////////////////////////////////////////
 // W403 dump           ( a n -- ) show n cells at address a
-static void _dump  () { int X = F.dPop(); F.dump( (int*)F.dPop(), X ); }
-//         id     flag   symbol     label  func
-PRIMITIVE( 0x403, 0, "\x04" "dump", _dump, _dump );
-#define LAST WORD( _dump )
-
+static void _dump  () { 
+  int X=F.dPop(); F.dump((int*)F.dPop(),X); }
+PRIMI( 0x403, 0, "\x04" "dump", _dump, _dump );
+#define LAST WORD( _dump ) 
 //////////////////////////////////////////////////////////////////////////
 // W404 trace <name>  ( ... -- ... ) trace the calling sequence of give forth colon word
 static void _trace  () { 
   char* name = F.parseToken(' ');
-if ( ! *name ) { ABORT( F.T->error, 4030, F.initTib, "\"trace <name>\" ? word name not given ", 0 ); return; }
+if ( ! *name ) { F.abort( 4030, "trace word not given" ); return; }
   Word* w = F.vocSearch(name);
-  if ( ! w ) { ABORT( F.T->error, 4031, F.initTib, "name to trace unDef, given 0x%x \"%s\" ", *name, name+1 ); return; }
+  if ( ! w ) { F.abort( 4031, "name to trace unDef" ); return; }
   F.T->W=w;
-  F.see(w); PRINTF("\ntrace \"\\%d\" \"%s\" ", *name, name+1);
-  F.T->tracing=1; w->code(); }
-//         id     flag   symbol      label   func
-PRIMITIVE( 0x404, 0, "\x05" "trace", _trace, _trace );
-#define LAST WORD( _trace )
-
+  F.see(w);
+  F.print("trace \"\\x"), F.printHex((int)*name), F.print("\" \""), F.print(name+1), F.print("\" ");
+  F.T->tracing=1; w->code();
+}
+PRIMI( 0x404, 0, "\x05" "trace", _trace, _trace );
+#define LAST WORD( _trace ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W405 seeAll ( -- ) see all words defined
 static void _seeAll(){
   Word *w=F.voc->context; int16_t lastId=F.voc->lastId, i=F.voc->nWord;
-  PRINTF("\nall words seen as follows:");
+  F.print("all words seen as follows:\n");
   while(w){ int16_t id=w->id, flag=w->flag; char *name=w->name, n=*name++;
-    if(id!=lastId && (lastId&0xff)!=0xff) PRINTF("\n\n??? id %04x not expected %04x ", id, lastId);
-    PRINTF("\n%03d W%03x ", --i,id); lastId=id-1;
-    F.showWordType(w); PRINTF("%s ",w->name+1);
-    if(strlen(name)!=n) PRINTF("\n??? name length %d not expected %d ", strlen(name), n);
-    F.see(w), w=w->link;
+    if(id!=lastId && (lastId&0xff)!=0xff)
+      F.print("\n\n??? id "), F.printHexZ(id,4), F.print(" not expected "), F.printHexZ(lastId,4), F.print("\" "); 
+    F.print('\n'), F.print(--i), F.print(" W"), F.printHexZ(id,3), F.print(' '); lastId=id-1;
+    F.showWordType(w); F.print(w->name+1), F.print(' ');
+    if(strlen(name)!=n) F.print("\n??? name length "), F.print((int)strlen(name)), F.print(" not expected "), F.print(n), F.print(' ');
+    F.cr(), F.see(w), w=w->link;
   }
 }
-//         id     flag   symbol       label    func
-PRIMITIVE( 0x405, 0, "\x06" "seeAll", _seeAll, _seeAll );
-#define LAST WORD( _seeAll )
-
+PRIMI( 0x405, 0, "\x06" "seeAll", _seeAll, _seeAll );
+#define LAST WORD( _seeAll ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 // W406 dir ( <path> -- ) show directory of given path
@@ -1222,7 +1002,7 @@ static void _dir(){
   File dir = SPIFFS.open( path+1, FILE_READ );
   PRINTF( "\nshow directory 0x%x \"%s\" ", *path, path+1 );
   if( ! dir ){
-    ABORT( F.T->error, 0x406, F.initTib, "\ninvalid path 0x%x \"%s\" ", *path, path+1 ); return;
+    abort( 406, "invalid path" ); return;
   }
   File file;
   pathLen = strlen(path+1);
@@ -1246,83 +1026,79 @@ static void _dir(){
     } else PRINTF( "\n  %6d 0x%x \"%s\" ", file.size(), strlen(fileName), fileName );
   }
 }
-PRIMITIVE( 0x406, 0, "\x03" "dir", _dir, _dir );
+PRIMI( 0x406, 0, "\x03" "dir", _dir, _dir );
 #define LAST WORD( _dir ) 
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// word set 5 ( digital input/output words )
+// wordset 5 ( digital input/output words )
 //////////////////////////////////////////////////////////////////////////
 // W500 led ( -- pin  ) gpio pin number of led on back side of wb32
-//        id     flag   symbol    label value
-CONSTANT( 0x500, 0, "\x03" "led", _led, 16 );
-#define LAST WORD( _led )
-
+const Word W_led = { LAST, 0x500, 0, "\x03" "led", _doCon, 16 };
+#define LAST WORD( _led ) 
 //////////////////////////////////////////////////////////////////////////
 // W501 pinMode ( pin mode -- ) set pin as INPUT or OUTPUT
 static void _pinMode () { int mode=F.dPop(); pinMode(F.dPop(),mode); }
-//         id     flag   symbol        label     func
-PRIMITIVE( 0x501, 0, "\x07" "pinMode", _pinMode, _pinMode );
-#define LAST WORD( _pinMode )
-
+PRIMI( 0x501, 0, "\x07" "pinMode", _pinMode, _pinMode );
+#define LAST WORD( _pinMode ) 
 //////////////////////////////////////////////////////////////////////////
 // W502 INPUT ( -- mode ) pin mode INPUT
-//        id     flag   symbol      label   value
-CONSTANT( 0x502, 0, "\x05" "INPUT", _INPUT, INPUT );
-#define LAST WORD( _INPUT )
-
+const Word W_INPUT = { LAST, 0x502, 0, "\x05" "INPUT", _doCon, INPUT };
+#define LAST WORD( _INPUT ) 
 //////////////////////////////////////////////////////////////////////////
 // W503 OUTPUT ( -- mode ) pin mode OUTPUT
-const Word W_OUTPUT PROGMEM = { LAST, 0x503, 0, "\x06" "OUTPUT", _doCon, OUTPUT };
+const Word W_OUTPUT = { LAST, 0x503, 0, "\x06" "OUTPUT", _doCon, OUTPUT };
 #define LAST WORD( _OUTPUT ) 
 //////////////////////////////////////////////////////////////////////////
 // W504 digitalRead ( pin -- level ) read pin level
 static void _digitalRead  () { *(F.T->DP)=digitalRead (*(F.T->DP)); }
-const Word W_digitalRead PROGMEM = { LAST, 0x504, 0, "\x0b" "digitalRead", _digitalRead , (int)"_digitalRead" };
+const Word W_digitalRead = { LAST, 0x504, 0, "\x0b" "digitalRead", _digitalRead , (int)"_digitalRead" };
 #define LAST WORD( _digitalRead ) 
 //////////////////////////////////////////////////////////////////////////
-// W505 digitalWrite ( pin level -- ) write pin to given level
+// W505 digitalWrite ( pin level -- ) print pin to given level
 static void _digitalWrite  () { int level=F.dPop(); digitalWrite (F.dPop(),level); }
-const Word W_digitalWrite PROGMEM = { LAST, 0x505, 0, "\x0c" "digitalWrite", _digitalWrite, (int)"_digitalWrite"};
+const Word W_digitalWrite = { LAST, 0x505, 0, "\x0c" "digitalWrite", _digitalWrite, (int)"_digitalWrite"};
 #define LAST WORD( _digitalWrite ) 
 //////////////////////////////////////////////////////////////////////////
 // W506 HIGH ( -- level ) pin level HIGH
-const Word W_HIGH PROGMEM = { LAST, 0x506, 0, "\x04" "HIGH", _doCon, HIGH };
+const Word W_HIGH = { LAST, 0x506, 0, "\x04" "HIGH", _doCon, HIGH };
 #define LAST WORD( _HIGH ) 
 //////////////////////////////////////////////////////////////////////////
 // W507 LOW ( -- level ) pin level LOW
-const Word W_LOW PROGMEM = { LAST, 0x507, 0, "\x03" "LOW", _doCon, LOW };
+const Word W_LOW = { LAST, 0x507, 0, "\x03" "LOW", _doCon, LOW };
 #define LAST WORD( _LOW ) 
 //////////////////////////////////////////////////////////////////////////
 // W508 output ( pin -- ) set pin mode as OUTPUT
 static void _output () { uint8_t pin=F.dPop(); pinMode(pin,OUTPUT); }
-PRIMITIVE( 0x508, 0, "\x06" "output", _output, _output );
+PRIMI( 0x508, 0, "\x06" "output", _output, _output );
 #define LAST WORD( _output ) 
 //////////////////////////////////////////////////////////////////////////
 // W509 pinOut ( pin level -- ) set pin to given level
-static void _pinOut () { uint8_t level=F.dPop(), pin=F.dPop(); PRINTF("\n digitalWrite(0x%x, 0x%x) @ ",pin, level), F.showTime(); digitalWrite(pin, level); }
-PRIMITIVE( 0x509, 0, "\x06" "pinOut", _pinOut, _pinOut );
+static void _pinOut () { uint8_t level=F.dPop(), pin=F.dPop();
+//F.print(" digitalWrite(0x"), F.printHex(pin), F.print(", 0x"), F.printHex(level), F.print(") @ "), F.showTime(), F.cr();
+  digitalWrite(pin, level); }
+PRIMI( 0x509, 0, "\x06" "pinOut", _pinOut, _pinOut );
 #define LAST WORD( _pinOut ) 
 //////////////////////////////////////////////////////////////////////////
 // W50a high ( pin -- ) set pin to level HIGH
 static void _high () { F.dPush(HIGH), _pinOut(); }
-PRIMITIVE( 0x50a, 0, "\x04" "high", _high, _high );
+PRIMI( 0x50a, 0, "\x04" "high", _high, _high );
 #define LAST WORD( _high ) 
 //////////////////////////////////////////////////////////////////////////
 // W50b low ( pin -- ) set pin to level LOW
 static void _low () { F.dPush(LOW), _pinOut(); }
-PRIMITIVE( 0x50b, 0, "\x03" "low", _low, _low );
+PRIMI( 0x50b, 0, "\x03" "low", _low, _low );
 #define LAST WORD( _low ) 
 //////////////////////////////////////////////////////////////////////////
 // W50c toggle ( pin -- ) toggle pin level
 static void _toggle () { F.dPush(1-digitalRead(*(F.T->DP))); _pinOut(); }
-PRIMITIVE( 0x50c, 0, "\x06" "toggle", _toggle, _toggle );
+PRIMI( 0x50c, 0, "\x06" "toggle", _toggle, _toggle );
 #define LAST WORD( _toggle ) 
 //////////////////////////////////////////////////////////////////////////
 // W50d input ( pin -- ) set pin mode as INPUT
 static void _input(){
   uint8_t pin=F.dPop();
   pinMode(pin,INPUT); }
-PRIMITIVE( 0x50d, 0, "\x05" "input", _input, _input );
+PRIMI( 0x50d, 0, "\x05" "input", _input, _input );
 #define LAST WORD( _input ) 
 //////////////////////////////////////////////////////////////////////////
 // W50e pinIn ( pin - level ) read pin level
@@ -1330,7 +1106,7 @@ static void _pinIn(){ // 21. pinin ( pin -- v ) read v from digital INPUT pin (v
   uint8_t pin=F.dPop(), level=digitalRead(pin);
 //PRINTF("\ndigitalRead(0x%x)=0x%x; ",pin, level);
   F.dPush(level); } 
-PRIMITIVE( 0x50e, 0, "\x05" "pinIn", _pinIn, _pinIn );
+PRIMI( 0x50e, 0, "\x05" "pinIn", _pinIn, _pinIn );
 #define LAST WORD( _pinIn ) 
 //////////////////////////////////////////////////////////////////////////
 #define LAST WORD( _pinIn ) 
@@ -1339,148 +1115,148 @@ PRIMITIVE( 0x50e, 0, "\x05" "pinIn", _pinIn, _pinIn );
 #ifndef WS06_H
 #define WS06_H
 //////////////////////////////////////////////////////////////////////////
-// W600 blinks ( n -- ) blink led n times // : blinks 2* 1- for led toggle 500 ms next ;
-const Word* L_blinks[] PROGMEM = { &W_led, &W_output, &W_led, &W_high, &W_2times,
+// W600 blinks ( n -- ) blink led n times // : blinks 2* 1- for led toggle 1000 ms next ;
+const Word* L_blinks[] = { &W_led, &W_output, &W_led, &W_high, &W_2times,
   &W_doBegin, &W_qdup,
-  &W_doWhile, (Word*)9, &W_1minus, &W_led, &W_toggle, &W_doLit, (Word*)500, &W_ms,
+  &W_doWhile, (Word*)9, &W_1minus, &W_led, &W_toggle, &W_doLit, (Word*)1000, &W_ms,
   &W_doRepeat, (Word*)-10,
   &W_ret };
-const Word W_blinks PROGMEM = { LAST, 0x600, 0, "\x06" "blinks", _doCol, (int)L_blinks };
+const Word W_blinks = { LAST, 0x600, 0, "\x06" "blinks", _doCol, (int)L_blinks };
 #define LAST WORD( _blinks ) 
 //////////////////////////////////////////////////////////////////////////
-// word set 7 ( all color code words )
+// wordset 7 ( all color code words )
 //////////////////////////////////////////////////////////////////////////
 // W700 wbBLACK ( -- color ) color=0x0000
-const Word W_wbBLACK PROGMEM = { LAST, 0x700, 0, "\x07" "wbBLACK", _doCon, 0x0000 };
+const Word W_wbBLACK = { LAST, 0x700, 0, "\x07" "wbBLACK", _doCon, 0x0000 };
 #define LAST WORD( _wbBLACK ) 
 //////////////////////////////////////////////////////////////////////////
 // W701 wbNAVY ( -- color ) color=0x0F00
-const Word W_wbNAVY PROGMEM = { LAST, 0x701, 0, "\x06" "wbNAVY", _doCon, 0x0f00 };
+const Word W_wbNAVY = { LAST, 0x701, 0, "\x06" "wbNAVY", _doCon, 0x0f00 };
 #define LAST WORD( _wbNAVY ) 
 //////////////////////////////////////////////////////////////////////////
 // W702 wbDARKGREEN ( -- color ) color=0xE003
-const Word W_wbDARKGREEN PROGMEM = { LAST, 0x702, 0, "\x0b" "wbDARKGREEN", _doCon, 0xe003 };
+const Word W_wbDARKGREEN = { LAST, 0x702, 0, "\x0b" "wbDARKGREEN", _doCon, 0xe003 };
 #define LAST WORD( _wbDARKGREEN ) 
 //////////////////////////////////////////////////////////////////////////
 // W703 wbDARKCYAN ( -- color ) color=0xEF03
-const Word W_wbDARKCYAN PROGMEM = { LAST, 0x703, 0, "\x0a" "wbDARKCYAN", _doCon, 0xef03 };
+const Word W_wbDARKCYAN = { LAST, 0x703, 0, "\x0a" "wbDARKCYAN", _doCon, 0xef03 };
 #define LAST WORD( _wbDARKCYAN ) 
 //////////////////////////////////////////////////////////////////////////
 // W704 wbMAROON ( -- color ) color=0x0078
-const Word W_wbMAROON PROGMEM = { LAST, 0x704, 0, "\x08" "wbMAROON", _doCon, 0x0078 };
+const Word W_wbMAROON = { LAST, 0x704, 0, "\x08" "wbMAROON", _doCon, 0x0078 };
 #define LAST WORD( _wbMAROON ) 
 //////////////////////////////////////////////////////////////////////////
 // W705 wbPURPLE ( -- color ) color=0x0F78
-const Word W_wbPURPLE PROGMEM = { LAST, 0x705, 0, "\x08" "wbPURPLE", _doCon, 0x0f78 };
+const Word W_wbPURPLE = { LAST, 0x705, 0, "\x08" "wbPURPLE", _doCon, 0x0f78 };
 #define LAST WORD( _wbPURPLE ) 
 //////////////////////////////////////////////////////////////////////////
 // W706 wbOLIVE ( -- color ) color=0xE07B
-const Word W_wbOLIVE PROGMEM = { LAST, 0x706, 0, "\x07" "wbOLIVE", _doCon, 0xe07b };
+const Word W_wbOLIVE = { LAST, 0x706, 0, "\x07" "wbOLIVE", _doCon, 0xe07b };
 #define LAST WORD( _wbOLIVE ) 
 //////////////////////////////////////////////////////////////////////////
 // W707 wbLIGHTGREY ( -- color ) color=0x18C6
-const Word W_wbLIGHTGREY PROGMEM = { LAST, 0x707, 0, "\x0b" "wbLIGHTGREY", _doCon, 0x18c6 };
+const Word W_wbLIGHTGREY = { LAST, 0x707, 0, "\x0b" "wbLIGHTGREY", _doCon, 0x18c6 };
 #define LAST WORD( _wbLIGHTGREY ) 
 //////////////////////////////////////////////////////////////////////////
 // W708 wbDARKGREY ( -- color ) color=0xEF7B
-const Word W_wbDARKGREY PROGMEM = { LAST, 0x708, 0, "\x0a" "wbDARKGREY", _doCon, 0xef7b };
+const Word W_wbDARKGREY = { LAST, 0x708, 0, "\x0a" "wbDARKGREY", _doCon, 0xef7b };
 #define LAST WORD( _wbDARKGREY ) 
 //////////////////////////////////////////////////////////////////////////
 // W709 wbBLUE ( -- color ) color=0x1F00
-const Word W_wbBLUE PROGMEM = { LAST, 0x709, 0, "\x06" "wbBLUE", _doCon, 0x1f00 };
+const Word W_wbBLUE = { LAST, 0x709, 0, "\x06" "wbBLUE", _doCon, 0x1f00 };
 #define LAST WORD( _wbBLUE ) 
 //////////////////////////////////////////////////////////////////////////
 // W70a wbGREEN ( -- color ) color=0xE007
-const Word W_wbGREEN PROGMEM = { LAST, 0x70a, 0, "\x07" "wbGREEN", _doCon, 0xe007 };
+const Word W_wbGREEN = { LAST, 0x70a, 0, "\x07" "wbGREEN", _doCon, 0xe007 };
 #define LAST WORD( _wbGREEN ) 
 //////////////////////////////////////////////////////////////////////////
 // W70b wbCYAN ( -- color ) color=0xFF07
-const Word W_wbCYAN PROGMEM = { LAST, 0x70b, 0, "\x06" "wbCYAN", _doCon, 0xff07 };
+const Word W_wbCYAN = { LAST, 0x70b, 0, "\x06" "wbCYAN", _doCon, 0xff07 };
 #define LAST WORD( _wbCYAN ) 
 //////////////////////////////////////////////////////////////////////////
 // W70c wbRED ( -- color ) color=0x00F8
-const Word W_wbRED PROGMEM = { LAST, 0x70c, 0, "\x05" "wbRED", _doCon, 0x00f8 };
+const Word W_wbRED = { LAST, 0x70c, 0, "\x05" "wbRED", _doCon, 0x00f8 };
 #define LAST WORD( _wbRED ) 
 //////////////////////////////////////////////////////////////////////////
 // W70d wbMAGENTA ( -- color ) color=0x1FF8
-const Word W_wbMAGENTA PROGMEM = { LAST, 0x70d, 0, "\x09" "wbMAGENTA", _doCon, 0x1ff8 };
+const Word W_wbMAGENTA = { LAST, 0x70d, 0, "\x09" "wbMAGENTA", _doCon, 0x1ff8 };
 #define LAST WORD( _wbMAGENTA ) 
 //////////////////////////////////////////////////////////////////////////
 // W70e wbYELLOW ( -- color ) color=0xE0FF
-const Word W_wbYELLOW PROGMEM = { LAST, 0x70e, 0, "\x08" "wbYELLOW", _doCon, 0xe0ff };
+const Word W_wbYELLOW = { LAST, 0x70e, 0, "\x08" "wbYELLOW", _doCon, 0xe0ff };
 #define LAST WORD( _wbYELLOW ) 
 //////////////////////////////////////////////////////////////////////////
 // W70f wbWHITE ( -- color ) color=0xFFFF
-const Word W_wbWHITE PROGMEM = { LAST, 0x70f, 0, "\x07" "wbWHITE", _doCon, 0xffff };
+const Word W_wbWHITE = { LAST, 0x70f, 0, "\x07" "wbWHITE", _doCon, 0xffff };
 #define LAST WORD( _wbWHITE ) 
 //////////////////////////////////////////////////////////////////////////
 // W710 wbORANGE ( -- color ) color=0x20FD
-const Word W_wbORANGE PROGMEM = { LAST, 0x710, 0, "\x08" "wbORANGE", _doCon, 0x20fd };
+const Word W_wbORANGE = { LAST, 0x710, 0, "\x08" "wbORANGE", _doCon, 0x20fd };
 #define LAST WORD( _wbORANGE ) 
 //////////////////////////////////////////////////////////////////////////
 // W711 wbGREENYELLOW ( -- color ) color=0xE5AF
-const Word W_wbGREENYELLOW PROGMEM = { LAST, 0x711, 0, "\x0d" "wbGREENYELLOW", _doCon, 0xe5af };
+const Word W_wbGREENYELLOW = { LAST, 0x711, 0, "\x0d" "wbGREENYELLOW", _doCon, 0xe5af };
 #define LAST WORD( _wbGREENYELLOW ) 
 //////////////////////////////////////////////////////////////////////////
 // W712 wbPINK ( -- color ) color=0x1FF8
-const Word W_wbPINK PROGMEM = { LAST, 0x712, 0, "\x06" "wbPINK", _doCon, 0x1ff8 };
+const Word W_wbPINK = { LAST, 0x712, 0, "\x06" "wbPINK", _doCon, 0x1ff8 };
 #define LAST WORD( _wbPINK ) 
 //////////////////////////////////////////////////////////////////////////
 // W713 _wbColor ( i -- color ) color of given index
 #define nColor 0x13
-const uint16_t wbColor[nColor] PROGMEM = {
+const uint16_t wbColor[nColor] = {
   0x0000, 0x0f00, 0xe003, 0xef03, 0x0078, 0x0f78, 0xe07b, 0x18c6,
   0xef7b, 0x1f00, 0xe007, 0xff07, 0x00f8, 0x1ff8, 0xe0ff, 0xffff,
   0x20fd, 0xe5af, 0x1ff8 };
 static void _wbColor(){ F.dPush(wbColor[(F.dPop())%nColor]); }
-PRIMITIVE( 0x713, 0, "\x08" "_wbColor", _wbColor, _wbColor );
+PRIMI( 0x713, 0, "\x08" "_wbColor", _wbColor, _wbColor );
 #define LAST WORD( _wbColor ) 
 //////////////////////////////////////////////////////////////////////////
 // W716 btLR ( -- pin ) the Left  Red    button
 #define btLR     32
-const Word W_btLR PROGMEM = { LAST, 0x716, 0, "\x04" "btLR", _doCon, btLR };
+const Word W_btLR = { LAST, 0x716, 0, "\x04" "btLR", _doCon, btLR };
 #define LAST WORD( _btLR ) 
 //////////////////////////////////////////////////////////////////////////
 // W717 btLG ( -- pin ) the Left  Green  button
 #define btLG     33
-const Word W_btLG PROGMEM = { LAST, 0x717, 0, "\x04" "btLG", _doCon, btLG };
+const Word W_btLG = { LAST, 0x717, 0, "\x04" "btLG", _doCon, btLG };
 #define LAST WORD( _btLG ) 
 //////////////////////////////////////////////////////////////////////////
 // W718 btRB ( -- pin ) the Right Blue   button
 #define btRB     34
-const Word W_btRB PROGMEM = { LAST, 0x718, 0, "\x04" "btRB", _doCon, btRB };
+const Word W_btRB = { LAST, 0x718, 0, "\x04" "btRB", _doCon, btRB };
 #define LAST WORD( _btRB ) 
 //////////////////////////////////////////////////////////////////////////
 // W719 btRY ( -- pin ) the Right Yellow button
 #define btRY     35
-const Word W_btRY PROGMEM = { LAST, 0x719, 0, "\x04" "btRY", _doCon, btRY };
+const Word W_btRY = { LAST, 0x719, 0, "\x04" "btRY", _doCon, btRY };
 #define LAST WORD( _btRY ) 
 //////////////////////////////////////////////////////////////////////////
 // W71a btSTART ( -- pin ) the small  right button
 #define btSTART  23
-const Word W_btSTART PROGMEM = { LAST, 0x71a, 0, "\x07" "btSTART", _doCon, btSTART };
+const Word W_btSTART = { LAST, 0x71a, 0, "\x07" "btSTART", _doCon, btSTART };
 #define LAST WORD( _btSTART ) 
 //////////////////////////////////////////////////////////////////////////
 // W71b btSELECT ( -- pin ) the small  left button
 #define btSELECT 39
-const Word W_btSELECT PROGMEM = { LAST, 0x71b, 0, "\x08" "btSELECT", _doCon, btSELECT };
+const Word W_btSELECT = { LAST, 0x71b, 0, "\x08" "btSELECT", _doCon, btSELECT };
 #define LAST WORD( _btSELECT ) 
 //////////////////////////////////////////////////////////////////////////
 // W71c btPROG ( -- pin ) the small  top button on back side
 #define btPROG    0
-const Word W_btPROG PROGMEM = { LAST, 0x71c, 0, "\x06" "btPROG", _doCon, btPROG };
+const Word W_btPROG = { LAST, 0x71c, 0, "\x06" "btPROG", _doCon, btPROG };
 #define LAST WORD( _btPROG ) 
 //////////////////////////////////////////////////////////////////////////
 const int8_t buttons[7] = { btPROG, btLG, btSTART, btLR, btRY, btRB, btSELECT };
 //////////////////////////////////////////////////////////////////////////
 #define LED    16
 #define BEEPER 25
-// word set 8 ( wifiboy 32 graphics type words )
+// wordset 8 ( wifiboy 32 graphics type words )
 /*
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W800 lcdInit ( -- ) linitialize lcd
 static void _lcdInit(){ lcdInit(); }
-const Word W_lcdInit PROGMEM = { LAST, 0x800, 0, "\x07" "lcdInit", lcdInit, (int)"lcdInit" };
+const Word W_lcdInit = { LAST, 0x800, 0, "\x07" "lcdInit", lcdInit, (int)"lcdInit" };
 #define LAST WORD( _lcdInit ) 
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1490,7 +1266,7 @@ static void _wb_setAddrWindow(){
   uint16_t y0=(uint16_t)(F.dPop()), x0=(uint16_t)(F.dPop());
   wb_setAddrWindow(x0, y0, x1, y1);
 }
-PRIMITIVE( 0x801, 0, "\x10" "wb_setAddrWindow", _wb_setAddrWindow, _wb_setAddrWindow );
+PRIMI( 0x801, 0, "\x0e" "wb_setAddrWindow", _wb_setAddrWindow, _wb_setAddrWindow );
 #define LAST WORD( _wb_setAddrWindow ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W802 wb_fillScreen ( color -- ) fill screen by given color
@@ -1498,7 +1274,7 @@ static void _wb_fillScreen(){
   uint16_t color=(uint16_t)(F.dPop());
   wb_fillScreen(color);
 }
-PRIMITIVE( 0x802, 0, "\x0d" "wb_fillScreen", _wb_fillScreen, _wb_fillScreen );
+PRIMI( 0x802, 0, "\x0b" "wb_fillScreen", _wb_fillScreen, _wb_fillScreen );
 #define LAST WORD( _wb_fillScreen ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W803 wb_fillRect ( x y w h color -- ) fill rect by given color
@@ -1508,7 +1284,7 @@ static void _wb_fillRect(){
   int16_t y=(int16_t)(F.dPop()), x=(int16_t)(F.dPop());
   wb_fillRect(x, y, w, h, color);
 }
-PRIMITIVE( 0x803, 0, "\x0b" "wb_fillRect", _wb_fillRect, _wb_fillRect );
+PRIMI( 0x803, 0, "\x09" "wb_fillRect", _wb_fillRect, _wb_fillRect );
 #define LAST WORD( _wb_fillRect ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W804 wb_drawPixel ( x y color -- ) at x,y draw pixel of given color
@@ -1518,7 +1294,7 @@ static void _wb_drawPixel(){
   uint16_t x=(uint16_t)(F.dPop());
   wb_drawPixel(x, y, color);
 }
-PRIMITIVE( 0x804, 0, "\x0c" "wb_drawPixel", _wb_drawPixel, _wb_drawPixel );
+PRIMI( 0x804, 0, "\x0a" "wb_drawPixel", _wb_drawPixel, _wb_drawPixel );
 #define LAST WORD( _wb_drawPixel ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W805 wb_pushColor ( color -- ) push given color
@@ -1526,7 +1302,7 @@ static void _wb_pushColor(){
   uint16_t color=(uint16_t)(F.dPop());
   wb_pushColor(color);
 }
-PRIMITIVE( 0x805, 0, "\x0c" "wb_pushColor", _wb_pushColor, _wb_pushColor );
+PRIMI( 0x805, 0, "\x0a" "wb_pushColor", _wb_pushColor, _wb_pushColor );
 #define LAST WORD( _wb_pushColor ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W806 wb_drawFastVLine ( x y h color -- ) draw vertical line at x,y of hight h
@@ -1537,7 +1313,7 @@ static void _wb_drawFastVLine(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawFastVLine(x, y, h, color);
 }
-PRIMITIVE( 0x806, 0, "\x10" "wb_drawFastVLine", _wb_drawFastVLine, _wb_drawFastVLine );
+PRIMI( 0x806, 0, "\x0e" "wb_drawFastVLine", _wb_drawFastVLine, _wb_drawFastVLine );
 #define LAST WORD( _wb_drawFastVLine ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W807 wb_drawFastHLine ( x y w color -- ) draw horizontal line at x,y of width w
@@ -1548,7 +1324,7 @@ static void _wb_drawFastHLine(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawFastHLine(x, y, w, color);
 }
-PRIMITIVE( 0x807, 0, "\x10" "wb_drawFastHLine", _wb_drawFastHLine, _wb_drawFastHLine );
+PRIMI( 0x807, 0, "\x0e" "wb_drawFastHLine", _wb_drawFastHLine, _wb_drawFastHLine );
 #define LAST WORD( _wb_drawFastHLine ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W808 wb_drawRect ( x y w color -- ) draw rect at x,y of width w hight h
@@ -1560,7 +1336,7 @@ static void _wb_drawRect(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawRect(x, y, w, h, color);
 }
-PRIMITIVE( 0x808, 0, "\x0b" "wb_drawRect", _wb_drawRect, _wb_drawRect );
+PRIMI( 0x808, 0, "\x0b" "wb_drawRect", _wb_drawRect, _wb_drawRect );
 #define LAST WORD( _wb_drawRect ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W809 wb_drawLine ( x0 y0 x1 y1 color w -- ) draw color line from x0,y0 to x1,y1 of width w
@@ -1573,7 +1349,7 @@ static void _wb_drawLine(){
   int16_t x0=(int16_t)(F.dPop());
   wb_drawLine(x0, y0, x1, y1, color, w);
 }
-PRIMITIVE( 0x809, 0, "\x0b" "wb_drawLine", _wb_drawLine, _wb_drawLine );
+PRIMI( 0x809, 0, "\x0b" "wb_drawLine", _wb_drawLine, _wb_drawLine );
 #define LAST WORD( _wb_drawLine ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80a wb_drawCircle ( x y r color w -- ) draw color circle at x,y of radius r width w
@@ -1585,7 +1361,7 @@ static void _wb_drawCircle(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawCircle(x, y, r, color, w);
 }
-PRIMITIVE( 0x80a, 0, "\x0d" "wb_drawCircle", _wb_drawCircle, _wb_drawCircle );
+PRIMI( 0x80a, 0, "\x0d" "wb_drawCircle", _wb_drawCircle, _wb_drawCircle );
 #define LAST WORD( _wb_drawCircle ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80b wb_drawCorner ( x y r corner color w -- ) draw color corner at x,y of radius r width w
@@ -1598,7 +1374,7 @@ static void _wb_drawCorner(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawCorner(x, y, r, corner, color, w);
 }
-PRIMITIVE( 0x80b, 0, "\x0d" "wb_drawCorner", _wb_drawCorner, _wb_drawCorner );
+PRIMI( 0x80b, 0, "\x0d" "wb_drawCorner", _wb_drawCorner, _wb_drawCorner );
 #define LAST WORD( _wb_drawCorner ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80c wb_fillCircle ( x y radius cornername delta color -- ) fill circle at x,y with given radius cornername delta color
@@ -1611,7 +1387,7 @@ static void _wb_fillCircle(){
   int16_t x=(int16_t)(F.dPop());
   wb_fillCircle(x, y, radius, cornername, delta, color);
 }
-PRIMITIVE( 0x80c, 0, "\x0d" "wb_fillCircle", _wb_fillCircle, _wb_fillCircle );
+PRIMI( 0x80c, 0, "\x0d" "wb_fillCircle", _wb_fillCircle, _wb_fillCircle );
 #define LAST WORD( _wb_fillCircle ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80d wb_fillCircle2 ( x y radius color -- ) fill circle at x,y with given radius color
@@ -1622,7 +1398,7 @@ static void _wb_fillCircle2(){
   int16_t x=(int16_t)(F.dPop());
   wb_fillCircle2(x, y, r, color);
 }
-PRIMITIVE( 0x80d, 0, "\xe" "wb_fillCircle2", _wb_fillCircle2, _wb_fillCircle2 );
+PRIMI( 0x80d, 0, "\x0e" "wb_fillCircle2", _wb_fillCircle2, _wb_fillCircle2 );
 #define LAST WORD( _wb_fillCircle2 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80e wb_drawImage ( x y w h image -- ) draw w*h image at x,y
@@ -1635,7 +1411,7 @@ static void _wb_drawImage(){
   uint16_t x=(uint16_t)(F.dPop());
   wb_drawImage(x, y, w, h, image);
 }
-PRIMITIVE( 0x80e, 0, "\xc" "wb_drawImage", _wb_drawImage, _wb_drawImage );
+PRIMI( 0x80e, 0, "\xc" "wb_drawImage", _wb_drawImage, _wb_drawImage );
 #define LAST WORD( _wb_drawImage ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W80f wb_setTextColor ( color bgColor -- ) set color and background color for text
@@ -1644,7 +1420,7 @@ static void _wb_setTextColor(){
   uint16_t color=(uint16_t)(F.dPop());
   wb_setTextColor(color, bgColor);
 }
-PRIMITIVE( 0x80f, 0, "\xf" "wb_setTextColor", _wb_setTextColor, _wb_setTextColor );
+PRIMI( 0x80f, 0, "\x0f" "wb_setTextColor", _wb_setTextColor, _wb_setTextColor );
 #define LAST WORD( _wb_setTextColor ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W810 wb_drawString ( str x y size type -- ) at x,y draw string of given size type 
@@ -1656,7 +1432,7 @@ static void _wb_drawString(){
   const char *str=(const char *)(F.dPop());
   F.dPush( wb_drawString(str, x, y, size, type) );
 }
-PRIMITIVE( 0x810, 0, "\x0d" "wb_drawString", _wb_drawString, _wb_drawString );
+PRIMI( 0x810, 0, "\x0d" "wb_drawString", _wb_drawString, _wb_drawString );
 #define LAST WORD( _wb_drawString ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W811 wb_drawChar ( uniCode x y size type -- w ) at x,y draw char of given uniCode size type, return width
@@ -1668,7 +1444,7 @@ static void _wb_drawChar(){
   uint16_t uniCode=(uint16_t)(F.dPop());
   F.dPush( wb_drawChar(uniCode, x, y, size, type) );
 }
-PRIMITIVE( 0x811, 0, "\x0b" "wb_drawChar", _wb_drawChar, _wb_drawChar );
+PRIMI( 0x811, 0, "\x0b" "wb_ddrawChar", _wb_drawChar, _wb_drawChar );
 #define LAST WORD( _wb_drawChar ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W812 wb_color565 ( r g b -- color ) get color code of given r g b
@@ -1678,13 +1454,13 @@ static void _wb_color565(){
   uint8_t r=(uint8_t)(F.dPop());
   F.dPush( (long)wb_color565(r, g, b) );
 }
-PRIMITIVE( 0x812, 0, "\x0b" "wb_color565", _wb_color565, _wb_color565 );
+PRIMI( 0x812, 0, "\x0b" "wb_color565", _wb_color565, _wb_color565 );
 #define LAST WORD( _wb_color565 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W813 wb_init ( -- ) initialize graphics system
 static int _wb_init_done = 0;
 static void _wb_init(){ if( _wb_init_done ) return; _wb_init_done = 1; wb_init(1); }
-PRIMITIVE( 0x813, 0, "\x07" "wb_init", _wb_init, _wb_init );
+PRIMI( 0x813, 0, "\x07" "wb_init", _wb_init, _wb_init );
 #define LAST WORD( _wb_init ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W814 wb_setPal8 ( i -- color ) set palette of i-th color
@@ -1693,11 +1469,11 @@ static void _wb_setPal8(){
   uint8_t color=(uint8_t)(F.dPop());
   wb_setPal8(i, color);
 }
-PRIMITIVE( 0x814, 0, "\x0a" "wb_setPal8", _wb_setPal8, _wb_setPal8 );
+PRIMI( 0x814, 0, "\x0a" "wb_setPal8", _wb_setPal8, _wb_setPal8 );
 #define LAST WORD( _wb_setPal8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W815 wb_blit8 ( -- )
-const Word W_wb_blit8 PROGMEM = { LAST, 0x815, 0, "\x08" "wb_blit8", wb_blit8, (int)"wb_blit8" };
+const Word W_wb_blit8 = { LAST, 0x815, 0, "\x08" "wb_blit8", wb_blit8, (int)"wb_blit8" };
 #define LAST WORD( _wb_blit8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W816 wb_blit8 ( xs ys ws xd yd width height image -- )
@@ -1712,7 +1488,7 @@ static void _wb_blitBuf8(){
   uint16_t xs=(uint16_t)(F.dPop());
   wb_blitBuf8(xs, ys, ws, xd, yd, width, height, image);
 }
-PRIMITIVE( 0x816, 0, "\x0b" "wb_blitBuf8", _wb_blitBuf8, _wb_blitBuf8 );
+PRIMI( 0x816, 0, "\x0b" "wb_blitBuf8", _wb_blitBuf8, _wb_blitBuf8 );
 #define LAST WORD( _wb_blitBuf8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W817 wb_rot8 ( dx dy angle scale offx offy w h sprite -- )
@@ -1728,7 +1504,7 @@ static void _wb_rot8(){
   uint16_t dx=(uint16_t)(F.dPop());
   wb_rot8(dx, dy, angle, scale, offx, offy, w, h, sprite);
 }
-PRIMITIVE( 0x817, 0, "\x07" "wb_rot8", _wb_rot8, _wb_rot8 );
+PRIMI( 0x817, 0, "\x07" "wb_rot8", _wb_rot8, _wb_rot8 );
 #define LAST WORD( _wb_rot8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W818 wb_setBuf8 ( i d -- )
@@ -1737,15 +1513,15 @@ static void _wb_setBuf8(){
   uint32_t i=(uint32_t)(F.dPop());
   wb_setBuf8(i, d);
 }
-PRIMITIVE( 0x818, 0, "\x0a" "wb_setBuf8", _wb_setBuf8, _wb_setBuf8 );
+PRIMI( 0x818, 0, "\x0a" "wb_setBuf8", _wb_setBuf8, _wb_setBuf8 );
 #define LAST WORD( _wb_setBuf8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W819 wb_initBuf8 ( -- )
-const Word W_wb_initBuf8 PROGMEM = { LAST, 0x819, 0, "\x0b" "wb_initBuf8", wb_initBuf8, (int)"wb_initBuf8" };
+const Word W_wb_initBuf8 = { LAST, 0x819, 0, "\x0b" "wb_initBuf8", wb_initBuf8, (int)"wb_initBuf8" };
 #define LAST WORD( _wb_initBuf8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81a wb_clearBuf8 ( -- )
-const Word W_wb_clearBuf8 PROGMEM = { LAST, 0x81a, 0, "\x0c" "wb_clearBuf8", wb_clearBuf8, (int)"wb_clearBuf8" };
+const Word W_wb_clearBuf8 = { LAST, 0x81a, 0, "\x0c" "wb_clearBuf8", wb_clearBuf8, (int)"wb_clearBuf8" };
 #define LAST WORD( _wb_clearBuf8 ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81b wb_tickerInit ( us code -- )
@@ -1754,20 +1530,20 @@ static void _wb_tickerInit(){
   uint32_t us=(uint32_t)(F.dPop());
   wb_tickerInit(us, code);
 }
-PRIMITIVE( 0x81b, 0, "\x0d" "wb_tickerInit", _wb_tickerInit, _wb_tickerInit );
+PRIMI( 0x81b, 0, "\x0d" "wb_tickerInit", _wb_tickerInit, _wb_tickerInit );
 #define LAST WORD( _wb_tickerInit ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81c wb_tickerAlarm ( us -- )
-static void _wb_tickerAlarm(){ uint32_t us=(uint32_t)(F.dPop()); wb_tickerAlarm(us); }
-PRIMITIVE( 0x81c, 0, "\x0e" "wb_tickerAlarm", _wb_tickerAlarm, _wb_tickerAlarm );
+static void _wb_tickerAlarm(){ uint32_t t=(uint32_t)(F.dPop()); wb_tickerAlarm(t); }
+PRIMI( 0x81c, 0, "\x0e" "wb_tickerAlarm", _wb_tickerAlarm, _wb_tickerAlarm );
 #define LAST WORD( _wb_tickerAlarm ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81d wb_tickerEnable ( -- )
-const Word W_wb_tickerEnable PROGMEM = { LAST, 0x81d, 0, "\x0f" "wb_tickerEnable", wb_tickerEnable, (int)"wb_tickerEnable" };
+const Word W_wb_tickerEnable = { LAST, 0x81d, 0, "\x0f" "wb_tickerEnable", wb_tickerEnable, (int)"wb_tickerEnable" };
 #define LAST WORD( _wb_tickerEnable ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81e wb_tickerDisable ( -- )
-const Word W_wb_tickerDisable PROGMEM = { LAST, 0x81e, 0, "\x10" "wb_tickerDisable", wb_tickerDisable, (int)"wb_tickerDisable" };
+const Word W_wb_tickerDisable = { LAST, 0x81e, 0, "\x10" "wb_tickerDisable", wb_tickerDisable, (int)"wb_tickerDisable" };
 #define LAST WORD( _wb_tickerDisable ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W81f wb_drawNString ( nStr x y size type -- ) at x,y draw string of given size type 
@@ -1779,7 +1555,7 @@ static void _wb_drawNString(){
   const char *nStr=(const char *)(F.dPop());
   F.dPush( wb_drawString(nStr+1, x, y, size, type) );
 }
-PRIMITIVE( 0x81f, 0, "\x0e" "wb_drawNString", _wb_drawNString, _wb_drawNString );
+PRIMI( 0x81f, 0, "\x0e" "wb_drawNString", _wb_drawNString, _wb_drawNString );
 #define LAST WORD( _wb_drawNString ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define imgLIMIT 0x2800
@@ -3067,14 +2843,74 @@ const uint32_t _img[imgLIMIT+1] = {
 0x44416541,0xa6516549,0xc6598551,0x4d8b0c83,0x696a6a6a,0xcc7acb7a,0x6e8bab72,0x6a622d83, 
 0xcc724962,0x2d83ed7a,0xcb72cb72,0x29624962,0xab72ab72,0x696a4862,0xeb820c8b,0x4862696a, 
 0x075ac751};
-const Word W_img PROGMEM = { LAST, 0x820, 0, "\x03" "img", _doCon, (int)_img };
+const Word W_img = { LAST, 0x820, 0, "\x03" "img", _doCon, (int)_img };
 #define LAST WORD( _img ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// word set 09 ( extention words )
+// wordset 09 ( extention words )
+
+uint8_t  buzzerChannel=0; // ESP32 : 0-15
+uint8_t  buzzerPin=25;
+uint8_t  buzzerSwitchPin=17; // set pin level HIGH to turn buzzer on ( wifiboy green )
+uint8_t  buzzerResolutionBits=8; 
+uint8_t  buzzerDuty=128; // (0-255) default value 128 as 50% dutycycle
+double   buzzerFreq=0.00; // 0~12000 Hz, initially set to 0 to mute
+
+//////////////////////////////////////////////////////////////////////////
+// W900 pinFreq ( freq pin -- ) //
+void _pinFreq() { pinFreq( F.dPop(), F.dPop() ); }  
+PRIMI( 0x900, 0, "\x07" "pinFreq", _pinFreq, _pinFreq );
+#define LAST WORD( _pinFreq ) 
+//////////////////////////////////////////////////////////////////////////
+// W901 pinDuty ( duty pin -- ) // "buzzer HIGH" to turn on the buzzer
+void _pinDuty() { pinDuty( F.dPop(), F.dPop() ); }  
+PRIMI( 0x901, 0, "\x07" "pinDuty", _pinDuty, _pinDuty );
+#define LAST WORD( _pinDuty ) 
+//////////////////////////////////////////////////////////////////////////
+// W902 pinUpdate ( pin -- ) // pin level update
+void _pinUpdate() { pinUpdate( (uint8_t)F.dPop() ); }  
+PRIMI( 0x902, 0, "\x09" "pinUpdate", _pinUpdate, _pinUpdate );
+#define LAST WORD( _pinUpdate ) 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// W900 predefined ( -- w ) The last predefined word.
-const Word W_predefined PROGMEM = { LAST, 0x900, 0, "\x0a" "predefined", _doCon, (int)&W_predefined };
-#define LAST WORD( _predefined ) 
+// W903 buzzerSetup ( pin switch -- ) // setup given pin and switch to the buzzer
+void _buzzerSetup() {
+  buzzerSwitchPin = F.dPop(), buzzerPin = F.dPop();
+  pinMode( buzzerPin, OUTPUT );
+  pinMode( buzzerSwitchPin, OUTPUT );
+  ledcSetup( buzzerChannel, buzzerFreq, buzzerResolutionBits );
+  ledcWrite( buzzerChannel, buzzerDuty );
+  ledcAttachPin( buzzerPin, buzzerChannel );
+} 
+PRIMI( 0x903, 0, "\x0b" "buzzerSetup", _buzzerSetup, _buzzerSetup );
+#define LAST WORD( _buzzerSetup ) 
+//////////////////////////////////////////////////////////////////////////
+// W904 tone ( freq -- ) // set freq ( 0~12000 Hz ) to the buzzer.
+void _tone() {
+  X x; x.i = F.dPop(), buzzerFreq = x.f;
+  if( buzzerFreq > 12000.00 ) buzzerFreq = 12000.00;
+  F.showTime(),F.flush(),Serial.printf("buzzer freq %0.2f\n", buzzerFreq );
+  ledcWriteTone( buzzerChannel, buzzerFreq ); } 
+PRIMI( 0x904, 0, "\x04" "tone", _tone, _tone );
+#define LAST WORD( _tone ) 
+//////////////////////////////////////////////////////////////////////////
+// W905 buzzerOn ( -- ) // turn on the buzzer
+void _buzzerOn() {
+  F.showTime(),F.print( "buzzer on\n" );
+  digitalWrite( buzzerSwitchPin, HIGH ); }  
+PRIMI( 0x905, 0, "\x08" "buzzerOn", _buzzerOn, _buzzerOn );
+#define LAST WORD( _buzzerOn ) 
+//////////////////////////////////////////////////////////////////////////
+// W906 buzzerOff( -- ) // turn on the buzzer
+void _buzzerOff() {
+  F.showTime(),F.print( "buzzer off\n" );
+  digitalWrite( buzzerSwitchPin, LOW ); }  
+PRIMI( 0x906, 0, "\x09" "buzzerOff", _buzzerOff, _buzzerOff );
+#define LAST WORD( _buzzerOff ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-Word* word_set=LAST;
+// WA00 predefined ( -- w ) The last predefined word.
+const Word W_predefined = { LAST, 0xA00, 0, "\x0a" "predefined", _doCon, (int) &W_predefined };
+#define LAST WORD( _predefined )
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+const Word* word_set=LAST;
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif WORD_SET

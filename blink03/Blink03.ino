@@ -1,70 +1,30 @@
-/*
-  Blink03 https://github.com/samsuanchen/blink03
-
-  Interactively turns LED on/off with different delay periods. This project is derived
-  from blink02 by adding 2 new words into virtual machine.
-
-  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO
-  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
-  the correct LED pin independent of which board is used.
-  If you want to know what pin the on-board LED is connected to on your Arduino
-  model, check the Technical Specs of your board at:
-  https://www.arduino.cc/en/Main/Products
-
-  derived from blink02, 6 more lines added to create 3 new words, 19 Jan 2019 by samsuanchen@gmail.com
+/* blink03.ino
+  Open Arduino IDE Serial Monitor, from input box we may try the following one by one:
+  50 setDelayLOW      ( Let the led become short flash per second. 讓燈每秒短暫閃亮 )
+  50 setDelayHIGH     ( Let the led become flash quickly. 讓燈快速閃亮 )
+  25 setLed 25 output 17 output 17 high ( Let the buzzer hum. 讓蜂鳴器滴答作響 )
+  17 low              ( Let the buzzer off. 讓蜂鳴器關閉 )
+  0 0 128 160 img wb_drawImage  1000 ms 27 output 27 low
 */
-
-#include <fvm02.h>            // ##### 1.1. load FVM the Forth virtual machine
-FVM F;                                              // ##### 1.2. define F as an instence of FVM
-
-// remember time and level to change led HIGH / LOW
-int timeChangeLevel;
-int changLevel;
-
-// delay period
-int periodHIGH = 1000;
-int periodLOW = 1000;
-
-void setPeriodHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setPeriodHIGH
-void setPeriodLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setPeriodLOW
-void getMillis() { F.dPush( millis() ); }           // ##### 2.3. define the function getMillis
-
-#define LED_BUILTIN 2 // for wifiboy 32
-
-// the setup function runs once when you press reset or power the board
-void setup() {
-  
-  extern Word* word_set;                            // ##### 3.1. request external word set (defined in fvm02_word_set.cpp)
-  F.init( 115200, word_set );                       // ##### 3.2. in setup(), initialize F and the word set
-  
-  F.newPrimitive( "setPeriodHIGH", setPeriodHIGH ); // ##### 4.1. add new primitive word setPeriodHIGH in F
-  F.newPrimitive( "setPeriodLOW",  setPeriodLOW  ); // ##### 4.2. add new primitive word setPeriodLOW  in F
-  F.newPrimitive( "getMillis"   ,  getMillis     ); // ##### 4.3. add new primitive word getMillis     in F
-  
-  // set LED_BUILTIN as a digital output divice (pin level become LOW).
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  // next time and level to change
-  timeChangeLevel = periodLOW;
-  changLevel = HIGH;
-  
+#define LED_BUILTIN 16
+int  led          = LED_BUILTIN;
+int  delayHIGH    = 1000;
+int  delayLOW     = 1000;
+#include <fvm.h>                                          // ##### 1.1. load FVM, the Forth virtual machine class
+FVM F;                                                    // ##### 1.2. define F as an instence of FVM
+void setDelayHIGH() { delayHIGH=F.dPop(); }               // ##### 2.1. define new function setDelayHIGH
+void setDelayLOW()  { delayLOW =F.dPop(); }               // ##### 2.2. define new function setDelayLOW
+void setLed()       { led      =F.dPop(); }               // ##### 2.3. define new function setLed
+void setup() { // the setup function runs once when you press reset or power the board
+  F.init( 115200 );                                       // ##### 3.1. initialize F in setup function
+  F.newPrimitive( "\x0d" "setDelayHIGH", setDelayHIGH );  // ##### 4.1. add new primitive word setDelayHIGH in F
+  F.newPrimitive( "\x0c" "setDelayLOW" , setDelayLOW  );  // ##### 4.2. add new primitive word setDelayLOW  in F
+  F.newPrimitive( "\x05" "setLed"      , setLed       );  // ##### 4.3. add new primitive word getMillis    in F
+  pinMode(led        , OUTPUT);      // initialize digital pin led         as output.
 }
-
-// the loop function runs over and over again forever
-void loop() {
-  
-  F.update();                                       // ##### 5. in loop(), update F state
-
-  // wait time to change
-  if( millis() >= timeChangeLevel ) {
-
-    // chang level
-    digitalWrite( LED_BUILTIN, changLevel );
-
-    // next time and level to change
-    timeChangeLevel += changLevel ? periodHIGH : periodLOW;
-    changLevel = HIGH - changLevel;
-    
-  }
-
+void loop() { // the loop function runs over and over again forever
+  digitalWrite(led        , HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(delayHIGH);                  // wait for a second
+  digitalWrite(led        , LOW);    // turn the LED off by making the voltage LOW
+  delay(delayLOW );                  // wait for a second
 }
