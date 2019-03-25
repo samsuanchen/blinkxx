@@ -45,6 +45,8 @@ Arduino user 的 libraries 工作子目錄, 例如在 windows 其路徑如下:
 
 一旦 啟動了 FVM 虛擬機, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor
 從 input box 中, 可逐行輸入下列指令, 以關 led 燈、開屏幕背光、讓蜂鳴器發 C4 音、再多發 E4 與 A4 兩個音、讓蜂鳴器靜音、讓屏幕顯示圖片 1 秒後關閉。
+
+
 		16 input
   		27 output 27 high
 		25 17 buzzerSetup buzzerOn 261.6 tone
