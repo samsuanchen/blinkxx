@@ -2,7 +2,7 @@
 #ifndef WORD_SET
 #define WORD_SET
 //                    "/////////////////////////////////////////////////"
-char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190317    //\n";
+char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190325    //\n";
 //                    "/////////////////////////////////////////////////"
 #include <Arduino.h>
 #include <math.h>
@@ -865,7 +865,7 @@ PRIMI( 0x306, 0, "\x05" "token", _token, _token );
 #define LAST WORD( _token ) 
 //////////////////////////////////////////////////////////////////////////
 // W307 eval ( nStr -- ) evaluate given nStr.
-static void _eval(){ F.eval((char*)F.dPop()); }
+static void _eval(){ F.initEval((char*)F.dPop()); }
 PRIMI( 0x307, 0, "\x04" "eval", _eval, _eval );
 #define LAST WORD( _eval ) 
 //////////////////////////////////////////////////////////////////////////

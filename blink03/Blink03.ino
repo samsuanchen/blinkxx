@@ -3,8 +3,7 @@
   50 setDelayLOW      ( Let the led become short flash per second. 讓燈每秒短暫閃亮 )
   50 setDelayHIGH     ( Let the led become flash quickly. 讓燈快速閃亮 )
   25 setLed 25 output 17 output 17 high ( Let the buzzer hum. 讓蜂鳴器滴答作響 )
-  17 low              ( Let the buzzer off. 讓蜂鳴器關閉 )
-  0 0 128 160 img wb_drawImage  1000 ms 27 output 27 low
+  0 tone              ( Let the buzzer off. 讓蜂鳴器靜音 )
 */
 #define LED_BUILTIN 16
 int  led          = LED_BUILTIN;
@@ -17,9 +16,9 @@ void setDelayLOW()  { delayLOW =F.dPop(); }               // ##### 2.2. define n
 void setLed()       { led      =F.dPop(); }               // ##### 2.3. define new function setLed
 void setup() { // the setup function runs once when you press reset or power the board
   F.init( 115200 );                                       // ##### 3.1. initialize F in setup function
-  F.newPrimitive( "\x0d" "setDelayHIGH", setDelayHIGH );  // ##### 4.1. add new primitive word setDelayHIGH in F
-  F.newPrimitive( "\x0c" "setDelayLOW" , setDelayLOW  );  // ##### 4.2. add new primitive word setDelayLOW  in F
-  F.newPrimitive( "\x05" "setLed"      , setLed       );  // ##### 4.3. add new primitive word getMillis    in F
+  F.newPrimitive( "setDelayHIGH", setDelayHIGH );         // ##### 4.1. add new primitive word setDelayHIGH in F
+  F.newPrimitive( "setDelayLOW" , setDelayLOW  );         // ##### 4.2. add new primitive word setDelayLOW  in F
+  F.newPrimitive( "setLed"      , setLed       );         // ##### 4.3. add new primitive word getMillis    in F
   pinMode(led        , OUTPUT);      // initialize digital pin led         as output.
 }
 void loop() { // the loop function runs over and over again forever
