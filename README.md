@@ -49,7 +49,23 @@ Arduino user 的 libraries 工作子目錄, 例如在 windows 其路徑如下:
 		16 input
   		27 output 27 high
 		25 17 buzzerSetup buzzerOn 261.6 tone
-		329.6 tone 1000 ms  440.0 tone buzzerOff
+		329.6 tone 1000 ms  440.0 tone
+		buzzerOff
+
+
+此例第一行: 「16 input」 將 led 腳 (GPIO 16) 的 pin mode 設為 INPUT (原為 OUTPUT), 這樣 led 就不再亮了。
+
+
+第二行: 「27 output」 將 屏幕背光 腳 (GPIO 27) 的 pin mode 設為 OUTPUT, 「27 high」 將該腳電位設為 HIGH, 這樣屏幕背光就亮了。
+
+
+第三行: 「25 17 buzzerSetup」 指定 GPIO 25 與 GPIO 17 為 蜂鳴器 的 發聲 與 開關控制 腳,「buzzerOn」打開 蜂鳴器, 「261.6 tone」使 蜂鳴器 發出 261.6 HZ 頻率 鋼琴 中央 C (也就是 C4) 的音。
+
+
+第四行: 「329.6 tone」使 蜂鳴器 發出 329.6 HZ 頻率 E4 的音,「1000 ms」使聲音維持 1 秒,「440.0」使 蜂鳴器 發出 440.0 HZ 頻率的 A4 音。
+
+
+第五行: 「buzzerOff」關掉 蜂鳴器。
 
 
 ## blink02 範例
