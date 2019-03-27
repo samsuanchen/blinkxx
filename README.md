@@ -339,8 +339,8 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 	F.init(baud)			initialize F with given baud rate.
 	F.init(baud,cpu)		initialize F with given baud rate to run at given cpu.
 	F.newPrimitive(name,func)	create new primitive type word of given name to run given function.
-	F.newConstant(name,number)	create new constant type word of given name to return given number.
 	F.newVariable(name,address)	create new variable type word of given name to return given address.
+	F.dPop()			pop data as integer from data stack
 
 
 ## 虛擬機 test.txt 範例 引用的指令 簡要說明
