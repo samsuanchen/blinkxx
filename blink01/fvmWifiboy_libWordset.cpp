@@ -1,4 +1,4 @@
-// fvm_wifiboyWordset.cpp
+// fvm_wifiboy_libWordset.cpp
 #ifndef WORD_SET
 #define WORD_SET
 //                    "/////////////////////////////////////////////////"
@@ -917,10 +917,15 @@ const Word* L_forget[] = { &W_bl, &W_word, &W_pForget, &W_ret };
 const Word W_forget = { LAST, 0x313, 0, "\x06" "forget", _doCol, (int)L_forget };
 #define LAST WORD( _forget ) 
 //////////////////////////////////////////////////////////////////////////
-// W312 ?cr ( --  ) Print '\n', if strlen(F.tob)>=F.tobLmt.
+// W312 ?cr ( -- ) Print '\n', if strlen(F.tob)>=F.tobLmt.
 void _qcr(){ F.qcr(); }
 PRIMI( 0x312, 0, "\x03" "?cr", _qcr, _qcr );
-#define LAST WORD( _qcr ) 
+#define LAST WORD( _qcr )  
+//////////////////////////////////////////////////////////////////////////
+// W313 .id ( w -- ) Print the name of given forth word.
+void _dotId(){ F.dotId( (Word*) F.dPop() ); }
+PRIMI( 0x313, 0, "\x03" ",id", _dotId, _dotId );
+#define LAST WORD( _dotId ) 
 //////////////////////////////////////////////////////////////////////////
 // wordset 4 ( tools )
 //////////////////////////////////////////////////////////////////////////
