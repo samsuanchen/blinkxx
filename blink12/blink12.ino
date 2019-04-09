@@ -2,7 +2,7 @@
   Open Arduino IDE Serial Monitor, from input box we may try the following one by one:
   50 delayLOW  !     ( Let the led become short flash per second. 讓燈每秒短暫閃亮 )
   50 delayHIGH !     ( Let the led become flash quickly. 讓燈快速閃亮 )
-  25 led ! 25 output ( Let the buzzer hum. 讓蜂鳴器滴答作響 )
+  25 led ! 25 output 17 output 17 high ( Let the buzzer hum. 讓蜂鳴器滴答作響 )
   25 input           ( Let the buzzer off. 讓蜂鳴器關閉 )
 */
 int  led          =   16;

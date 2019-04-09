@@ -2,12 +2,13 @@
 #ifndef WORD_SET
 #define WORD_SET
 //                    "/////////////////////////////////////////////////"
-char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190325    //\n";
+char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190408    //\n";
 //                    "/////////////////////////////////////////////////"
 #include <Arduino.h>
 #include <math.h>
 #include <fvm.h>
 #include <wifiboy_lib.h>
+#include <rtc_wdt.h>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define level(pin) digitalRead(pin)
 #define low(pin) digitalWrite(pin, LOW)
@@ -133,11 +134,13 @@ PRIMI( 0x00b, COMPO_HIDEN, "\x06" "(else)", _doElse, _bran );
 #define LAST WORD( _doElse )
 //////////////////////////////////////////////////////////////////////////
 // W00c (then) ( -- ) end of the if-then or the if-else-then control flow.
-PRIMI( 0x00c, COMPO_HIDEN, "\x06" "(then)", _doThen, 0 );
+static void _doThen(){};
+PRIMI( 0x00c, COMPO_HIDEN, "\x06" "(then)", _doThen, _doThen );
 #define LAST WORD( _doThen )
 //////////////////////////////////////////////////////////////////////////
 // W00d (begin) ( -- ) begin of the begin-again, begin-until, or begin-while-repeat control flows.
-PRIMI( 0x00d, COMPO_HIDEN, "\x07" "(begin)", _doBegin, 0 );
+static void _doBegin(){};
+PRIMI( 0x00d, COMPO_HIDEN, "\x07" "(begin)", _doBegin, _doBegin );
 #define LAST WORD( _doBegin )
 //////////////////////////////////////////////////////////////////////////
 // W00e (again) ( -- ) branch backward relatively to the word after (begin).
@@ -200,7 +203,7 @@ PRIMI( 0x017, 0, "\x01" "]", _rBracket, _rBracket );
 #define LAST WORD( _rBracket ) 
 //////////////////////////////////////////////////////////////////////////
 // W018 [ ( -- ) leave compiling state.
-static void _lBracket() { F.T->state ^= CMPLING; }
+static void _lBracket() { if( F.T->state & CMPLING ) F.T->state -= CMPLING; }
 PRIMI( 0x018, IMMED, "\x01" "[", _lBracket, _lBracket );
 #define LAST WORD( _lBracket ) 
 //////////////////////////////////////////////////////////////////////////
@@ -865,7 +868,7 @@ PRIMI( 0x306, 0, "\x05" "token", _token, _token );
 #define LAST WORD( _token ) 
 //////////////////////////////////////////////////////////////////////////
 // W307 eval ( nStr -- ) evaluate given nStr.
-static void _eval(){ F.initEval((char*)F.dPop()); }
+static void _eval(){ F.evalScript((char*)F.dPop()); }
 PRIMI( 0x307, 0, "\x04" "eval", _eval, _eval );
 #define LAST WORD( _eval ) 
 //////////////////////////////////////////////////////////////////////////
@@ -917,10 +920,25 @@ const Word* L_forget[] = { &W_bl, &W_word, &W_pForget, &W_ret };
 const Word W_forget = { LAST, 0x313, 0, "\x06" "forget", _doCol, (int)L_forget };
 #define LAST WORD( _forget ) 
 //////////////////////////////////////////////////////////////////////////
-// W312 ?cr ( --  ) Print '\n', if strlen(F.tob)>=F.tobLmt.
+// W312 ?cr ( -- ) Print '\n', if strlen(F.tob)>=F.tobLmt.
 void _qcr(){ F.qcr(); }
 PRIMI( 0x312, 0, "\x03" "?cr", _qcr, _qcr );
 #define LAST WORD( _qcr ) 
+//////////////////////////////////////////////////////////////////////////
+// W313 .id ( w -- ) Print the name of given forth word.
+void _dotId(){ F.dotId( (Word*) F.dPop() ); }
+PRIMI( 0x313, 0, "\x03" ".id", _dotId, _dotId );
+#define LAST WORD( _dotId ) 
+//////////////////////////////////////////////////////////////////////////
+// W314 getMillis ( -- ms ) get cpu time in milli seconds since powered on or reset.
+void _getMillis(){ F.dPush( millis() ); }
+PRIMI( 0x314, 0, "\x09" "getMillis", _getMillis, _getMillis );
+#define LAST WORD( _getMillis ) 
+//////////////////////////////////////////////////////////////////////////
+// W315 getMicros ( -- us ) get cpu time in micro seconds since powered on or reset.
+void _getMicros(){ F.dPush( micros() ); }
+PRIMI( 0x314, 0, "\x09" "getMicros", _getMicros, _getMicros );
+#define LAST WORD( _getMicros ) 
 //////////////////////////////////////////////////////////////////////////
 // wordset 4 ( tools )
 //////////////////////////////////////////////////////////////////////////
@@ -963,10 +981,14 @@ PRIMI( 0x404, 0, "\x05" "trace", _trace, _trace );
 #define LAST WORD( _trace ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W405 seeAll ( -- ) see all words defined
-static void _seeAll(){
+static void _seeAll(){ 
   Word *w=F.voc->context; int16_t lastId=F.voc->lastId, i=F.voc->nWord;
   F.print("all words seen as follows:\n");
-  while(w){ int16_t id=w->id, flag=w->flag; char *name=w->name, n=*name++;
+  while(w){
+    rtc_wdt_set_time(RTC_WDT_STAGE0, 7000);
+    
+  //esp_task_wdt_reset();
+    int16_t id=w->id, flag=w->flag; char *name=w->name, n=*name++;
     if(id!=lastId && (lastId&0xff)!=0xff)
       F.print("\n\n??? id "), F.printHexZ(id,4), F.print(" not expected "), F.printHexZ(lastId,4), F.print("\" "); 
     F.print('\n'), F.print(--i), F.print(" W"), F.printHexZ(id,3), F.print(' '); lastId=id-1;
@@ -1274,7 +1296,7 @@ static void _wb_fillScreen(){
   uint16_t color=(uint16_t)(F.dPop());
   wb_fillScreen(color);
 }
-PRIMI( 0x802, 0, "\x0b" "wb_fillScreen", _wb_fillScreen, _wb_fillScreen );
+PRIMI( 0x802, 0, "\x0d" "wb_fillScreen", _wb_fillScreen, _wb_fillScreen );
 #define LAST WORD( _wb_fillScreen ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W803 wb_fillRect ( x y w h color -- ) fill rect by given color
@@ -1410,6 +1432,7 @@ static void _wb_drawImage(){
   uint16_t y=(uint16_t)(F.dPop());
   uint16_t x=(uint16_t)(F.dPop());
   wb_drawImage(x, y, w, h, image);
+  wb_drawPixel(10,10,0xffff);
 }
 PRIMI( 0x80e, 0, "\xc" "wb_drawImage", _wb_drawImage, _wb_drawImage );
 #define LAST WORD( _wb_drawImage ) 
@@ -2884,14 +2907,14 @@ void _buzzerSetup() {
 PRIMI( 0x903, 0, "\x0b" "buzzerSetup", _buzzerSetup, _buzzerSetup );
 #define LAST WORD( _buzzerSetup ) 
 //////////////////////////////////////////////////////////////////////////
-// W904 tone ( freq -- ) // set freq ( 0~12000 Hz ) to the buzzer.
-void _tone() {
+// W904 HZ ( freq -- ) // set freq ( 0~12000 Hz ) to the buzzer.
+void _HZ() {
   X x; x.i = F.dPop(), buzzerFreq = x.f;
   if( buzzerFreq > 12000.00 ) buzzerFreq = 12000.00;
   F.showTime(),F.flush(),Serial.printf("buzzer freq %0.2f\n", buzzerFreq );
   ledcWriteTone( buzzerChannel, buzzerFreq ); } 
-PRIMI( 0x904, 0, "\x04" "tone", _tone, _tone );
-#define LAST WORD( _tone ) 
+PRIMI( 0x904, 0, "\x02" "HZ", _HZ, _HZ );
+#define LAST WORD( _HZ ) 
 //////////////////////////////////////////////////////////////////////////
 // W905 buzzerOn ( -- ) // turn on the buzzer
 void _buzzerOn() {
