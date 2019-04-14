@@ -17,7 +17,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		C:\Users\userName\Documents\Arduino\libraries
 
 
-另外, 在 blinkxx 資料夾中還有 8 個 blink 範例 子目錄, 每個 子目錄中 有個自的 .ino 主程式 (依 編號大小 逐步增加其 複雜度):
+另外, 在 blinkxx 資料夾中還有 8 個 blink 範例 子目錄, 每個 子目錄中 
 		
 		blink00, blink01, blink02, blink03,
 		blink10, blink11, blink12, blink13,
