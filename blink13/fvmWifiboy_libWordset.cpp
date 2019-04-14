@@ -8,62 +8,6 @@ char* word_set_logo = "//    fvm wifiboy_lib wordset 1.0  20190408    //\n";
 #include <math.h>
 #include <fvm.h>
 #include <wifiboy_lib.h>
-#include <rtc_wdt.h>
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define level(pin) digitalRead(pin)
-#define low(pin) digitalWrite(pin, LOW)
-#define high(pin) digitalWrite(pin, HIGH)
-#define toggle(pin) digitalWrite(pin, HIGH-digitalRead(pin))
-#define input(pin) pinMode(pin, INPUT)
-#define output(pin) pinMode(pin, OUTPUT)
-#define _us micros()
-
-uint64_t usTimeToToggle = 0;
-uint32_t usPeriodHIGH = 1000000; // 1 second delay for working pin level HIGH
-uint32_t usPeriodLOW = 1000000; // 1 second delay for working pin level LOW
-uint32_t usPeriod; // usPeriodHIGH+usPeriodLOW
-uint8_t  usDuty = 2; // (0-99) default as 2% duty cycle
-uint16_t usFreq = 0; // (0-12000) default 0 to mute
-
-void periodUpdate(){
-  output(27), low(27);
-  usPeriod = 1000000 / usFreq;
-  usPeriodHIGH = usPeriod * usDuty / 100;
-  usPeriodLOW = usPeriod - usPeriodHIGH;
-//Serial.printf("usPeriod=%d, usPeriodHIGH=%d, usPeriodLOW=%d\n",usPeriod, usPeriodHIGH, usPeriodLOW);
-}
-void pinFreq( uint8_t pin, uint16_t freq ){ 
-  usFreq = max( 0, min( 12000, (int)freq ) );
-  if( usFreq == 0 ) return;
-  if( usDuty == 0 || usDuty == 100 ) return;
-  periodUpdate();
-}
-void pinDuty( uint8_t pin, uint8_t duty ){
-  usDuty = min( 0, max( 100, (int)duty ));
-  if( usDuty == 0 ) usPeriod = 0, low( pin );
-  if( usDuty == 100 ) usPeriod = 0, high( pin );
-  if( usFreq == 0 ) return;
-  periodUpdate();
-}
-void pinUpdate( uint8_t pin ){
-  if( usFreq==0 || usDuty==0 || usDuty==100 ) return;
-//Serial.printf("usFreq=%d pin=%d usTimeToToggle=%d\n", usFreq, pin, usTimeToToggle);
-  uint64_t time_us = _us;
-  if( usTimeToToggle == 0 ) usTimeToToggle = time_us+usPeriodHIGH;
-//Serial.printf("time_us=%d\n",time_us);
-//Serial.printf("usPeriodHIGH=%d\n", usPeriodHIGH);
-//Serial.printf("usPeriodHIGH+time_us=%d\n",time_us+usPeriodHIGH);
-//Serial.printf("usTimeToToggle=%d\n", usTimeToToggle);
-//while(1);
-  uint64_t usTime = _us;
-  if( usTime >= usTimeToToggle ){ toggle( pin );
-    Serial.printf("usTime=%d >= usTimeToToggle=%d ", usTime, usTimeToToggle);
-    uint32_t usPeriodLEVEL = level( pin )==HIGH ? usPeriodHIGH : usPeriodLOW;
-    usTimeToToggle += usPeriodLEVEL;
-    if( usTime >= usTimeToToggle ) usTimeToToggle = usTime + usPeriodLEVEL;
-    Serial.printf("usTimeToToggle=%d\n",usTimeToToggle);
-  }
-}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define WORD( name ) (Word*)&W ## name
 #define CONST( id, flag, symbol, name, value ) const Word W ## name = {LAST, id, flag, symbol, _doCon, (int)value}
@@ -402,7 +346,7 @@ static void _zstrQ () {
   char *tkn=F.parseToken('"')+1;
   if(F.T->state&CMPLING) F.compile( WORD( _doStr ) ), F.compile( (Word*)tkn );
   else F.dPush( (int)tkn ); }
-PRIMI( 0x033, IMMED, "\x02" "z\"", _zstrQ, _zstrQ );
+PRIMI( 0x03d, IMMED, "\x02" "z\"", _zstrQ, _zstrQ );
 #define LAST WORD( _zstrQ ) 
 //////////////////////////////////////////////////////////////////////////
 // wordset 1 ( number conversion base and memory access forth words )
@@ -431,6 +375,11 @@ PRIMI( 0x103, 0, "\x03" "hex", _hex, _hex );
 static void _base() { F.dPush((int)&(F.T->base)); }
 PRIMI( 0x104, 0, "\x04" "base", _base, _base );
 #define LAST WORD( _base ) 
+//////////////////////////////////////////////////////////////////////////
+// W105 strLen ( zStr -- n ) length of zStr (a string ended by 0).
+static void _strLen() { F.dTop(strlen((char*)F.dTop())); }
+PRIMI( 0x105, 0, "\x06" "strLen", _strLen, _strLen );
+#define LAST WORD( _strLen ) 
 //////////////////////////////////////////////////////////////////////////
 // W106 @ ( a -- i ) fetch 32-bit number from given memory address.
 static void _fetch () { F.dPush(*(int*)F.dPop()); }
@@ -980,25 +929,28 @@ if ( ! *name ) { F.abort( 4030, "trace word not given" ); return; }
 PRIMI( 0x404, 0, "\x05" "trace", _trace, _trace );
 #define LAST WORD( _trace ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// W405 seeAll ( -- ) see all words defined
-static void _seeAll(){ 
+// W405 checkAll ( -- ) check all words defined
+static void _checkAll(){ 
   Word *w=F.voc->context; int16_t lastId=F.voc->lastId, i=F.voc->nWord;
-  F.print("all words seen as follows:\n");
+  F.print("\nchecking all words");
   while(w){
-    rtc_wdt_set_time(RTC_WDT_STAGE0, 7000);
-    
-  //esp_task_wdt_reset();
-    int16_t id=w->id, flag=w->flag; char *name=w->name, n=*name++;
-    if(id!=lastId && (lastId&0xff)!=0xff)
-      F.print("\n\n??? id "), F.printHexZ(id,4), F.print(" not expected "), F.printHexZ(lastId,4), F.print("\" "); 
-    F.print('\n'), F.print(--i), F.print(" W"), F.printHexZ(id,3), F.print(' '); lastId=id-1;
-    F.showWordType(w); F.print(w->name+1), F.print(' ');
-    if(strlen(name)!=n) F.print("\n??? name length "), F.print((int)strlen(name)), F.print(" not expected "), F.print(n), F.print(' ');
-    F.cr(), F.see(w), w=w->link;
+    int16_t id=w->id; char *name=w->name, n=*name++; bool showName=false;
+    if(id!=lastId && (lastId&0xff)!=0xff){
+      F.print("\n??? id "), F.printHexZ(id,3), F.print(" not expected "), F.printHexZ(lastId,3), showName=true; 
+    }
+    if(strlen(name)!=n){
+      F.print("\n??? nameLen "), F.print((int)strlen(name)), F.print(" not expected "), F.print((int)n), showName=true;
+    }
+    i--;
+    if(showName){
+      F.print('\n'), F.print(i), F.print(" W"), F.printHexZ(id,3);
+      F.print(' '), F.showWordType(w), F.print("0x"), F.printHex(n), F.print(' '), F.print(w->name+1);
+    }
+    lastId=id-1, w=w->link;
   }
 }
-PRIMI( 0x405, 0, "\x06" "seeAll", _seeAll, _seeAll );
-#define LAST WORD( _seeAll ) 
+PRIMI( 0x405, 0, "\x08" "checkAll", _checkAll, _checkAll );
+#define LAST WORD( _checkAll ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 // W406 dir ( <path> -- ) show directory of given path
@@ -1288,7 +1240,7 @@ static void _wb_setAddrWindow(){
   uint16_t y0=(uint16_t)(F.dPop()), x0=(uint16_t)(F.dPop());
   wb_setAddrWindow(x0, y0, x1, y1);
 }
-PRIMI( 0x801, 0, "\x0e" "wb_setAddrWindow", _wb_setAddrWindow, _wb_setAddrWindow );
+PRIMI( 0x801, 0, "\x10" "wb_setAddrWindow", _wb_setAddrWindow, _wb_setAddrWindow );
 #define LAST WORD( _wb_setAddrWindow ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W802 wb_fillScreen ( color -- ) fill screen by given color
@@ -1306,7 +1258,7 @@ static void _wb_fillRect(){
   int16_t y=(int16_t)(F.dPop()), x=(int16_t)(F.dPop());
   wb_fillRect(x, y, w, h, color);
 }
-PRIMI( 0x803, 0, "\x09" "wb_fillRect", _wb_fillRect, _wb_fillRect );
+PRIMI( 0x803, 0, "\x0b" "wb_fillRect", _wb_fillRect, _wb_fillRect );
 #define LAST WORD( _wb_fillRect ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W804 wb_drawPixel ( x y color -- ) at x,y draw pixel of given color
@@ -1316,7 +1268,7 @@ static void _wb_drawPixel(){
   uint16_t x=(uint16_t)(F.dPop());
   wb_drawPixel(x, y, color);
 }
-PRIMI( 0x804, 0, "\x0a" "wb_drawPixel", _wb_drawPixel, _wb_drawPixel );
+PRIMI( 0x804, 0, "\x0c" "wb_drawPixel", _wb_drawPixel, _wb_drawPixel );
 #define LAST WORD( _wb_drawPixel ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W805 wb_pushColor ( color -- ) push given color
@@ -1324,7 +1276,7 @@ static void _wb_pushColor(){
   uint16_t color=(uint16_t)(F.dPop());
   wb_pushColor(color);
 }
-PRIMI( 0x805, 0, "\x0a" "wb_pushColor", _wb_pushColor, _wb_pushColor );
+PRIMI( 0x805, 0, "\x0c" "wb_pushColor", _wb_pushColor, _wb_pushColor );
 #define LAST WORD( _wb_pushColor ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W806 wb_drawFastVLine ( x y h color -- ) draw vertical line at x,y of hight h
@@ -1335,7 +1287,7 @@ static void _wb_drawFastVLine(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawFastVLine(x, y, h, color);
 }
-PRIMI( 0x806, 0, "\x0e" "wb_drawFastVLine", _wb_drawFastVLine, _wb_drawFastVLine );
+PRIMI( 0x806, 0, "\x10" "wb_drawFastVLine", _wb_drawFastVLine, _wb_drawFastVLine );
 #define LAST WORD( _wb_drawFastVLine ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W807 wb_drawFastHLine ( x y w color -- ) draw horizontal line at x,y of width w
@@ -1346,7 +1298,7 @@ static void _wb_drawFastHLine(){
   int16_t x=(int16_t)(F.dPop());
   wb_drawFastHLine(x, y, w, color);
 }
-PRIMI( 0x807, 0, "\x0e" "wb_drawFastHLine", _wb_drawFastHLine, _wb_drawFastHLine );
+PRIMI( 0x807, 0, "\x10" "wb_drawFastHLine", _wb_drawFastHLine, _wb_drawFastHLine );
 #define LAST WORD( _wb_drawFastHLine ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W808 wb_drawRect ( x y w color -- ) draw rect at x,y of width w hight h
@@ -1467,7 +1419,7 @@ static void _wb_drawChar(){
   uint16_t uniCode=(uint16_t)(F.dPop());
   F.dPush( wb_drawChar(uniCode, x, y, size, type) );
 }
-PRIMI( 0x811, 0, "\x0b" "wb_ddrawChar", _wb_drawChar, _wb_drawChar );
+PRIMI( 0x811, 0, "\x0b" "wb_drawChar", _wb_drawChar, _wb_drawChar );
 #define LAST WORD( _wb_drawChar ) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W812 wb_color565 ( r g b -- color ) get color code of given r g b
@@ -2877,23 +2829,6 @@ uint8_t  buzzerSwitchPin=17; // set pin level HIGH to turn buzzer on ( wifiboy g
 uint8_t  buzzerResolutionBits=8; 
 uint8_t  buzzerDuty=128; // (0-255) default value 128 as 50% dutycycle
 double   buzzerFreq=0.00; // 0~12000 Hz, initially set to 0 to mute
-
-//////////////////////////////////////////////////////////////////////////
-// W900 pinFreq ( freq pin -- ) //
-void _pinFreq() { pinFreq( F.dPop(), F.dPop() ); }  
-PRIMI( 0x900, 0, "\x07" "pinFreq", _pinFreq, _pinFreq );
-#define LAST WORD( _pinFreq ) 
-//////////////////////////////////////////////////////////////////////////
-// W901 pinDuty ( duty pin -- ) // "buzzer HIGH" to turn on the buzzer
-void _pinDuty() { pinDuty( F.dPop(), F.dPop() ); }  
-PRIMI( 0x901, 0, "\x07" "pinDuty", _pinDuty, _pinDuty );
-#define LAST WORD( _pinDuty ) 
-//////////////////////////////////////////////////////////////////////////
-// W902 pinUpdate ( pin -- ) // pin level update
-void _pinUpdate() { pinUpdate( (uint8_t)F.dPop() ); }  
-PRIMI( 0x902, 0, "\x09" "pinUpdate", _pinUpdate, _pinUpdate );
-#define LAST WORD( _pinUpdate ) 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // W903 buzzerSetup ( pin switch -- ) // setup given pin and switch to the buzzer
 void _buzzerSetup() {
@@ -2911,7 +2846,7 @@ PRIMI( 0x903, 0, "\x0b" "buzzerSetup", _buzzerSetup, _buzzerSetup );
 void _HZ() {
   X x; x.i = F.dPop(), buzzerFreq = x.f;
   if( buzzerFreq > 12000.00 ) buzzerFreq = 12000.00;
-  F.showTime(),F.flush(),Serial.printf("buzzer freq %0.2f\n", buzzerFreq );
+  F.showTime(),F.flush(),Serial.printf(" buzzer freq %0.2f\n", buzzerFreq );
   ledcWriteTone( buzzerChannel, buzzerFreq ); } 
 PRIMI( 0x904, 0, "\x02" "HZ", _HZ, _HZ );
 #define LAST WORD( _HZ ) 

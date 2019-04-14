@@ -54,9 +54,12 @@
   ; drawChars
   getMillis cr .( drawChars used ) swap - . .( ms )
   ( ------------------------------------------------------ )
+  : >name ( w -- nfa ) cell+ cell+ ;
+  : id ( w -- id ) cell+ @ 0xffff and ;
   : words context
     begin @ ?dup
-    while dup .id
+    while dup 
+      dup .id
     repeat ; words
   ( ------------------------------------------------------ )
   : seeAll context

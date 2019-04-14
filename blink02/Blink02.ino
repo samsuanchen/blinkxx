@@ -1,6 +1,6 @@
 /* blink02.ino
   Open Arduino IDE Serial Monitor, from input box we may try the following one by one:
-  50 delayLOW  !      ( Let the led become short flash per second. 讓燈每秒短暫閃亮 )
+  50 delayLOW !       ( Let the led become short flash per second. 讓燈每秒短暫閃亮 )
   50 delayHIGH !      ( Let the led become flash quickly. 讓燈快速閃亮 )
   25 led ! 25 output 17 output 17 high ( Let the buzzer hum. 讓蜂鳴器滴答作響 )
   25 input            ( Let the buzzer off. 讓蜂鳴器關閉 )
@@ -9,8 +9,9 @@
 int  led          = LED_BUILTIN;
 int  delayHIGH    = 1000;
 int  delayLOW     = 1000;
-#include <fvm.h>                                          // ##### 1.1. load FVM, the Forth virtual machine class
-FVM F;                                                    // ##### 1.2. define F as an instence of FVM
+#include <fvm.h>                                          // ##### 1.1. load FVM class, the Forth virtual machine
+#include <fvm_6Wordset.h>                                 // ##### 1.2. load wordset for FVM
+FVM F;                                                    // ##### 1.3. define F as an instence of FVM
 
 
 

@@ -27,8 +27,8 @@
  wb_init ( initialize wifiboy 32 graphics )
  0 0 128 160 img wb_drawImage ( draw image tsuyu )
  : drawLines ( define a code to draw lines )
-   42 for 1 1 r@ 3 * 1+ 159 wbRED 1 wb_drawLine next
-   51 for 1 1 127 r@ 3 * 1+ wbRED 1 wb_drawLine next
+   42 for 1 1 r@ 3 * 1+ 159 wbYELLOW 1 wb_drawLine next
+   51 for 1 1 127 r@ 3 * 1+ wbYELLOW 1 wb_drawLine next
  ; drawLines ( draw lines )
  : drawtest
    wbCYAN wbCYAN wb_setTextColor ( set text color )

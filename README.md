@@ -1,17 +1,18 @@
-# 為 Arduino 開一扇 方便自我監控檢視的 門
+# 為 Arduino 開一扇 自我監控檢視的 方便通道
+derek@wifiboy.org & samsuanchen@gmail.com
 
 在 esp32 的 WiFiBoy 開發板上, 我們提供 一系列 簡單 blink 範例 (都是使 WiFiBoy 板背 led 小燈 持續不停 亮 1 秒 滅 1 秒), 
-逐步展示 如何為 Arduino  開一扇 方便自我監控檢視的 門。
+逐步展示 如何為 Arduino  開一扇 自我監控檢視的 方便通道。
 
 
-這可 自我監控檢視的 門, 就是我們自己在 Arduino 程式中, 啟動 本文所提供的 FVM 虛擬監控機制 (virtual monitor)。
+這可 自我監控檢視的 方便通道, 就是我們自己在 Arduino 程式中, 啟動 本文所提供的 FVM 機制 (virtual monitor)。
 在原程式執行同時, 接受額外的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
 
 
 首先, 在所提供的 blinkxx 資料夾 中 有 fvm 及 wifiboy_lib 兩個子目錄, 請先 複製到
-Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行換其中 name 為 使用者的正確名字) 為:
+Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行換其中 userName 為 使用者的正確名字) 為:
 
-		C:\Users\<name>\Documents\Arduino\libraries
+		C:\Users\userName\Documents\Arduino\libraries
 
 
 另外, 在 blinkxx 資料夾中還有 8 個 blink 範例 子目錄, 每個 子目錄中 有個自的 .ino 主程式 (依 編號大小 逐步增加其 複雜度):
@@ -20,16 +21,17 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		blink10, blink11, blink12, blink13,
 
 
-## blink00 範例
+## blink00 範例 
 
-這範例 其實就是原 Arduino Basic Blink 範例, 我們多加了如下一行, 以宣告 led 的 pin 腳 號碼為 16。
+
+在 blink00 子目錄 中的 blink00.ino, 其實就是原 Arduino Basic Blink 範例, 我們多加了如下一行, 以宣告 led 的 GPIO pin 腳 號碼為 16。
 
 		#define LED_BUILTIN 16 // for WIFIBOY 32
 
 
 ## blink01 範例
 
-這範例在原 blink00.ino 中多加 3 行, 就可啟動 FVM 機制。
+在 blink01 子目錄 中的 blink01.ino, 其實就只在原 blink00.ino 中多加 3 行, 就可啟動 FVM 機制。
 
 1. 在 blink00.ino 的 setup() 前, 加如下兩行, 讓程式 載入 FVM 機制:
 
@@ -74,6 +76,9 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 第六行: 「0 0 128 160 img wb_drawImage」 在屏幕 0,0 位置 畫出在 img 的照片 影像 寬 128 高 160。「1000 ms」使影像顯示維持 1 秒。
 「27 output 27 low」 將屏幕背光 pin 腳 (GPIO 27) 設為 OUTPUT, 並將該腳電位設為 LOW, 這樣將屏幕背光關閉, 圖片也就不見了。
+
+
+我們之所以能用到這許多的指令, 主要是因為 在 blink01 子目錄 中有 fvmWifiboy_libWordset.cpp 這麼一個檔案。
 
 
 ## blink02 範例
@@ -140,7 +145,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 所定義給該指令要執行的工作。 如果 字串 是 數字 (整數 或 浮點數) 就 放到 資料推疊 備用。 如果 既不是 指令的名稱 又不是 數字 就顯示 錯誤訊息。
 
 
-2. 在 blink02.ino 的 setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino function。
+2. 在 blink02.ino 的 setup() 中, 定義 3 個 虛擬監控機制指令, 以分別執行 對應的 Arduino function。
 
 		F.newPrimitive( "setDelayHIGH", setDelayHIGH );    // ##### 4.1. add new primitive word setDelayHIGH in F
 		F.newPrimitive( "setDelayLOW",  setDelayLOW  );    // ##### 4.2. add new primitive word setDelayLOW  in F
@@ -230,7 +235,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 ## blink12 範例
 
 這範例 主要是希望將 blink11 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代。
-在 blink01 中多加 6 行, 就可下 虛擬機 指令, 特別是利用 虛擬機 的驚嘆號指令 來改變 控制變數的值。
+在 blink01 中多加 6 行, 就可下 虛擬監控機制 指令, 特別是利用 虛擬監控機制 的驚嘆號指令 來改變 控制變數的值。
 
 1. 在 blink11.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個控制變數:
 
@@ -242,7 +247,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 2. 以 led, delayHIGH, delayLOW 這三個 控制變數 取代 blink01 中所對應的 常數。
 
 
-3. 在 blink11.ino 的 F.init() 之後, 多加如下 3 行, 讓虛擬機 分別知道 這三個 控制變數 各自的 記憶體位址:
+3. 在 blink11.ino 的 F.init() 之後, 多加如下 3 行, 讓虛擬監控機制 分別知道 這三個 控制變數 各自的 記憶體位址:
 
 		F.newVariable( "delayHIGH", &delayHIGH );
 		F.newVariable( "delayLOW" , &delayLOW  );
@@ -276,8 +281,8 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 ## blink13 範例
 
-這範例 要顯示如何增加 虛擬機 的 新指令, 以執行相關 控制功能。另一方面, 也可以確保系統記憶體的安全,
-藉此展示如何可 藉自訂 fuctions 以存取 控制變數, 而不讓 虛擬機 直接到記憶體存取 控制變數的值。
+這範例 要顯示如何增加 虛擬監控機制 的 新指令, 以執行相關 控制功能。另一方面, 也可以確保系統記憶體的安全,
+藉此展示如何可 藉自訂 fuctions 以存取 控制變數, 而不讓 虛擬監控機制 直接到記憶體存取 控制變數的值。
 
 1. 在 blink12 範例, setup() 前, 定義  Arduino functions, 以設定 led 亮/滅 時間, 以及 led 。
 
@@ -286,14 +291,14 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		void setLed()       { led       =F.dPop(); }       // ##### 2.3. define the function setLed
 
 
-2. setup() 中, 定義 3 個 虛擬機指令, 以分別執行 對應的 Arduino function。
+2. setup() 中, 定義 3 個 虛擬監控機制指令, 以分別執行 對應的 Arduino function。
 
 		F.newPrimitive( "setDelayHIGH", setDelayHIGH ); // ##### 4.1. add new primitive word setDelayHIGH in F
 		F.newPrimitive( "setDelayLOW",  setDelayLOW  ); // ##### 4.2. add new primitive word setDelayLOW  in F
 		F.newPrimitive( "setLed"     ,  setLed       ); // ##### 4.3. add new primitive word setLed       in F
   
 
-一旦 這樣啟動了 FVM 虛擬機, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+一旦 這樣啟動了 FVM 機制, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
 從 input box 中, 就可逐行輸入下列指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
 
 		50 setDelayLOW
@@ -333,7 +338,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 	將 fvm 與 wifiboy_lib 資料夾 加入 Arduino IDE 的 libraries
 
-## FVM 虛擬機 功能 簡要說明
+## FVM 機制 功能 簡要說明
 
 	FVM F				clame F as an instance of FVM.
 	F.init(baud)			initialize F with given baud rate.
@@ -343,7 +348,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 	F.dPop()			pop data as integer from data stack
 
 
-## 虛擬機 test.txt 範例 引用的指令 簡要說明
+## 虛擬監控機制 test.txt 範例 引用的指令 簡要說明
 
 	'		( <name> -- w )	find the word of given name
 	-		( n1 n2 -- n1-n2 ) subtract n1 by n2
