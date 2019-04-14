@@ -1,12 +1,12 @@
 # 為 Arduino 開一扇 自我監控檢視的 方便通道
 derek@wifiboy.org & samsuanchen@gmail.com
 
-在 esp32 的 WiFiBoy 開發板 (正反面如下二圖) 上, 我們提供 一系列 簡單 blink 範例 (都是使 WiFiBoy 板背 led 小燈 持續不停 亮 1 秒 滅 1 秒), 
-逐步展示 如何為 Arduino  開一扇 自我監控檢視的 方便通道。
+在 esp32 開發板, 例如 WiFiBoy32Green (正反面如下二圖), 我們提供 一系列 簡單 blink 範例 (皆使 開發板的 led 燈 持續 亮 1 秒 滅 1 秒), 
+以逐步展示 如何為 Arduino  開一扇 自我監控檢視的 方便通道。
 
-<img src="jpg/wifiboy32greenFront.jpg" height=250> <img src="jpg/wifiboy32greenBack.jpg" height=250>
+<img src="jpg/wifiboy32greenFront.jpg" height=300> <img src="jpg/wifiboy32greenBack.jpg" height=300>
 
-這可 自我監控檢視的 方便通道, 就是我們自己在 Arduino 程式中, 啟動 本文所提供的 FVM 機制 (virtual monitor)。
+這可 自我監控檢視的 方便通道, 就是我們自己可在 Arduino 程式中, 啟動 本文所提供的 FVM 機制 (virtual monitor)。
 在原程式執行同時, 接受額外的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
 
 
