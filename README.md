@@ -54,9 +54,9 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 		16 input
   		27 output 27 high
-		25 17 buzzerSetup buzzerOn 261.6 tone
-		329.6 tone 1000 ms  440.0 tone
-		0 tone
+		25 17 buzzerSetup buzzerOn 261.6 HZ
+		329.6 HZ 1000 ms  440.0 HZ
+		0 HZ
 		0 0 128 160 img wb_drawImage  1000 ms 27 output 27 low
 
 
