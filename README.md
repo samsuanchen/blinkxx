@@ -6,15 +6,18 @@ derek@wifiboy.org & samsuanchen@gmail.com
 
 <img src="jpg/wifiboy32greenFront.jpg" height=300> <img src="jpg/wifiboy32greenBack.jpg" height=300>
 
-這可 自我監控檢視的 機制, 就是我們自己可在 Arduino 原 blink 程式中, 同步啟動 本文所提供的 FVM 機制 (virtual monitor)。
-在原程式執行同時, 接受額外的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
+這自我監控檢視的 機制, 就是可以在 Arduino 原 blink 程式中, 同步啟動 本文所提供的 FVM 機制 (virtual monitor)。
+在原程式執行同時, 接受另外定義的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
 
 
 首先, 在所提供的 blinkxx 資料夾 中 有 fvm 與 wifiboy_lib 兩個子目錄, 以及 fvm_0wordset、fvm_6wordset、fvm_wifiboy_libWordset
-三個指令集 選項, 請先 複製 這些子目錄 到
-Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行替換其中 userName 為 使用者的正確名字):
+三個指令集 選項, 請先 複製 這些子目錄 到 Arduino user 的 libraries 工作子目錄。
+例如其在 windows 的 路徑:
 
 		C:\Users\userName\Documents\Arduino\libraries
+
+
+ 請自行替換其中 userName 為 使用者的正確名字。
 
 
 在 blinkxx 資料夾中剩下 8 個 子目錄如下, 每個 子目錄中 各有一個 blink 的範例 (依編號增加其複雜度):
