@@ -1,23 +1,23 @@
-# 為 Arduino 開一扇 自我監控檢視的 方便通道
+# 為 Arduino 開一個 自我監控檢視的 通道
 derek@wifiboy.org & samsuanchen@gmail.com
 
 在 esp32 開發板, 例如 WiFiBoy32Green (正反面如下二圖), 我們提供 一系列 簡單 blink 範例 (皆使 開發板的 led 燈 持續 亮 1 秒 滅 1 秒), 
-以逐步展示 如何為 Arduino  開一扇 自我監控檢視的 方便通道。
+以逐步展示 如何為 Arduino 原 blink 程式同步啟動一個 可以自我監控檢視的 通道。
 
 <img src="jpg/wifiboy32greenFront.jpg" height=300> <img src="jpg/wifiboy32greenBack.jpg" height=300>
 
-這可 自我監控檢視的 方便通道, 就是我們自己可在 Arduino 程式中, 啟動 本文所提供的 FVM 機制 (virtual monitor)。
+這可 自我監控檢視的 機制, 就是我們自己可在 Arduino 原 blink 程式中, 同步啟動 本文所提供的 FVM 機制 (virtual monitor)。
 在原程式執行同時, 接受額外的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
 
 
 首先, 在所提供的 blinkxx 資料夾 中 有 fvm 與 wifiboy_lib 兩個子目錄, 以及 fvm_0wordset、fvm_6wordset、fvm_wifiboy_libWordset
-三個指令集 選項, 請先 複製 這些字目錄 到
-Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行換其中 userName 為 使用者的正確名字) 為:
+三個指令集 選項, 請先 複製 這些子目錄 到
+Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行替換其中 userName 為 使用者的正確名字):
 
 		C:\Users\userName\Documents\Arduino\libraries
 
 
-另外, 在 blinkxx 資料夾中還有 8 個 blink 範例 子目錄, 每個 子目錄中 
+在 blinkxx 資料夾中剩下 8 個 子目錄如下, 每個 子目錄中 各有一個 blink 的範例 (依編號增加其複雜度):
 		
 		blink00, blink01, blink02, blink03,
 		blink10, blink11, blink12, blink13,
@@ -26,7 +26,7 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 ## blink00 範例 
 
 
-在 blink00 子目錄 中的 blink00.ino, 其實就是原 Arduino Basic Blink 範例, 我們多加了如下一行, 以宣告 led 的 GPIO pin 腳 號碼為 16。
+在 blink00 子目錄 中的 blink00.ino, 其實就是原 Arduino Basic Blink 範例, 只是我們多加了如下一行, 以宣告 led 的 GPIO pin 腳 號碼為 16。
 
 		#define LED_BUILTIN 16 // for WIFIBOY 32
 
@@ -47,8 +47,8 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		F.init( 115200 );                       // ##### 3.1. in setup(), initialize F
 
 
-一旦 啟動了 FVM 機制, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor
-從 input box 中, 可逐行輸入下列指令, 以關 led 燈、開屏幕背光、讓蜂鳴器發 C4 音、再多發 E4 與 A4 兩個音、讓蜂鳴器靜音、
+一旦 啟動了 FVM 機制, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor。
+從其 input box 中, 可逐行輸入下列指令, 以關 led 燈、開屏幕背光、讓蜂鳴器發 C4 音、再多發 E4 與 A4 兩個音、讓蜂鳴器靜音、
 讓屏幕顯示一張照片並在 1 秒後關閉屏幕。
 
 
@@ -74,20 +74,22 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 發出 440.0 HZ 頻率的 A4 標準音。
 
 
-第五行: 「0 tone」使 蜂鳴器 靜音。
+第五行: 「0 HZ」使 蜂鳴器 靜音。
 
 
 第六行: 「0 0 128 160 img wb_drawImage」 在屏幕 0,0 位置 畫出在 img 的照片 影像 寬 128 高 160。「1000 ms」使影像顯示維持 1 秒。
 「27 output 27 low」 將屏幕背光 pin 腳 (GPIO 27) 設為 OUTPUT, 並將該腳電位設為 LOW, 這樣將屏幕背光關閉, 圖片也就不見了。
 
 
-我們之所以能用到這許多的指令, 主要是因為 在 blink01 子目錄 中有 fvmWifiboy_libWordset.cpp 這麼一個檔案。
+我們之所以能用到這許多的指令, 主要是因為 在 blink01.ino, 藉 #include <fvm_wifiboy_libWordset.h> 載入 事先定義的指令集。
 
 
 ## blink02 範例
 
 這範例 主要是希望將 blink01.ino 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代, 以便 在不改變原程式執行流程下 進行監控。
-在 blink01 中多加 6 行, 就可 利用 FVM 的 驚嘆號 指令 來直接改變 這些控制變數的 值。
+為了這樣簡單的監控, 其實我們並不需要 #include <fvm_wifiboy_libWordset.h> 那麼多事先定義的指令。在此, 我們試用一個精簡版的指令集。
+改用 #include <fvm_6Wordset.h> 只載入 6 個所需指令。
+另外, 在 blink01 中多加幾行, 就可 利用 所載入的 驚嘆號 指令 來直接改變 這些控制變數的 值 (容後展示)。
 
 1. 在 blink01.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個可讓 FVM 監控的 變數:
 
@@ -96,18 +98,18 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		int  delayLOW     = 1000;        // led pin 腳 LOW  電位 的 維持時間
 
 
-2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 取代 blink01.ino 中原來所對應的 三個常數。
+2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 分別取代 blink01.ino 中原來所對應的常數 LED_BUILTIN 與 1000。
 
 
-3. 在 blink01.ino 的 F.init() 之後, 多加如下 3 行, 讓 FVM 分別知道 這三個 控制變數 各自的 記憶體位址:
+3. 在 blink01.ino 的 F.init() 之後, 多加如下 3 行, 讓 這三個 控制變數 的名稱 各自代表 其記憶體位址:
 
 		F.newVariable( "delayHIGH", &delayHIGH );
 		F.newVariable( "delayLOW" , &delayLOW  );
 		F.newVariable( "led"      , &led       );
 
 
-一旦 這樣啟動了 FVM, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor
-從上方 輸入格 中, 就可逐行 反白 複製 貼入 來執行下列 FVM 指令, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、讓蜂鳴器靜音。
+一旦 這樣啟動了 FVM, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor,
+就可將下列 FVM 指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、讓蜂鳴器靜音。
 
 		50 delayLOW  !
 		50 delayHIGH !
@@ -115,12 +117,13 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 		25 input
 
 
-此例第一行: 「50 delayLOW !」 其中的 驚嘆號 是 FVM 指令 讀作 store, 它的作用就是 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
-將 led 腳 維持 LOW 電位 (led 亮) 的時間 改為 50 ms。 這樣就讓燈 每秒短暫閃亮了。
+此例第一行: 「50 delayLOW !」 其中的 驚嘆號 就是一個事先定義的 FVM 指令, 讀作 store, 它的作用就是 將 50 設為 delayLOW
+這控制變數的 值 (原來的值 1000), 
+將 led pin 腳 維持 LOW 電位 (led 亮) 的時間 改為 50 ms。 如此就使 led 每秒短暫閃亮了。
 
 
 第二行: 「50 delayHIGH !」 也就是將 50 設為 delayHIGH 這控制變數的 值 (原來的值 1000), 將 led 腳 維持 HIGH 電位 (led 滅) 的時間
-也改為 50 ms。 這樣就讓燈 快速閃亮了。
+也改為 50 ms。 這樣就使 led 快速閃亮了。
 
 
 第三行: 「25 led !」 也就是將 25 設為 led 這控制變數的 值 (原來的值 16), 將 GPIO 25 (蜂鳴器 的 發聲腳) 當作 程式中 led 的電位輸出腳,
@@ -133,8 +136,9 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 ## blink03 範例
 
-這範例 展示如何可以增加 FVM 的 新指令, 以執行相關 控制功能。另一方面, 也是為確保系統安全, 不讓 FVM 直接存取 記憶體 內容,
-我們可自行定義 存取 控制變數 的 Arduino fuctions, 讓 FVM 用以 檢視 或 改變 控制變數 的 值。
+這範例 藉 #include <fvm_0Wordset.h> 不載入任何事先定義的指令集。 我們可直接增加 新指令, 以執行相關 控制功能。
+另一方面, 這樣也可確保系統安全, 不讓 FVM 直接存取 記憶體 內容,
+改由自行定義 存取 控制變數 的 Arduino fuctions 來存取, 以 檢視 或 改變 控制變數 的 值。
 
 1. 在 blink02.ino 的 setup() 前, 定義 Arduino functions, 用以 改變 led 維持 亮/滅 的 時間, 以及 改變 led pin 腳 的 GPIO 編號。
 
