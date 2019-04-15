@@ -2,7 +2,7 @@
 derek@wifiboy.org & samsuanchen@gmail.com
 
 在 esp32 開發板, 例如 WiFiBoy32Green (正反面如下二圖), 我們提供 一系列 簡單 blink 範例 (皆使 開發板的 led 燈 持續 亮 1 秒 滅 1 秒), 
-以逐步展示 如何為 Arduino 原 blink 程式同步啟動一個 可以自我監控檢視的 通道。
+以逐步展示 如何為 Arduino 原 blink 程式同步開啟一個 可以自我監控檢視的 通道。
 
 <img src="jpg/wifiboy32greenFront.jpg" height=300> <img src="jpg/wifiboy32greenBack.jpg" height=300>
 
