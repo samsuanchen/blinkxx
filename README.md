@@ -92,7 +92,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 這範例 主要是希望將 blink01.ino 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代, 以便 在不改變原程式執行流程下 進行監控。
 為了這樣簡單的監控, 其實我們並不需要 #include <fvm_wifiboy_libWordset.h> 載入那麼多事先定義的指令。在此, 我們試用一個精簡版的指令集。
 改用 #include <fvm_6Wordset.h> 只載入 6 個所需指令。
-另外, 在 blink01 中多加幾行, 就可 利用 所載入的 驚嘆號 指令 來直接改變 這些控制變數的 值 (容後展示)。
+接著, 在 blink01.ino 中多加幾行, 就可 利用 所載入的 驚嘆號 指令 來直接改變 這些控制變數的 值 (容後說明)。
 
 1. 在 blink01.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個可讓 FVM 監控的 變數:
 
@@ -101,7 +101,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 		int  delayLOW     = 1000;        // led pin 腳 維持 LOW  電位 的 時間
 
 
-2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 分別取代 blink01.ino 中原來所對應的常數 LED_BUILTIN 與 1000。
+2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 分別取代 blink01.ino 中原來所對應的常數 LED_BUILTIN, 1000, 1000。
 
 
 3. 在 blink01.ino 的 F.init() 之後, 多加如下 3 行, 讓 這三個 控制變數 的名稱 各自代表 其記憶體位址:
@@ -112,7 +112,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 一旦 這樣, 程式啟動後, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor,
-就可將下列 FVM 指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、讓蜂鳴器靜音。
+就可將下列指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
 
 		50 delayLOW  !
 		50 delayHIGH !
@@ -120,13 +120,13 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 		25 input
 
 
-此例第一行: 「50 delayLOW !」 其中的 驚嘆號 就是一個事先定義的 FVM 指令, 讀作 store, 它的作用就是 將 50 設為 delayLOW
-這控制變數的 值 (原來的值 1000), 
+第一行: 「50 delayLOW !」 其中的 驚嘆號 是一個事先定義的 指令, 讀作 store (將所給值存入控制變數)。 因此 這行 就是將 delayLOW
+這變數中原為 1000 的值 改為 50, 
 將 led pin 腳 維持 LOW 電位 (led 亮) 的時間 改為 50 ms。 如此就使 led 每秒短暫閃亮了。
 
 
-第二行: 「50 delayHIGH !」 也就是將 50 設為 delayHIGH 這控制變數的 值 (原來的值 1000), 將 led 腳 維持 HIGH 電位 (led 滅) 的時間
-也改為 50 ms。 這樣就使 led 快速閃亮了。
+第二行: 「50 delayHIGH !」 就是將 50 設為 delayHIGH 這控制變數的 值 (原來的值 1000), 將 led pin 腳 維持 HIGH 電位 (led 滅) 的時間
+也改為 50 ms。 這樣就使 led 快閃了。
 
 
 第三行: 「25 led !」 也就是將 25 設為 led 這控制變數的 值 (原來的值 16), 將 GPIO 25 (蜂鳴器 的 發聲腳) 當作 程式中 led 的電位輸出腳,
@@ -139,31 +139,32 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink03 範例
 
-這範例 藉 #include <fvm_0Wordset.h> 不載入任何事先定義的指令集。 我們可直接增加 新指令, 以執行相關 控制功能。
-另一方面, 這樣也可確保系統安全, 不讓 FVM 直接存取 記憶體 內容,
-改由自行定義 存取 控制變數 的 Arduino fuctions 來存取, 以 檢視 或 改變 控制變數 的 值。
+這範例 藉 #include <fvm_0Wordset.h> 不載入任何事先定義的指令集。 我們可直接增加 自己的新指令, 以執行相關 控制功能。
+此例特別針對 blink02.ino 中三個控制變數 (delayHIGH, delayLOW, led), 分別定義各自的指令來設定其值。
+這樣或許比較可以確保系統安全, 不讓 FVM 用 驚嘆號指令 直接設定 記憶體 內容,
+改由自己定義的 Arduino fuctions 來存取 控制變數。
 
 1. 在 blink02.ino 的 setup() 前, 定義 Arduino functions, 用以 改變 led 維持 亮/滅 的 時間, 以及 改變 led pin 腳 的 GPIO 編號。
 
-		void setDelayHIGH() { periodHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
-		void setDelayLOW()  { periodLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
-		void setLed()       { led       =F.dPop(); }       // ##### 2.3. define the function setLed
+		void setDelayHIGH() { delayHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
+		void setDelayLOW()  { delayLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
+		void setLed()       { led      =F.dPop(); }       // ##### 2.3. define the function setLed
 
 
-在 所定義的 function 中, 我們 用 F.dPop() 從 資料推疊 (data stack) 取得 執行該 function 所需的資料。 註: FVM 會將 輸入格中的所有文字
-依序以 空白 (whitt space) 區隔出 一個一個的 字串 (token)。 如果 字串 是某個 指令的名稱 (可含任何文數字以及符號甚至中文), 就執行
+在 這些 function 中, 我們 用 F.dPop() 從 資料推疊 (data stack) 取得 執行該 function 所需的資料。 註: FVM 會將 輸入格中的所有文字
+依序以 空白 (white space) 區隔出 一個一個不含空白的 字串 (token)。 如果 字串 是某個 指令的名稱 (可為任何文數字以及符號甚至中文), 就執行
 所定義給該指令要執行的工作。 如果 字串 是 數字 (整數 或 浮點數) 就 放到 資料推疊 備用。 如果 既不是 指令的名稱 又不是 數字 就顯示 錯誤訊息。
 
 
-2. 在 blink02.ino 的 setup() 中, 定義 3 個 虛擬監控機制指令, 以分別執行 對應的 Arduino function。
+2. 在 blink02.ino 的 setup() 中, 定義 3 個 指令, 分別以其名稱去執行 所對應的 Arduino function。
 
 		F.newPrimitive( "setDelayHIGH", setDelayHIGH );    // ##### 4.1. add new primitive word setDelayHIGH in F
 		F.newPrimitive( "setDelayLOW",  setDelayLOW  );    // ##### 4.2. add new primitive word setDelayLOW  in F
 		F.newPrimitive( "setLed"     ,  setLed       );    // ##### 4.3. add new primitive word setLed       in F
   
 
-一旦 這樣啟動了 FVM 機制, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
-從 輸入格 中, 就可逐行輸入下列指令, 同樣可 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、關閉蜂鳴器。
+一旦這樣, 程式啟動後, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
+從 輸入格 中, 就可逐行輸入下列指令, 一樣可 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
 
 		50 setDelayLOW
 		50 setDelayHIGH
@@ -172,11 +173,12 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 此例第一行: 「50 setDelayLOW」 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
-將 led 腳的 LOW 電位 (led 亮) 的 維持時間 改為 50 ms。 這樣就讓燈 每秒短暫閃亮了。
+將 led pin 腳 維持 LOW 電位 (led 亮) 的 時間 改為 50 ms。 這樣就讓 led 每秒短暫閃亮了。
 
 
-第二行: 「50 setDelayHIGH」 將 50 設為 delayHIGH 這控制變數的 值 (原來的值 1000), 將 led 腳的 HIGH 電位 (led 滅) 的 維持時間 也改為 50 ms。
-這樣就讓燈 快速閃亮了。
+第二行: 「50 setDelayHIGH」 將 50 設為 delayHIGH 這控制變數的 值 (原來的值 1000), 將 led pin 腳 維持 HIGH 電位 (led 滅) 
+的 時間 也改為 50 ms。
+這樣就讓 led 快速閃亮了。
 
 
 第三行: 「25 setLed」 將 25 設為 led 這控制變數的 值 (原來的值 16), 將 GPIO 25 (蜂鳴器 的 發聲腳) 當作 程式中 led 的電位輸出腳,
