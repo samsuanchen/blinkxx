@@ -1,7 +1,7 @@
 # 為 Arduino 開一個 自我監控檢視的 通道
-derek@wifiboy.org & samsuanchen@gmail.com
+derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
-在 esp32 開發板, 例如 WiFiBoy32Green (正反面如下二圖), 我們提供 一系列 簡單 blink 範例 (皆使 開發板的 led 燈 持續 亮 1 秒 滅 1 秒), 
+在 esp32 開發板, 例如 WiFiBoy classic (正反面如下二圖), 我們提供 一系列 簡單 blink 範例 (皆使 開發板的 led 燈 持續 亮 1 秒 滅 1 秒), 
 以逐步展示 如何為 Arduino 原 blink 程式同步開啟一個 可以自我監控檢視的 通道。
 
 <img src="jpg/wifiboy32greenFront.jpg" height=300> <img src="jpg/wifiboy32greenBack.jpg" height=300>
@@ -63,42 +63,42 @@ derek@wifiboy.org & samsuanchen@gmail.com
 		0 0 128 160 img wb_drawImage  1000 ms 27 output 27 low
 
 
-此例第一行: 「16 input」 將 led 腳 (GPIO 16) 的 pin mode 設為 INPUT (原為 OUTPUT), 這樣 led 就不再亮了。
+第一行: 「16 input」 將 led 腳 (GPIO 16) 的 pin mode 原為 OUTPUT 改為 INPUT, 這樣 led 就不再亮了。
 
 
 第二行: 「27 output」 將 屏幕背光 腳 (GPIO 27) 的 pin mode 設為 OUTPUT, 「27 high」 將該腳電位設為 HIGH, 這樣屏幕背光就亮了。
 
 
 第三行: 「25 17 buzzerSetup」 指定 GPIO 25 與 GPIO 17 為 蜂鳴器 的 發聲 與 開關控制 腳,「buzzerOn」打開 蜂鳴器,
-「261.6 tone」使 蜂鳴器 發出 261.6 HZ 頻率 鋼琴 中央 C (也就是 C4) 的標準音。
+「261.6 HZ」使 蜂鳴器 發出 261.6 HZ 頻率, 這是鋼琴中央 C (也就是 C4) 的標準音。
 
 
-第四行: 「329.6 tone」使 蜂鳴器 發出 329.6 HZ 頻率 E4 的標準音,「1000 ms」使聲音維持 1 秒,「440.0 tone」使 蜂鳴器 
-發出 440.0 HZ 頻率的 A4 標準音。
+第四行: 「329.6 HZ」使 蜂鳴器 發出 329.6 HZ 頻率 (E4 的標準音),「1000 ms」使聲音維持 1 秒,「440.0 HZ」使 蜂鳴器 
+發出 440.0 HZ 頻率 (A4 標準音)。
 
 
 第五行: 「0 HZ」使 蜂鳴器 靜音。
 
 
-第六行: 「0 0 128 160 img wb_drawImage」 在屏幕 0,0 位置 畫出在 img 的照片 影像 寬 128 高 160。「1000 ms」使影像顯示維持 1 秒。
-「27 output 27 low」 將屏幕背光 pin 腳 (GPIO 27) 設為 OUTPUT, 並將該腳電位設為 LOW, 這樣將屏幕背光關閉, 圖片也就不見了。
+第六行: 「0 0 128 160 img wb_drawImage」 在屏幕 0,0 位置 畫出存放在 img 的影像 寬 128 高 160。「1000 ms」使影像顯示維持 1 秒。
+「27 output 27 low」 將屏幕背光 pin 腳 (GPIO 27) 設為 OUTPUT, 並將該腳電位設為 LOW, 將屏幕背光關閉, 影像就不見了。
 
 
-我們之所以能用到這許多的指令, 主要是因為 在 blink01.ino, 藉 #include <fvm_wifiboy_libWordset.h> 載入 事先定義的指令集。
+我們之所以能用到這些指令, 是因為 blink01.ino 中, 我們藉 #include <fvm_wifiboy_libWordset.h> 載入了 事先定義好的指令集。
 
 
 ## blink02 範例
 
 這範例 主要是希望將 blink01.ino 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代, 以便 在不改變原程式執行流程下 進行監控。
-為了這樣簡單的監控, 其實我們並不需要 #include <fvm_wifiboy_libWordset.h> 那麼多事先定義的指令。在此, 我們試用一個精簡版的指令集。
+為了這樣簡單的監控, 其實我們並不需要 #include <fvm_wifiboy_libWordset.h> 載入那麼多事先定義的指令。在此, 我們試用一個精簡版的指令集。
 改用 #include <fvm_6Wordset.h> 只載入 6 個所需指令。
 另外, 在 blink01 中多加幾行, 就可 利用 所載入的 驚嘆號 指令 來直接改變 這些控制變數的 值 (容後展示)。
 
 1. 在 blink01.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個可讓 FVM 監控的 變數:
 
 		int  led          = LED_BUILTIN; // led pin 腳 的 GPIO 編號
-		int  delayHIGH    = 1000;        // led pin 腳 HIGH 電位 的 維持時間
-		int  delayLOW     = 1000;        // led pin 腳 LOW  電位 的 維持時間
+		int  delayHIGH    = 1000;        // led pin 腳 維持 HIGH 電位 的 時間
+		int  delayLOW     = 1000;        // led pin 腳 維持 LOW  電位 的 時間
 
 
 2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 分別取代 blink01.ino 中原來所對應的常數 LED_BUILTIN 與 1000。
@@ -111,7 +111,7 @@ derek@wifiboy.org & samsuanchen@gmail.com
 		F.newVariable( "led"      , &led       );
 
 
-一旦 這樣啟動了 FVM, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor,
+一旦 這樣, 程式啟動後, 在 閃 led 同時, 我們可打開 Arduino IDE 的 Serial Monitor,
 就可將下列 FVM 指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓燈每秒短暫閃亮、讓燈快速閃亮、讓蜂鳴器滴答作響、讓蜂鳴器靜音。
 
 		50 delayLOW  !
