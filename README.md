@@ -10,7 +10,8 @@ derek@wifiboy.org & samsuanchen@gmail.com
 在原程式執行同時, 接受額外的指令 進行 檢視、監控、測試、 ... 等工作,  或 直接改變 程式 執行狀態 與 效果。
 
 
-首先, 在所提供的 blinkxx 資料夾 中 有 fvm 及 wifiboy_lib 兩個子目錄, 請先 複製到
+首先, 在所提供的 blinkxx 資料夾 中 有 fvm 與 wifiboy_lib 兩個子目錄, 以及 fvm_0wordset、fvm_6wordset、fvm_wifiboy_libWordset
+三個指令集 選項, 請先 複製 這些字目錄 到
 Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請自行換其中 userName 為 使用者的正確名字) 為:
 
 		C:\Users\userName\Documents\Arduino\libraries
@@ -32,12 +33,13 @@ Arduino user 的 libraries 工作子目錄, 例如其在 windows 的 路徑 (請
 
 ## blink01 範例
 
-在 blink01 子目錄 中的 blink01.ino, 其實就只在原 blink00.ino 中多加 3 行, 就可啟動 FVM 機制。
+在 blink01 子目錄 中的 blink01.ino, 其實就只在原 blink00.ino 中多加幾行, 就可啟動 FVM 機制。
 
-1. 在 blink00.ino 的 setup() 前, 加如下兩行, 讓程式 載入 FVM 機制:
+1. 在 blink00.ino 的 setup() 前, 加如下三行, 讓程式 載入 FVM 機制 與 指令集:
 
-		#include <fvm02.h>                      // ##### 1.1. load FVM class, the Forth virtual monitor
-		FVM F;                                  // ##### 1.2. define F as an instence of FVM
+		#include <fvm.h>                                          // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_wifiboy_libWordset.h>                       // ##### 1.2. load wordset for FVM
+		FVM F;                                                    // ##### 1.3. define F as an instence of FVM
 
 
 2. 在 blink00.ino 的 setup() 中, 多加如下 1 行, 讓程式 啟動 FVM 機制:
