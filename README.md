@@ -32,17 +32,16 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 		// blink00.ino the Arduino basic blink
-		#define LED_BUILTIN 16			// for WIFIBOY
+		#define LED_BUILTIN 16            // for WIFIBOY
 		void setup() {
-		  pinMode(LED_BUILTIN, OUTPUT);		// set led pin as output
+		  pinMode(LED_BUILTIN, OUTPUT);   // set led pin as output
 		}
 		void loop() {
-		  digitalWrite(LED_BUILTIN, HIGH);	// set led pin level as HIGH
-		  delay(1000);                  	// wait a second
-		  digitalWrite(LED_BUILTIN, LOW);	// set led pin level as LOW
-		  delay(1000);				// wait a second
+		  digitalWrite(LED_BUILTIN, HIGH);// set led pin level as HIGH
+		  delay(1000);                    // wait a second
+		  digitalWrite(LED_BUILTIN, LOW); // set led pin level as LOW
+		  delay(1000);                    // wait a second
 		}
-
 
 在 blink00 子目錄 中的 blink00.ino, 其實就是原 Arduino Basic Blink 範例, 只是我們多加了如下一行, 以宣告 led 的 GPIO pin 腳 號碼為 16。
 
@@ -304,17 +303,17 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 		// blink10.ino not using delay() to keep led pin level LOW/HIGH
-		#define LED_BUILTIN 16					  // for WIFIBOY
-		int  timeToChange = 1000;				  // time to change
-		int levelToChange = HIGH;				  // level to change
+		#define LED_BUILTIN 16                      // for WIFIBOY
+		int  timeToChange = 1000;                   // time to change
+		int levelToChange = HIGH;                   // level to change
 		void setup() {
-		  pinMode(LED_BUILTIN, OUTPUT);                           // set led pin as output level become LOW)
+		  pinMode(LED_BUILTIN, OUTPUT);             // set led pin as output level become LOW)
 		}
 		void loop() {
-		  if( millis() < timeToChange ) return;                   // wait until time to change
-		  digitalWrite(LED_BUILTIN, levelToChange );              // set led pin level
-		  timeToChange += 1000; 				  // set next time to change
-		  levelToChange = HIGH - levelToChange;                   // set next level to change
+		  if( millis() < timeToChange ) return;     // wait until time to change
+		  digitalWrite(LED_BUILTIN, levelToChange );// set led pin level
+		  timeToChange += 1000; 				            // set next time to change
+		  levelToChange = HIGH - levelToChange;     // set next level to change
 		}
 
 
