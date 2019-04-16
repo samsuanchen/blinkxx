@@ -14,6 +14,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 三個指令集, 請先 複製 這些子目錄 到 Arduino user 的 libraries 工作子目錄。
 例如 其在 windows 通常可能的 路徑是:
 
+
 		C:\Users\userName\Documents\Arduino\libraries
 
 
@@ -21,7 +22,8 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 在 blinkxx 資料夾中剩下的 8 個 子目錄如下, 每個 子目錄中 各有一個 blink 的範例 (依編號增加其複雜度):
-		
+
+
 		blink00, blink01, blink02, blink03,
 		blink10, blink11, blink12, blink13,
 
@@ -29,16 +31,49 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 ## blink00 範例 
 
 
+		// blink00.ino the Arduino basic blink
+		#define LED_BUILTIN 16			// for WIFIBOY
+		void setup() {
+		  pinMode(LED_BUILTIN, OUTPUT);		// set led pin as output
+		}
+		void loop() {
+		  digitalWrite(LED_BUILTIN, HIGH);	// set led pin level as HIGH
+		  delay(1000);                  	// wait a second
+		  digitalWrite(LED_BUILTIN, LOW);	// set led pin level as LOW
+		  delay(1000);				// wait a second
+		}
+
+
 在 blink00 子目錄 中的 blink00.ino, 其實就是原 Arduino Basic Blink 範例, 只是我們多加了如下一行, 以宣告 led 的 GPIO pin 腳 號碼為 16。
+
 
 		#define LED_BUILTIN 16 // for WIFIBOY
 
 
-## blink01 範例
+## blink01 範例 
+
+
+		// blink01.ino having F as an instence of FVM to play
+		#define LED_BUILTIN 16			// for WIFIBOY
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_wifiboy_libWordset.h>                     // ##### 1.2. load wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
+		  pinMode(LED_BUILTIN, OUTPUT);		// set led pin as output
+		}
+		void loop() {
+		  digitalWrite(LED_BUILTIN, HIGH);	// set led pin level as HIGH
+		  delay(1000);                  	// wait a second
+		  digitalWrite(LED_BUILTIN, LOW);	// set led pin level as LOW
+		  delay(1000);				// wait a second
+		}
+
 
 在 blink01 子目錄 中的 blink01.ino, 其實就只在原 blink00.ino 中多加幾行, 就可啟動 FVM 機制了。
 
 1. 在原 blink00.ino 的 setup() 前, 加如下三行, 讓程式 載入 FVM 機制 與 事先定義的指令集:
+
 
 		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
 		#include <fvm_wifiboy_libWordset.h>                     // ##### 1.2. load wordset for FVM
@@ -46,6 +81,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 2. 在原 blink00.ino 的 setup() 中, 多加如下 1 行, 讓程式 啟動 FVM 機制:
+
 
 		F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
 
@@ -87,7 +123,31 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 我們之所以能用到這些指令, 是因為 blink01.ino 中, 我們藉 #include <fvm_wifiboy_libWordset.h> 載入了 事先定義好的指令集。
 
 
-## blink02 範例
+## blink02 範例 
+
+
+		// blink02.ino having 3 control variables to test
+		#define LED_BUILTIN 16			// for WIFIBOY
+		int  led          = LED_BUILTIN; 	// led pin GPIO number
+		int  delayHIGH    = 1000;        	// delay period keeping led pin level HIGH
+		int  delayLOW     = 1000;        	// delay period keeping led pin level LOW
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_6Wordset.h>                     		// ##### 1.2. load wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F 
+		  F.newVariable( "delayHIGH", &delayHIGH );		// ##### 4.1. add address as new constant word delayHIGH in F
+		  F.newVariable( "delayLOW" , &delayLOW  );		// ##### 4.2. add address as new constant word delayLOW  in F
+		  F.newVariable( "led"      , &led       );		// ##### 4.3. add address as new constant word led       in F
+		  pinMode(led, OUTPUT);			// set led pin as output
+		}
+		void loop() {
+		  digitalWrite(led, HIGH);		// set led pin level as HIGH
+		  delay(delayHIGH);                  	// wait a second
+		  digitalWrite(led, LOW);		// set led pin level as LOW
+		  delay(delayLOW);			// wait a second
+		}
+
 
 這範例 主要是希望將 blink01.ino 中的常數 以 led, delayHIGH, delayLOW 這三個控制變數 來 取代, 以便 在不改變原程式執行流程下 進行監控。
 為了這樣簡單的監控, 其實我們並不需要 #include <fvm_wifiboy_libWordset.h> 載入那麼多事先定義的指令。在此, 我們試用一個精簡版的指令集。
@@ -96,9 +156,10 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 1. 在原 blink01.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個可讓 FVM 監控的 變數 以及 預設值:
 
-		int  led          = LED_BUILTIN; // led pin 腳 的 GPIO 編號
-		int  delayHIGH    = 1000;        // led pin 腳 維持 HIGH 電位 的 時間
-		int  delayLOW     = 1000;        // led pin 腳 維持 LOW  電位 的 時間
+
+		int  led          = LED_BUILTIN; 	// led pin 腳 的 GPIO 編號
+		int  delayHIGH    = 1000;        	// led pin 腳 維持 HIGH 電位 的 時間
+		int  delayLOW     = 1000;        	// led pin 腳 維持 LOW  電位 的 時間
 
 
 2. 以 led, delayHIGH, 與 delayLOW 三個 控制變數 分別取代原來 blink01.ino 中所對應的常數 LED_BUILTIN, 1000, 1000。
@@ -106,13 +167,15 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 3. 在原 blink01.ino 的 F.init() 之後, 多加如下 3 行, 讓 這三個 控制變數 的名稱 各自代表 其記憶體位址:
 
-		F.newVariable( "delayHIGH", &delayHIGH );
-		F.newVariable( "delayLOW" , &delayLOW  );
-		F.newVariable( "led"      , &led       );
+
+		F.newVariable( "delayHIGH", &delayHIGH );		// ##### 4.1. add address as new constant word delayHIGH in F
+		F.newVariable( "delayLOW" , &delayLOW  );		// ##### 4.2. add address as new constant word delayLOW  in F
+		F.newVariable( "led"      , &led       );		// ##### 4.3. add address as new constant word led       in F
 
 
 一旦這樣, 程式啟動後, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor,
 就可以將下列指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
+
 
 		50 delayLOW  !
 		50 delayHIGH !
@@ -139,12 +202,49 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink03 範例
 
+
+		// blink03.ino having new words to execute
+		#define LED_BUILTIN 16			// for WIFIBOY
+		int  led          = LED_BUILTIN; 	// led pin GPIO number
+		int  delayHIGH    = 1000;        	// delay period keep keeping led pin level HIGH
+		int  delayLOW     = 1000;        	// delay period keep keeping led pin level LOW
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_0Wordset.h>                     		// ##### 1.2. load wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setDelayHIGH() { delayHIGH=F.dPop(); }       	// ##### 2.1. define the function setDelayHIGH
+		void setDelayLOW()  { delayLOW =F.dPop(); }       	// ##### 2.2. define the function setDelayLOW
+		void setLed()       { led      =F.dPop(); }       	// ##### 2.3. define the function setLed
+		void output() { pinMode(F.dPop(), OUTPUT); }      	// ##### 2.4. define the function output
+		void input()  { pinMode(F.dPop(),  INPUT); }      	// ##### 2.5. define the function input
+		void high()  { digitalWrite(F.dPop(), HIGH); }    	// ##### 2.6. define the function high
+		void low()   { digitalWrite(F.dPop(),  LOW); }    	// ##### 2.7. define the function low
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F 
+		  F.newPrimitive( "setDelayHIGH", setDelayHIGH );	// ##### 4.1. add new primitive word setDelayHIGH in F
+		  F.newPrimitive( "setDelayLOW",  setDelayLOW  );	// ##### 4.2. add new primitive word setDelayLOW  in F
+		  F.newPrimitive( "setLed"     ,  setLed       );	// ##### 4.3. add new primitive word setLed       in F
+		  F.newPrimitive( "output"     ,  output       );	// ##### 4.3. add new primitive word output       in F
+		  F.newPrimitive(  "input"     ,   input       );	// ##### 4.3. add new primitive word  input       in F
+		  F.newPrimitive(   "high"     ,    high       );	// ##### 4.3. add new primitive word   high       in F
+		  F.newPrimitive(    "low"     ,     low       );	// ##### 4.3. add new primitive word    low       in F
+		  pinMode(led, OUTPUT);			// set led pin as output
+		}
+		void loop() {
+		  digitalWrite(led, HIGH);		// set led pin level as HIGH
+		  delay(delayHIGH);                  	// wait a second
+		  digitalWrite(led, LOW);		// set led pin level as LOW
+		  delay(delayLOW);			// wait a second
+		}
+
+
+
 這範例 藉 #include <fvm_0Wordset.h> 不載入任何事先定義的指令集。 我們可直接定義 自己的新指令, 以執行相關 控制功能。
 此例特別針對 原來 blink02.ino 中的三個 控制變數 (delayHIGH, delayLOW, led), 分別定義各自的 執行指令 來 設定其值。
 這樣或許比較可以確保系統安全, 不讓 FVM 用 驚嘆號指令 直接設定 記憶體 內容,
 改由自己定義的 Arduino fuctions 來設定 控制變數 的值。另外, 我們也自行定義了 4 個所需的 IO 指令。
 
 1. 在原來 blink02.ino 的 setup() 前, 定義 Arduino functions, 用以 改變 led 維持 亮/滅 的 時間, led pin 腳 的 GPIO 編號, 以及所需 IO 指令。
+
 
 		void setDelayHIGH() { delayHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
 		void setDelayLOW()  { delayLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
@@ -163,6 +263,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 2. 在原來 blink02.ino 的 setup() 中, 以 newPrimitiv() 取代 newVariable(), 來定義 3 個設定變數值的 新指令, 以及 4 個 IO 指令。
 分別以 指令名稱 去執行 所對應的 Arduino function。
 
+
 		F.newPrimitive( "setDelayHIGH", setDelayHIGH );    // ##### 4.1. add new primitive word setDelayHIGH in F
 		F.newPrimitive( "setDelayLOW",  setDelayLOW  );    // ##### 4.2. add new primitive word setDelayLOW  in F
 		F.newPrimitive( "setLed"     ,  setLed       );    // ##### 4.3. add new primitive word setLed       in F
@@ -175,13 +276,14 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 一旦這樣, 程式啟動後, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
 從 輸入格 中, 就可逐行輸入下列指令, 一樣可 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
 
+
 		50 setDelayLOW
 		50 setDelayHIGH
 		25 setLed 25 output 17 output 17 high
 		25 input
 
 
-此例第一行: 「50 setDelayLOW」 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
+第一行: 「50 setDelayLOW」 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
 將 led pin 腳 維持 LOW 電位 (led 亮) 的 時間 改為 50 ms。 這樣就讓 led 每秒短暫閃亮了。
 
 
@@ -200,6 +302,22 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink10 範例
 
+
+		// blink10.ino not using delay() to keep led pin level LOW/HIGH
+		#define LED_BUILTIN 16					  // for WIFIBOY
+		int  timeToChange = 1000;				  // time to change
+		int levelToChange = HIGH;				  // level to change
+		void setup() {
+		  pinMode(LED_BUILTIN, OUTPUT);                           // set led pin as output level become LOW)
+		}
+		void loop() {
+		  if( millis() < timeToChange ) return;                   // wait until time to change
+		  digitalWrite(LED_BUILTIN, levelToChange );              // set led pin level
+		  timeToChange += 1000; 				  // set next time to change
+		  levelToChange = HIGH - levelToChange;                   // set next level to change
+		}
+
+
 這範例 改變了原來 blink00.ino 的程式設計邏輯, 在 loop() 子程式中, 不用 delay() 來維持 亮/滅 時間, 改以 millis() 檢視時間,
 直到 指定時間 才改變 亮/滅 並 設定下一個指定時間。 這樣的設計 可讓我們有機會 善用 等待時間 不耽誤 在 loop() 中可能增加的其他重要工作。
 在這程式中, 我們增加了 timeToChange 與 levelToChange 這兩個變數, 用以儲存 何時要改變 led 的 pin 腳 電位, 以及要改變為怎樣的 輸出電位。
@@ -207,10 +325,31 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink11 範例
 
+
+		// blink11.ino having F as an instence of FVM to play
+		#define LED_BUILTIN 16					  // for WIFIBOY
+		int  timeToChange = 1000;				  // time to change
+		int levelToChange = HIGH;				  // level to change
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_wifiboy_libWordset.h>                     // ##### 1.2. load wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
+		  pinMode(LED_BUILTIN, OUTPUT);                           // set led pin as output level become LOW)
+		}
+		void loop() {
+		  if( millis() < timeToChange ) return;                   // wait until time to change
+		  digitalWrite( LED_BUILTIN, levelToChange );             // set led pin level
+		  timeToChange += 1000;   				  // set next time to change
+		  levelToChange = HIGH - levelToChange;                   // set next level to change
+		}
+
+
 這範例 類似 blink01。主要是希望藉以複習: 如何可以將 這改寫的 blink10 程式 加幾行 也就啟動了 FVM 機制。
 
 
 1. 在原來 blink10.ino 的 setup() 前, 加如下三行, 讓程式 載入 FVM 機制:
+
 
 		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
 		#include <fvm_wifiboy_libWordset.h>                     // ##### 1.2. load wordset for FVM
@@ -218,6 +357,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 
 2. 在原來 blink10.ino 的 setup() 中, 多加如下一行, 讓程式 啟動 FVM 機制:
+
 
 		F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
 
@@ -258,10 +398,38 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink12 範例
 
+
+		// blink12.ino having 3 control variable to test
+		#define LED_BUILTIN 16					  // for WIFIBOY
+		int  timeToChange = delayLOW;				  // time to change
+		int levelToChange = HIGH;				  // level to change
+		int  led          = LED_BUILTIN;			  // set GPIO 16 as led pin number
+		int  delayHIGH    = 1000;				  // keep 1000 ms for led pin level HIGH
+		int  delayLOW     = 1000;				  // keep 1000 ms for led pin level LOW
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_6Wordset.h>                     		// ##### 1.2. load wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
+		  F.newVariable( "delayHIGH", &delayHIGH );		// ##### 4.1. add address as new constant word delayHIGH in F
+		  F.newVariable( "delayLOW" , &delayLOW  );		// ##### 4.2. add address as new constant word delayLOW  in F
+		  F.newVariable( "led"      , &led       );		// ##### 4.3. add address as new constant word led       in F
+		  pinMode(led, OUTPUT);                                   // set led pin as output level become LOW)
+		}
+		void loop() {
+		  if( millis() < timeToChange ) return;                   // wait until time to change
+		  digitalWrite( led, levelToChange );                     // set led pin level
+		  timeToChange += levelToChange ? delayHIGH : delayLOW;   // set next time to change
+		  levelToChange = HIGH - levelToChange;                   // set next level to change
+		}
+
+
+
 這範例 類似 blink02。主要是希望藉以複習: 如何將 blink11 中的常數 以 led, delayHIGH, delayLOW 三個控制變數取代。
 在 blink11 中多加幾行, 就可可以利用 驚嘆號指令 來改變這些 控制變數的值。
 
 1. 在 blink11.ino 的 #include <fvm.h> 前, 多加如下 3 行, 宣告 led, delayHIGH, delayLOW 為 3 個控制變數:
+
 
 		int  led          = LED_BUILTIN;
 		int  delayHIGH    = 1000;
@@ -273,6 +441,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 3. 在 blink11.ino 的 F.init() 之後, 多加如下 3 行, 讓虛擬監控機制 分別知道 這三個 控制變數 各自的 記憶體位址:
 
+
 		F.newVariable( "delayHIGH", &delayHIGH );
 		F.newVariable( "delayLOW" , &delayLOW  );
 		F.newVariable( "led"      , &led       );
@@ -280,6 +449,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 一旦這樣, 程式啟動後, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor,
 就可以將下列指令, 逐行 反白 複製, 貼入 input box 中來執行, 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
+
 
 		50 delayLOW  !
 		50 delayHIGH !
@@ -306,10 +476,50 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 ## blink13 範例
 
+
+		// blink12.ino having 3 control variable to test
+		#define LED_BUILTIN 16					  // for WIFIBOY
+		int  timeToChange = delayLOW;				  // time to change
+		int levelToChange = HIGH;				  // level to change
+		int  led          = LED_BUILTIN;			  // set GPIO 16 as led pin number
+		int  delayHIGH    = 1000;				  // keep 1000 ms for led pin level HIGH
+		int  delayLOW     = 1000;				  // keep 1000 ms for led pin level LOW
+		#include <fvm.h>                                        // ##### 1.1. load FVM class, the Forth virtual machine
+		#include <fvm_0Wordset.h>                     		// ##### 1.2. load no wordset for FVM
+		FVM F;                                                  // ##### 1.3. define F as an instence of FVM
+		void setDelayHIGH() { delayHIGH=F.dPop(); }		// ##### 2.1. define the function setDelayHIGH
+		void setDelayLOW()  { delayLOW =F.dPop(); }		// ##### 2.2. define the function setDelayLOW
+		void setLed()       { led      =F.dPop(); }		// ##### 2.3. define the function setLed
+		void output() { pinMode(F.dPop(), OUTPUT); }		// ##### 2.4. define the function output
+		void input()  { pinMode(F.dPop(),  INPUT); }		// ##### 2.5. define the function input
+		void high()  { digitalWrite(F.dPop(), HIGH); }		// ##### 2.6. define the function high
+		void low()   { digitalWrite(F.dPop(),  LOW); }		// ##### 2.7. define the function low
+		void setup() {
+		  F.init( 115200 );                       		// ##### 3.1. in setup(), initialize F
+		  F.newPrimitive( "setDelayHIGH", setDelayHIGH );	// ##### 4.1. add new primitive word setDelayHIGH in F
+		  F.newPrimitive( "setDelayLOW",  setDelayLOW  );	// ##### 4.2. add new primitive word setDelayLOW  in F
+		  F.newPrimitive( "setLed"     ,  setLed       );	// ##### 4.3. add new primitive word setLed       in F
+		  F.newPrimitive( "output"     ,  output       );	// ##### 4.3. add new primitive word output       in F
+		  F.newPrimitive(  "input"     ,   input       );	// ##### 4.3. add new primitive word  input       in F
+		  F.newPrimitive(   "high"     ,    high       );	// ##### 4.3. add new primitive word   high       in F
+		  F.newPrimitive(    "low"     ,     low       );	// ##### 4.3. add new primitive word    low       in F
+		  pinMode(led, OUTPUT);                                   // set led pin as output level become LOW)
+		}
+		void loop() {
+		  if( millis() < timeToChange ) return;                   // wait until time to change
+		  digitalWrite( led, levelToChange );                     // set led pin level
+		  timeToChange += levelToChange ? delayHIGH : delayLOW;   // set next time to change
+		  levelToChange = HIGH - levelToChange;                   // set next level to change
+		}
+
+
+
+
 這範例 類似 blink02。主要是希望藉以複習: 如何定義自己的指令, 以自訂指令 改變 控制變數, 以自訂指令 進行 IO 測試。
 
 
 1. 在原來 blink12 範例, setup() 前, 定義 Arduino functions, 用以 改變 led 維持 亮/滅 的 時間, led pin 腳 的 GPIO 編號, 以及所需 IO 指令。
+
 
 		void setDelayHIGH() { delayHIGH=F.dPop(); }       // ##### 2.1. define the function setDelayHIGH
 		void setDelayLOW()  { delayLOW =F.dPop(); }       // ##### 2.2. define the function setDelayLOW
@@ -323,6 +533,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 2. 在原來 blink12 範例, setup() 中, 以 newPrimitiv() 取代 newVariable(), 來定義 3 個設定變數值的 新指令, 以及 4 個 IO 指令。
 分別以 指令名稱 去執行 所對應的 Arduino function。
 
+
 		F.newPrimitive( "setDelayHIGH", setDelayHIGH );    // ##### 4.1. add new primitive word setDelayHIGH in F
 		F.newPrimitive( "setDelayLOW",  setDelayLOW  );    // ##### 4.2. add new primitive word setDelayLOW  in F
 		F.newPrimitive( "setLed"     ,  setLed       );    // ##### 4.3. add new primitive word setLed       in F
@@ -335,13 +546,14 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 一旦這樣, 程式啟動後, 在 閃 led 同時, 我們打開 Arduino IDE 的 Serial Monitor
 從 輸入格 中, 就可逐行輸入下列指令, 一樣可 讓 led 每秒短暫閃亮、讓 led 快閃、讓蜂鳴器滴答響、讓蜂鳴器靜音。
 
+
 		50 setDelayLOW
 		50 setDelayHIGH
 		25 setLed 25 output 17 output 17 high
 		25 input
 
 
-此例第一行: 「50 setDelayLOW」 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
+第一行: 「50 setDelayLOW」 將 50 設為 delayLOW 這控制變數的 值 (原來的值 1000), 
 將 led pin 腳 維持 LOW 電位 (led 亮) 的 時間 改為 50 ms。 這樣就讓 led 每秒短暫閃亮了。
 
 
