@@ -93,9 +93,9 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 		16 input
   		27 output 27 high
 		25 17 buzzerSetup buzzerOn 261.6 HZ
-		329.6 HZ 1000 ms  440.0 HZ
+		329.6 HZ 1000 ms 440.0 HZ
 		0 HZ
-		0 0 128 160 img wb_drawImage  1000 ms 27 low
+		wb_init 0 0 128 160 img wb_drawImage  1000 ms 27 low
 
 
 第一行: 「16 input」 將 led pin 腳 (GPIO 16) 的 pin mode 原為 OUTPUT 改為 INPUT, 這樣 led 就不再亮了。
@@ -369,9 +369,9 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 		16 input
   		27 output 27 high
 		25 17 buzzerSetup buzzerOn 261.6 HZ
-		329.6 HZ 1000 ms  440.0 HZ
+		329.6 HZ 1000 ms 440.0 HZ
 		0 HZ
-		0 0 128 160 img wb_drawImage  1000 ms 27 low
+		wb_init 0 0 128 160 img wb_drawImage  1000 ms 27 low
 
 
 第一行: 「16 input」 將 led pin 腳 (GPIO 16) 的 pin mode 原為 OUTPUT 改為 INPUT, 這樣 led 就不再亮了。
