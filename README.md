@@ -320,7 +320,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 
 這範例 改變了原來 blink00.ino 的程式設計邏輯, 在 loop() 子程式中, 不用 delay() 來維持 亮/滅 時間, 改以 millis() 檢視時間,
 直到 指定時間 才改變 亮/滅 並 設定下一個指定時間。 這樣的設計 可讓我們有機會 善用 等待時間 不耽誤 在 loop() 中可能增加的其他重要工作。
-在這程式中, 我們增加了 timeToChange 與 levelToChange 這兩個變數, 用以儲存 何時要改變 led 的 pin 腳 電位, 以及要改變為怎樣的 輸出電位。
+在這程式中, 我們用了 timeToChange 與 levelToChange 這兩個變數, 記住 何時要改變 led 的 pin 腳 電位, 以及要改變為 怎樣的 輸出電位。
 
 
 ## blink11 範例
