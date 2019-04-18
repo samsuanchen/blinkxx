@@ -90,15 +90,18 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 讓屏幕顯示一張照片 維持 1 秒鐘 然後關閉屏幕 (隨後分別詳加說明)。
 
 
-		16 input
-  		27 output 27 high
-		25 17 buzzerSetup buzzerOn 261.6 HZ
-		329.6 HZ 1000 ms 440.0 HZ
-		0 HZ
-		wb_init 0 0 128 160 img wb_drawImage 1000 ms 27 low
+		16 input ( turn off led )
+		27 output 27 high ( turn on screen back light )
+		25 17 buzzerSetup buzzerOn 261.6 HZ ( hum buzzer tone C4 )
+		329.6 HZ 1000 ms 440.0 HZ ( hum tone E4 1000 ms then A4 )
+		0 HZ ( turn off buzzer )
+		wb_init 0 0 128 160 img wb_drawImage 1000 ms 27 low ( show image 1000 ms )
 
 
-第一行: 「16 input」 將 led pin 腳 (GPIO 16) 的 pin mode 原為 OUTPUT 改為 INPUT, 這樣 led 就不再亮了。
+第一行: 「16 input」 將 led pin 腳 (GPIO 16) 的 pin mode 原為 OUTPUT 改為 INPUT, 這樣 led 就不再亮了。 之後以空白區隔的左括號「(」是
+註解指令, 忽略 隨後直到 以空白區隔的右括號「)」為止 之文字 當作註解, 給人看得的。 註: FVM 會將 輸入格中的所有文字
+依序以 空白 (white space) 區隔出 一個一個不含空白的 字串 (token)。 如果 字串 是某個 指令的名稱 (可為任何文數字以及符號甚至中文), 就執行
+所定義給該指令 要執行的工作。 如果 字串 是 數字 (整數 或 浮點數) 就 放到 資料推疊 備用。 如果 既不是 指令的名稱 又不是 數字 就顯示 錯誤訊息。
 
 
 第二行: 「27 output」 將 屏幕背光 pin 腳 (GPIO 27) 的 pin mode 設為 OUTPUT, 「27 high」 將該 pin 腳電位設為 HIGH, 這樣屏幕背光就亮了。
@@ -255,9 +258,7 @@ derek@wifiboy.org & lu.albert@gmail.com & samsuanchen@gmail.com
 		void low()   { digitalWrite(F.dPop(),  LOW); }    // ##### 2.7. define the function low
 
 
-在 這些 function 中, 我們 用 F.dPop() 從 資料推疊 (data stack) 取得 執行該 function 所需的資料。 註: FVM 會將 輸入格中的所有文字
-依序以 空白 (white space) 區隔出 一個一個不含空白的 字串 (token)。 如果 字串 是某個 指令的名稱 (可為任何文數字以及符號甚至中文), 就執行
-所定義給該指令 要執行的工作。 如果 字串 是 數字 (整數 或 浮點數) 就 放到 資料推疊 備用。 如果 既不是 指令的名稱 又不是 數字 就顯示 錯誤訊息。
+在 這些 function 中, 我們 用 F.dPop() 從 資料推疊 (data stack) 取得 執行該 function 所需的資料。 
 
 
 2. 在原來 blink02.ino 的 setup() 中, 以 newPrimitiv() 取代 newVariable(), 來定義 3 個設定變數值的 新指令, 以及 4 個 IO 指令。
